@@ -10,6 +10,8 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<AddComponent>(_onAddComponent);
     on<UpdateComponent>(_onUpdateComponent);
     on<SelectComponent>(_onSelectComponent);
+    on<ReorderComponent>(_onReorderComponent);
+    on<UpdateProjectSettings>(_onUpdateProjectSettings);
     on<ToggleMode>(_onToggleMode);
   }
 
@@ -69,6 +71,25 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     }
 
     emit(state.copyWith(selectedComponentIds: currentSelected));
+  }
+
+  void _onReorderComponent(ReorderComponent event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null) return;
+
+    final layers = List<Component>.from(project.layers);
+    if (event.oldIndex < event.newIndex) {
+      // Adjust for the item being removed
+      layers.insert(event.newIndex, layers.removeAt(event.oldIndex));
+    } else {
+      layers.insert(event.newIndex, layers.removeAt(event.oldIndex));
+    }
+
+    emit(state.copyWith(project: project.copyWith(layers: layers)));
+  }
+
+  void _onUpdateProjectSettings(UpdateProjectSettings event, Emitter<EditorState> emit) {
+    emit(state.copyWith(project: event.project));
   }
 
   void _onToggleMode(ToggleMode event, Emitter<EditorState> emit) {

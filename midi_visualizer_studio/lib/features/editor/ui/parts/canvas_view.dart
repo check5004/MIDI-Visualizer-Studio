@@ -27,7 +27,7 @@ class CanvasView extends StatelessWidget {
               child: Container(
                 width: project.canvasWidth,
                 height: project.canvasHeight,
-                color: Colors.black, // Actual canvas background
+                color: _parseColor(project.backgroundColor), // Actual canvas background
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -50,6 +50,17 @@ class CanvasView extends StatelessWidget {
       },
     );
   }
+
+  Color _parseColor(String hexString) {
+    try {
+      final buffer = StringBuffer();
+      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+      buffer.write(hexString.replaceFirst('#', ''));
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (e) {
+      return Colors.white;
+    }
+  }
 }
 
 class _ComponentWrapper extends StatelessWidget {
@@ -66,17 +77,12 @@ class _ComponentWrapper extends StatelessWidget {
       },
       onPanUpdate: (details) {
         if (!isSelected) return;
-        // Simple drag implementation
-        // In a real app, we should probably handle this in the Bloc or a specialized controller
-        // to avoid too many events, but for now let's send updates.
-        // Note: This might be spammy for the Bloc.
 
         // Calculate new position
         final newX = component.x + details.delta.dx;
         final newY = component.y + details.delta.dy;
 
         // Update component
-        // We need to handle different component types
         final updatedComponent = component.map(
           pad: (c) => c.copyWith(x: newX, y: newY),
           knob: (c) => c.copyWith(x: newX, y: newY),
