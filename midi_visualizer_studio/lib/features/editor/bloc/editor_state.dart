@@ -1,0 +1,19 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
+
+part 'editor_state.freezed.dart';
+
+enum EditorStatus { initial, loading, ready, error }
+
+enum EditorMode { edit, play, overlay }
+
+@freezed
+abstract class EditorState with _$EditorState {
+  const factory EditorState({
+    @Default(EditorStatus.initial) EditorStatus status,
+    Project? project,
+    @Default({}) Set<String> selectedComponentIds,
+    @Default(EditorMode.edit) EditorMode mode,
+    String? errorMessage,
+  }) = _EditorState;
+}
