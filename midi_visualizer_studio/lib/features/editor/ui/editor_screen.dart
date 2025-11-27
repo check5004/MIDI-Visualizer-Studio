@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +23,8 @@ class EditorScreen extends StatelessWidget {
       child: BlocConsumer<EditorBloc, EditorState>(
         listenWhen: (previous, current) => previous.mode != current.mode,
         listener: (context, state) async {
+          if (kIsWeb) return; // Window manager not supported on web
+
           if (state.mode == EditorMode.overlay) {
             await windowManager.setHasShadow(false);
             await windowManager.setTitleBarStyle(TitleBarStyle.hidden);

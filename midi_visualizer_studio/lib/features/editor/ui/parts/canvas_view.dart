@@ -63,45 +63,69 @@ class CanvasView extends StatelessWidget {
   }
 }
 
-class _ComponentWrapper extends StatelessWidget {
+class _ComponentWrapper extends StatefulWidget {
   final Component component;
   final bool isSelected;
 
   const _ComponentWrapper({required this.component, required this.isSelected});
 
   @override
+  State<_ComponentWrapper> createState() => _ComponentWrapperState();
+}
+
+class _ComponentWrapperState extends State<_ComponentWrapper> {
+  Offset _dragOffset = Offset.zero;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.read<EditorBloc>().add(EditorEvent.selectComponent(component.id, multiSelect: false));
-      },
-      onPanUpdate: (details) {
-        if (!isSelected) return;
+    return Transform.translate(
+      offset: _dragOffset,
+      child: GestureDetector(
+        onTap: () {
+          context.read<EditorBloc>().add(EditorEvent.selectComponent(widget.component.id, multiSelect: false));
+        },
+        onPanStart: (details) {
+          if (!widget.isSelected) return;
+          setState(() {
+            _dragOffset = Offset.zero;
+          });
+        },
+        onPanUpdate: (details) {
+          if (!widget.isSelected) return;
+          setState(() {
+            _dragOffset += details.delta;
+          });
+        },
+        onPanEnd: (details) {
+          if (!widget.isSelected) return;
 
-        // Calculate new position
-        final newX = component.x + details.delta.dx;
-        final newY = component.y + details.delta.dy;
+          final newX = widget.component.x + _dragOffset.dx;
+          final newY = widget.component.y + _dragOffset.dy;
 
-        // Update component
-        final updatedComponent = component.map(
-          pad: (c) => c.copyWith(x: newX, y: newY),
-          knob: (c) => c.copyWith(x: newX, y: newY),
-        );
+          final updatedComponent = widget.component.map(
+            pad: (c) => c.copyWith(x: newX, y: newY),
+            knob: (c) => c.copyWith(x: newX, y: newY),
+          );
 
-        context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updatedComponent));
-      },
-      child: Container(
-        width: component.width,
-        height: component.height,
-        decoration: BoxDecoration(
-          border: isSelected ? Border.all(color: Colors.blue, width: 2) : null,
-          color: _getColor(component),
-        ),
-        child: Center(
-          child: Text(
-            component.name,
-            style: const TextStyle(color: Colors.white, fontSize: 10),
-            overflow: TextOverflow.ellipsis,
+          context.read<EditorBloc>().add(EditorEvent.updateComponent(widget.component.id, updatedComponent));
+
+          setState(() {
+            _dragOffset = Offset.zero;
+          });
+        },
+        child: Container(
+          width: widget.component.width,
+          height: widget.component.height,
+          decoration: BoxDecoration(
+            border: widget.isSelected ? Border.all(color: Colors.blue, width: 2) : null,
+            color: _getColor(widget.component),
+          ),
+          child: Center(
+            child: Text(
+              widget.component.name,
+              style: const TextStyle(color: Colors.white, fontSize: 10),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),
