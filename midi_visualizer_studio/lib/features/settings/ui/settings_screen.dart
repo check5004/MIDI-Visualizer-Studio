@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_midi_command/flutter_midi_command.dart';
+
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
+import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
+import 'package:midi_visualizer_studio/features/settings/bloc/settings_event.dart';
+import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -35,13 +38,20 @@ class _GeneralSettingsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        ListTile(
-          leading: const Icon(Icons.dark_mode),
-          title: const Text('Dark Mode'),
-          trailing: Switch(
-            value: false, // TODO: Implement theme switching
-            onChanged: (value) {},
-          ),
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            final isDark = state.themeMode == ThemeMode.dark;
+            return ListTile(
+              leading: const Icon(Icons.dark_mode),
+              title: const Text('Dark Mode'),
+              trailing: Switch(
+                value: isDark,
+                onChanged: (value) {
+                  context.read<SettingsBloc>().add(SettingsEvent.toggleTheme(value ? ThemeMode.dark : ThemeMode.light));
+                },
+              ),
+            );
+          },
         ),
         const Divider(),
         const ListTile(leading: Icon(Icons.info), title: Text('Version'), trailing: Text('1.0.0')),

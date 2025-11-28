@@ -272,7 +272,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
               staticImage: (c) => 'Not supported',
             ),
           ),
-          tileColor: isLearningThis ? Colors.red.withOpacity(0.1) : null,
+          tileColor: isLearningThis ? Colors.red.withValues(alpha: 0.1) : null,
           onTap: () {
             if (_isLearning) {
               setState(() {

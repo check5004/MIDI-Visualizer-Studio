@@ -123,7 +123,7 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
@@ -170,7 +170,7 @@ class PathPreviewPainter extends CustomPainter {
     // Close the loop preview if more than 2 points
     if (points.length > 2) {
       final closePaint = Paint()
-        ..color = Colors.blue.withOpacity(0.5)
+        ..color = Colors.blue.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1;
 

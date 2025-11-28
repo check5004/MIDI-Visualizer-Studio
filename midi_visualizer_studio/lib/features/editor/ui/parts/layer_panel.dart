@@ -109,7 +109,7 @@ class LayerPanel extends StatelessWidget {
                     return ListTile(
                       key: ValueKey(component.id),
                       selected: isSelected,
-                      selectedTileColor: Colors.blue.withOpacity(0.1),
+                      selectedTileColor: Colors.blue.withValues(alpha: 0.1),
                       leading: Icon(
                         component.map(
                           pad: (_) => Icons.crop_square,
