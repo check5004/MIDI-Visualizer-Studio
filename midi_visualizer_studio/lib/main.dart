@@ -7,6 +7,7 @@ import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -40,24 +41,27 @@ class MidiVisualizerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => MidiBloc(midiService)),
-        BlocProvider(create: (context) => SettingsBloc(prefs)),
-      ],
-      child: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, state) {
-          return MaterialApp.router(
-            title: 'MIDI Visualizer Studio',
-            theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
-              useMaterial3: true,
-            ),
-            themeMode: state.themeMode,
-            routerConfig: appRouter,
-          );
-        },
+    return RepositoryProvider(
+      create: (context) => ProjectRepository(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => MidiBloc(midiService)),
+          BlocProvider(create: (context) => SettingsBloc(prefs)),
+        ],
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            return MaterialApp.router(
+              title: 'MIDI Visualizer Studio',
+              theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
+              darkTheme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
+                useMaterial3: true,
+              ),
+              themeMode: state.themeMode,
+              routerConfig: appRouter,
+            );
+          },
+        ),
       ),
     );
   }

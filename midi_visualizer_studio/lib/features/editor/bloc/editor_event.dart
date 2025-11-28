@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
@@ -28,4 +29,6 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.toggleGrid() = ToggleGrid;
   const factory EditorEvent.toggleSnapToGrid() = ToggleSnapToGrid;
   const factory EditorEvent.setGridSize(double size) = SetGridSize;
+  const factory EditorEvent.handleMidiMessage(MidiPacket packet) = HandleMidiMessage;
+  const factory EditorEvent.saveProject(String path) = SaveProject;
 }

@@ -8,6 +8,8 @@ import 'package:midi_visualizer_studio/features/editor/ui/parts/canvas_view.dart
 import 'package:midi_visualizer_studio/features/editor/ui/parts/inspector_panel.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/layer_panel.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/editor_app_bar.dart';
+import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
+import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 import 'package:window_manager/window_manager.dart';
 
 class EditorScreen extends StatelessWidget {
@@ -17,8 +19,16 @@ class EditorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => EditorBloc()..add(EditorEvent.loadProject(projectId)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => HistoryCubit()),
+        BlocProvider(
+          create: (context) => EditorBloc(
+            historyCubit: context.read<HistoryCubit>(),
+            projectRepository: context.read<ProjectRepository>(),
+          )..add(EditorEvent.loadProject(projectId)),
+        ),
+      ],
       child: BlocConsumer<EditorBloc, EditorState>(
         listenWhen: (previous, current) => previous.mode != current.mode,
         listener: (context, state) async {

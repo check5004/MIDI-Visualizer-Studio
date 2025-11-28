@@ -1,15 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
+import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
-
 import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 
 class EditorBloc extends Bloc<EditorEvent, EditorState> {
-  final HistoryCubit historyCubit;
+  final HistoryCubit _historyCubit;
+  final ProjectRepository _projectRepository;
 
-  EditorBloc({HistoryCubit? historyCubit}) : historyCubit = historyCubit ?? HistoryCubit(), super(const EditorState()) {
+  EditorBloc({required HistoryCubit historyCubit, required ProjectRepository projectRepository})
+    : _historyCubit = historyCubit,
+      _projectRepository = projectRepository,
+      super(const EditorState()) {
     on<LoadProject>(_onLoadProject);
     on<AddComponent>(_onAddComponent);
     on<UpdateComponent>(_onUpdateComponent);
@@ -30,24 +34,70 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<ToggleGrid>(_onToggleGrid);
     on<ToggleSnapToGrid>(_onToggleSnapToGrid);
     on<SetGridSize>(_onSetGridSize);
+    on<HandleMidiMessage>(_onHandleMidiMessage);
+    on<SaveProject>(_onSaveProject);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
     emit(state.copyWith(status: EditorStatus.loading));
-    // Simulate loading a project with some dummy data
-    await Future.delayed(const Duration(milliseconds: 500));
 
-    final dummyProject = Project(
-      id: event.path,
-      name: 'New Project',
-      version: '1.0.0',
-      layers: [
-        const Component.pad(id: '1', name: 'Pad 1', x: 100, y: 100, width: 100, height: 100),
-        const Component.knob(id: '2', name: 'Knob 1', x: 300, y: 100, width: 80, height: 80),
-      ],
-    );
+    if (event.path.isEmpty || event.path == 'dummy' || event.path.startsWith('project-')) {
+      // Simulate loading a project with some dummy data
+      await Future.delayed(const Duration(milliseconds: 500));
 
-    emit(state.copyWith(status: EditorStatus.ready, project: dummyProject));
+      final dummyProject = Project(
+        id: event.path.isEmpty ? 'dummy' : event.path,
+        name: event.path.startsWith('project-') ? 'Mock Project ${event.path.split('-').last}' : 'New Project',
+        version: '1.0.0',
+        layers: [
+          const Component.pad(
+            id: '1',
+            name: 'Pad 1',
+            x: 100,
+            y: 100,
+            width: 100,
+            height: 100,
+            midiChannel: 0,
+            midiNote: 60,
+          ),
+          const Component.knob(
+            id: '2',
+            name: 'Knob 1',
+            x: 300,
+            y: 100,
+            width: 80,
+            height: 80,
+            midiChannel: 0,
+            midiCc: 1,
+          ),
+        ],
+      );
+
+      _historyCubit.clear();
+      _historyCubit.record(dummyProject);
+      emit(state.copyWith(status: EditorStatus.ready, project: dummyProject));
+    } else {
+      try {
+        final project = await _projectRepository.loadProject(event.path);
+        _historyCubit.clear();
+        _historyCubit.record(project);
+        emit(state.copyWith(status: EditorStatus.ready, project: project, errorMessage: null));
+      } catch (e) {
+        emit(state.copyWith(status: EditorStatus.ready, errorMessage: 'Failed to load project: $e'));
+      }
+    }
+  }
+
+  Future<void> _onSaveProject(SaveProject event, Emitter<EditorState> emit) async {
+    final project = state.project;
+    if (project == null) return;
+
+    try {
+      await _projectRepository.saveProject(project, event.path);
+      // Optionally show success message via side effect
+    } catch (e) {
+      emit(state.copyWith(errorMessage: 'Failed to save project: $e'));
+    }
   }
 
   void _onAddComponent(AddComponent event, Emitter<EditorState> emit) {
@@ -124,7 +174,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
-    final previousProject = historyCubit.undo(project);
+    final previousProject = _historyCubit.undo(project);
     if (previousProject != null) {
       emit(state.copyWith(project: previousProject));
     }
@@ -134,7 +184,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
-    final nextProject = historyCubit.redo(project);
+    final nextProject = _historyCubit.redo(project);
     if (nextProject != null) {
       emit(state.copyWith(project: nextProject));
     }
@@ -198,11 +248,6 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final height = maxY - minY;
 
     // Create component
-    // Note: We might want to normalize points relative to x,y, but for now absolute path is fine or we can adjust.
-    // Ideally, x,y is top-left, and path is relative to it.
-    // Let's stick to absolute path for simplicity first, or adjust if needed.
-    // If we want x,y to be meaningful, we should subtract minX, minY from points.
-
     // Adjust points to be relative to minX, minY
     final relativeBuffer = StringBuffer();
     relativeBuffer.write('M ${points[0].dx - minX} ${points[0].dy - minY}');
@@ -248,11 +293,54 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     emit(state.copyWith(gridSize: event.size.clamp(5.0, 100.0)));
   }
 
+  void _onHandleMidiMessage(HandleMidiMessage event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null) return;
+
+    final packet = event.packet;
+    if (packet.data.isEmpty) return;
+
+    final status = packet.data[0] & 0xF0;
+    final channel = packet.data[0] & 0x0F;
+    final data1 = packet.data.length > 1 ? packet.data[1] : 0;
+    final data2 = packet.data.length > 2 ? packet.data[2] : 0;
+
+    final isNoteOn = status == 0x90 && data2 > 0;
+    final isNoteOff = status == 0x80 || (status == 0x90 && data2 == 0);
+
+    if (!isNoteOn && !isNoteOff) return;
+
+    final activeIds = Set<String>.from(state.activeComponentIds);
+    bool changed = false;
+
+    for (final component in project.layers) {
+      component.map(
+        pad: (pad) {
+          if (pad.midiChannel == channel && pad.midiNote == data1) {
+            if (isNoteOn) {
+              if (activeIds.add(pad.id)) changed = true;
+            } else if (isNoteOff) {
+              if (activeIds.remove(pad.id)) changed = true;
+            }
+          }
+        },
+        knob: (knob) {
+          // Knobs usually use CC, but if mapped to Note, handle it?
+        },
+        staticImage: (_) {},
+      );
+    }
+
+    if (changed) {
+      emit(state.copyWith(activeComponentIds: activeIds));
+    }
+  }
+
   // Helper to record history before mutation
   void _recordHistory() {
     final project = state.project;
     if (project != null) {
-      historyCubit.record(project);
+      _historyCubit.record(project);
     }
   }
 }

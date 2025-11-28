@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EditorState {
 
- EditorStatus get status; Project? get project; Set<String> get selectedComponentIds; EditorMode get mode; double get zoomLevel; EditorTool get currentTool; List<Offset> get currentPathPoints; double get gridSize; bool get showGrid; bool get snapToGrid; String? get errorMessage;
+ EditorStatus get status; Project? get project; Set<String> get selectedComponentIds; EditorMode get mode; double get zoomLevel; EditorTool get currentTool; List<Offset> get currentPathPoints; double get gridSize; bool get showGrid; bool get snapToGrid; Set<String> get activeComponentIds; String? get errorMessage;
 /// Create a copy of EditorState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $EditorStateCopyWith<EditorState> get copyWith => _$EditorStateCopyWithImpl<Edit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other.selectedComponentIds, selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.currentTool, currentTool) || other.currentTool == currentTool)&&const DeepCollectionEquality().equals(other.currentPathPoints, currentPathPoints)&&(identical(other.gridSize, gridSize) || other.gridSize == gridSize)&&(identical(other.showGrid, showGrid) || other.showGrid == showGrid)&&(identical(other.snapToGrid, snapToGrid) || other.snapToGrid == snapToGrid)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other.selectedComponentIds, selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.currentTool, currentTool) || other.currentTool == currentTool)&&const DeepCollectionEquality().equals(other.currentPathPoints, currentPathPoints)&&(identical(other.gridSize, gridSize) || other.gridSize == gridSize)&&(identical(other.showGrid, showGrid) || other.showGrid == showGrid)&&(identical(other.snapToGrid, snapToGrid) || other.snapToGrid == snapToGrid)&&const DeepCollectionEquality().equals(other.activeComponentIds, activeComponentIds)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(selectedComponentIds),mode,zoomLevel,currentTool,const DeepCollectionEquality().hash(currentPathPoints),gridSize,showGrid,snapToGrid,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(selectedComponentIds),mode,zoomLevel,currentTool,const DeepCollectionEquality().hash(currentPathPoints),gridSize,showGrid,snapToGrid,const DeepCollectionEquality().hash(activeComponentIds),errorMessage);
 
 @override
 String toString() {
-  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, currentTool: $currentTool, currentPathPoints: $currentPathPoints, gridSize: $gridSize, showGrid: $showGrid, snapToGrid: $snapToGrid, errorMessage: $errorMessage)';
+  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, currentTool: $currentTool, currentPathPoints: $currentPathPoints, gridSize: $gridSize, showGrid: $showGrid, snapToGrid: $snapToGrid, activeComponentIds: $activeComponentIds, errorMessage: $errorMessage)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $EditorStateCopyWith<$Res>  {
   factory $EditorStateCopyWith(EditorState value, $Res Function(EditorState) _then) = _$EditorStateCopyWithImpl;
 @useResult
 $Res call({
- EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, EditorTool currentTool, List<Offset> currentPathPoints, double gridSize, bool showGrid, bool snapToGrid, String? errorMessage
+ EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, EditorTool currentTool, List<Offset> currentPathPoints, double gridSize, bool showGrid, bool snapToGrid, Set<String> activeComponentIds, String? errorMessage
 });
 
 
@@ -62,7 +62,7 @@ class _$EditorStateCopyWithImpl<$Res>
 
 /// Create a copy of EditorState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? currentTool = null,Object? currentPathPoints = null,Object? gridSize = null,Object? showGrid = null,Object? snapToGrid = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? currentTool = null,Object? currentPathPoints = null,Object? gridSize = null,Object? showGrid = null,Object? snapToGrid = null,Object? activeComponentIds = null,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as EditorStatus,project: freezed == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,8 @@ as EditorTool,currentPathPoints: null == currentPathPoints ? _self.currentPathPo
 as List<Offset>,gridSize: null == gridSize ? _self.gridSize : gridSize // ignore: cast_nullable_to_non_nullable
 as double,showGrid: null == showGrid ? _self.showGrid : showGrid // ignore: cast_nullable_to_non_nullable
 as bool,snapToGrid: null == snapToGrid ? _self.snapToGrid : snapToGrid // ignore: cast_nullable_to_non_nullable
-as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as bool,activeComponentIds: null == activeComponentIds ? _self.activeComponentIds : activeComponentIds // ignore: cast_nullable_to_non_nullable
+as Set<String>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -172,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  double gridSize,  bool showGrid,  bool snapToGrid,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  double gridSize,  bool showGrid,  bool snapToGrid,  Set<String> activeComponentIds,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EditorState() when $default != null:
-return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.gridSize,_that.showGrid,_that.snapToGrid,_that.errorMessage);case _:
+return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.gridSize,_that.showGrid,_that.snapToGrid,_that.activeComponentIds,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -193,10 +194,10 @@ return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  double gridSize,  bool showGrid,  bool snapToGrid,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  double gridSize,  bool showGrid,  bool snapToGrid,  Set<String> activeComponentIds,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _EditorState():
-return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.gridSize,_that.showGrid,_that.snapToGrid,_that.errorMessage);case _:
+return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.gridSize,_that.showGrid,_that.snapToGrid,_that.activeComponentIds,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -213,10 +214,10 @@ return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  double gridSize,  bool showGrid,  bool snapToGrid,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  double gridSize,  bool showGrid,  bool snapToGrid,  Set<String> activeComponentIds,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _EditorState() when $default != null:
-return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.gridSize,_that.showGrid,_that.snapToGrid,_that.errorMessage);case _:
+return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.gridSize,_that.showGrid,_that.snapToGrid,_that.activeComponentIds,_that.errorMessage);case _:
   return null;
 
 }
@@ -228,7 +229,7 @@ return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode
 
 
 class _EditorState implements EditorState {
-  const _EditorState({this.status = EditorStatus.initial, this.project, final  Set<String> selectedComponentIds = const {}, this.mode = EditorMode.edit, this.zoomLevel = 1.0, this.currentTool = EditorTool.select, final  List<Offset> currentPathPoints = const [], this.gridSize = 20.0, this.showGrid = true, this.snapToGrid = true, this.errorMessage}): _selectedComponentIds = selectedComponentIds,_currentPathPoints = currentPathPoints;
+  const _EditorState({this.status = EditorStatus.initial, this.project, final  Set<String> selectedComponentIds = const {}, this.mode = EditorMode.edit, this.zoomLevel = 1.0, this.currentTool = EditorTool.select, final  List<Offset> currentPathPoints = const [], this.gridSize = 20.0, this.showGrid = true, this.snapToGrid = true, final  Set<String> activeComponentIds = const {}, this.errorMessage}): _selectedComponentIds = selectedComponentIds,_currentPathPoints = currentPathPoints,_activeComponentIds = activeComponentIds;
   
 
 @override@JsonKey() final  EditorStatus status;
@@ -253,6 +254,13 @@ class _EditorState implements EditorState {
 @override@JsonKey() final  double gridSize;
 @override@JsonKey() final  bool showGrid;
 @override@JsonKey() final  bool snapToGrid;
+ final  Set<String> _activeComponentIds;
+@override@JsonKey() Set<String> get activeComponentIds {
+  if (_activeComponentIds is EqualUnmodifiableSetView) return _activeComponentIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_activeComponentIds);
+}
+
 @override final  String? errorMessage;
 
 /// Create a copy of EditorState
@@ -265,16 +273,16 @@ _$EditorStateCopyWith<_EditorState> get copyWith => __$EditorStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other._selectedComponentIds, _selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.currentTool, currentTool) || other.currentTool == currentTool)&&const DeepCollectionEquality().equals(other._currentPathPoints, _currentPathPoints)&&(identical(other.gridSize, gridSize) || other.gridSize == gridSize)&&(identical(other.showGrid, showGrid) || other.showGrid == showGrid)&&(identical(other.snapToGrid, snapToGrid) || other.snapToGrid == snapToGrid)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other._selectedComponentIds, _selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.currentTool, currentTool) || other.currentTool == currentTool)&&const DeepCollectionEquality().equals(other._currentPathPoints, _currentPathPoints)&&(identical(other.gridSize, gridSize) || other.gridSize == gridSize)&&(identical(other.showGrid, showGrid) || other.showGrid == showGrid)&&(identical(other.snapToGrid, snapToGrid) || other.snapToGrid == snapToGrid)&&const DeepCollectionEquality().equals(other._activeComponentIds, _activeComponentIds)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(_selectedComponentIds),mode,zoomLevel,currentTool,const DeepCollectionEquality().hash(_currentPathPoints),gridSize,showGrid,snapToGrid,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(_selectedComponentIds),mode,zoomLevel,currentTool,const DeepCollectionEquality().hash(_currentPathPoints),gridSize,showGrid,snapToGrid,const DeepCollectionEquality().hash(_activeComponentIds),errorMessage);
 
 @override
 String toString() {
-  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, currentTool: $currentTool, currentPathPoints: $currentPathPoints, gridSize: $gridSize, showGrid: $showGrid, snapToGrid: $snapToGrid, errorMessage: $errorMessage)';
+  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, currentTool: $currentTool, currentPathPoints: $currentPathPoints, gridSize: $gridSize, showGrid: $showGrid, snapToGrid: $snapToGrid, activeComponentIds: $activeComponentIds, errorMessage: $errorMessage)';
 }
 
 
@@ -285,7 +293,7 @@ abstract mixin class _$EditorStateCopyWith<$Res> implements $EditorStateCopyWith
   factory _$EditorStateCopyWith(_EditorState value, $Res Function(_EditorState) _then) = __$EditorStateCopyWithImpl;
 @override @useResult
 $Res call({
- EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, EditorTool currentTool, List<Offset> currentPathPoints, double gridSize, bool showGrid, bool snapToGrid, String? errorMessage
+ EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, EditorTool currentTool, List<Offset> currentPathPoints, double gridSize, bool showGrid, bool snapToGrid, Set<String> activeComponentIds, String? errorMessage
 });
 
 
@@ -302,7 +310,7 @@ class __$EditorStateCopyWithImpl<$Res>
 
 /// Create a copy of EditorState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? currentTool = null,Object? currentPathPoints = null,Object? gridSize = null,Object? showGrid = null,Object? snapToGrid = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? currentTool = null,Object? currentPathPoints = null,Object? gridSize = null,Object? showGrid = null,Object? snapToGrid = null,Object? activeComponentIds = null,Object? errorMessage = freezed,}) {
   return _then(_EditorState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as EditorStatus,project: freezed == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
@@ -314,7 +322,8 @@ as EditorTool,currentPathPoints: null == currentPathPoints ? _self._currentPathP
 as List<Offset>,gridSize: null == gridSize ? _self.gridSize : gridSize // ignore: cast_nullable_to_non_nullable
 as double,showGrid: null == showGrid ? _self.showGrid : showGrid // ignore: cast_nullable_to_non_nullable
 as bool,snapToGrid: null == snapToGrid ? _self.snapToGrid : snapToGrid // ignore: cast_nullable_to_non_nullable
-as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as bool,activeComponentIds: null == activeComponentIds ? _self._activeComponentIds : activeComponentIds // ignore: cast_nullable_to_non_nullable
+as Set<String>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

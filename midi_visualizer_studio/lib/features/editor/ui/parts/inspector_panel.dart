@@ -61,8 +61,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
             final selectedIds = state.selectedComponentIds;
             final project = state.project;
 
-            if (project == null) {
+            if (state.status == EditorStatus.loading) {
               return const Center(child: CircularProgressIndicator());
+            }
+
+            if (project == null) {
+              return const Center(child: Text('No Project Selected'));
             }
 
             if (selectedIds.isEmpty) {
@@ -260,35 +264,192 @@ class _InspectorPanelState extends State<InspectorPanel> {
           ],
         ),
         const SizedBox(height: 16),
+        const SizedBox(height: 16),
+        const Text('Type Specific', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        ...component.map(
+          pad: (c) => _buildPadProperties(context, c),
+          knob: (c) => _buildKnobProperties(context, c),
+          staticImage: (c) => [],
+        ),
+        const SizedBox(height: 16),
+        const SizedBox(height: 16),
         const Text('MIDI Binding', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        ListTile(
-          leading: Icon(Icons.input, color: isLearningThis ? Colors.red : null),
-          title: Text(isLearningThis ? 'Press MIDI Control...' : 'Click to Learn'),
-          subtitle: Text(
-            component.map(
-              pad: (c) => c.midiNote != null ? 'CH:${c.midiChannel} Note:${c.midiNote}' : 'Not bound',
-              knob: (c) => c.midiCc != null ? 'CH:${c.midiChannel} CC:${c.midiCc}' : 'Not bound',
-              staticImage: (c) => 'Not supported',
+        _buildMidiBindingSection(context, component, isLearningThis),
+      ],
+    );
+  }
+
+  Widget _buildMidiBindingSection(BuildContext context, Component component, bool isLearningThis) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _NumberField(
+                label: 'Channel',
+                value: component.map(
+                  pad: (c) => (c.midiChannel ?? 0).toDouble(),
+                  knob: (c) => (c.midiChannel ?? 0).toDouble(),
+                  staticImage: (_) => 0,
+                ),
+                enabled: !component.isLocked && component is! ComponentStaticImage,
+                onChanged: (value) {
+                  final channel = value.toInt().clamp(0, 15);
+                  final updated = component.map(
+                    pad: (c) => c.copyWith(midiChannel: channel),
+                    knob: (c) => c.copyWith(midiChannel: channel),
+                    staticImage: (c) => c,
+                  );
+                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                },
+              ),
             ),
-          ),
-          tileColor: isLearningThis ? Colors.red.withValues(alpha: 0.1) : null,
-          onTap: () {
-            if (_isLearning) {
-              setState(() {
-                _isLearning = false;
-                _learningComponentId = null;
-              });
-            } else {
-              setState(() {
-                _isLearning = true;
-                _learningComponentId = component.id;
-              });
-            }
-          },
+            const SizedBox(width: 8),
+            Expanded(
+              child: _NumberField(
+                label: component.map(pad: (_) => 'Note', knob: (_) => 'CC', staticImage: (_) => 'N/A'),
+                value: component.map(
+                  pad: (c) => (c.midiNote ?? -1).toDouble(),
+                  knob: (c) => (c.midiCc ?? -1).toDouble(),
+                  staticImage: (_) => -1,
+                ),
+                enabled: !component.isLocked && component is! ComponentStaticImage,
+                onChanged: (value) {
+                  final val = value.toInt();
+                  final updated = component.map(
+                    pad: (c) => c.copyWith(midiNote: val < 0 ? null : val),
+                    knob: (c) => c.copyWith(midiCc: val < 0 ? null : val),
+                    staticImage: (c) => c,
+                  );
+                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: component is ComponentStaticImage
+                    ? null
+                    : () {
+                        if (_isLearning) {
+                          setState(() {
+                            _isLearning = false;
+                            _learningComponentId = null;
+                          });
+                        } else {
+                          setState(() {
+                            _isLearning = true;
+                            _learningComponentId = component.id;
+                          });
+                        }
+                      },
+                icon: Icon(isLearningThis ? Icons.stop : Icons.radio_button_checked),
+                label: Text(isLearningThis ? 'Stop Learning' : 'Learn MIDI'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isLearningThis ? Colors.red : null,
+                  foregroundColor: isLearningThis ? Colors.white : null,
+                ),
+              ),
+            ),
+            if (component.map(
+              pad: (c) => c.midiNote != null,
+              knob: (c) => c.midiCc != null,
+              staticImage: (_) => false,
+            )) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.clear),
+                tooltip: 'Clear Binding',
+                onPressed: () {
+                  final updated = component.map(
+                    pad: (c) => c.copyWith(midiNote: null),
+                    knob: (c) => c.copyWith(midiCc: null),
+                    staticImage: (c) => c,
+                  );
+                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                },
+              ),
+            ],
+          ],
         ),
       ],
     );
+  }
+
+  List<Widget> _buildPadProperties(BuildContext context, ComponentPad pad) {
+    return [
+      _EnumDropdown<PadShape>(
+        label: 'Shape',
+        value: pad.shape,
+        values: PadShape.values,
+        onChanged: (value) {
+          if (value != null) {
+            context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(shape: value)));
+          }
+        },
+      ),
+      const SizedBox(height: 8),
+      _ColorPickerField(
+        label: 'On Color',
+        color: pad.onColor,
+        onChanged: (color) {
+          context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onColor: color)));
+        },
+      ),
+      const SizedBox(height: 8),
+      _ColorPickerField(
+        label: 'Off Color',
+        color: pad.offColor,
+        onChanged: (color) {
+          context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offColor: color)));
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _buildKnobProperties(BuildContext context, ComponentKnob knob) {
+    return [
+      _EnumDropdown<KnobStyle>(
+        label: 'Style',
+        value: knob.style,
+        values: KnobStyle.values,
+        onChanged: (value) {
+          if (value != null) {
+            context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(style: value)));
+          }
+        },
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: _NumberField(
+              label: 'Min Angle',
+              value: knob.minAngle,
+              onChanged: (value) {
+                context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(minAngle: value)));
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _NumberField(
+              label: 'Max Angle',
+              value: knob.maxAngle,
+              onChanged: (value) {
+                context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(maxAngle: value)));
+              },
+            ),
+          ),
+        ],
+      ),
+    ];
   }
 
   void _showColorPicker(BuildContext context, Project project) {
@@ -415,6 +576,126 @@ class _NumberField extends StatelessWidget {
           onChanged(num);
         }
       },
+    );
+  }
+}
+
+class _ColorPickerField extends StatelessWidget {
+  final String label;
+  final String color;
+  final ValueChanged<String> onChanged;
+
+  const _ColorPickerField({required this.label, required this.color, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            initialValue: color,
+            decoration: InputDecoration(
+              labelText: label,
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ),
+            onChanged: onChanged,
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => _showColorPickerDialog(context),
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: _parseColor(color),
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showColorPickerDialog(BuildContext context) {
+    // Simple preset picker for now
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Select $label'),
+        content: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children:
+              [
+                Colors.red,
+                Colors.green,
+                Colors.blue,
+                Colors.yellow,
+                Colors.purple,
+                Colors.orange,
+                Colors.black,
+                Colors.white,
+                Colors.grey,
+              ].map((c) {
+                return GestureDetector(
+                  onTap: () {
+                    // Convert Color to Hex
+                    final hex = '#${c.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+                    onChanged(hex.toUpperCase());
+                    Navigator.pop(dialogContext);
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: c,
+                      border: Border.all(color: Colors.grey),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Color _parseColor(String hexString) {
+    try {
+      final buffer = StringBuffer();
+      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+      buffer.write(hexString.replaceFirst('#', ''));
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (e) {
+      return Colors.white;
+    }
+  }
+}
+
+class _EnumDropdown<T extends Enum> extends StatelessWidget {
+  final String label;
+  final T value;
+  final List<T> values;
+  final ValueChanged<T?> onChanged;
+
+  const _EnumDropdown({required this.label, required this.value, required this.values, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      ),
+      items: values.map((e) {
+        return DropdownMenuItem<T>(value: e, child: Text(e.name));
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 }

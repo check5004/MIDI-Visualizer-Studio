@@ -23,6 +23,7 @@ abstract class EditorState with _$EditorState {
     @Default(20.0) double gridSize,
     @Default(true) bool showGrid,
     @Default(true) bool snapToGrid,
+    @Default({}) Set<String> activeComponentIds,
     String? errorMessage,
   }) = _EditorState;
 }

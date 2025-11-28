@@ -181,6 +181,7 @@ class _CanvasViewState extends State<CanvasView> {
                                       if (!component.isVisible) return const SizedBox();
 
                                       final isSelected = state.selectedComponentIds.contains(component.id);
+                                      final isActive = state.activeComponentIds.contains(component.id);
                                       final padding = isSelected ? CanvasView.kHandlePadding : 0.0;
 
                                       return Positioned(
@@ -189,6 +190,7 @@ class _CanvasViewState extends State<CanvasView> {
                                         child: _ComponentWrapper(
                                           component: component,
                                           isSelected: isSelected,
+                                          isActive: isActive,
                                           gridSize: state.gridSize,
                                           snapToGrid: state.snapToGrid,
                                           padding: padding,
@@ -295,6 +297,7 @@ class PathPreviewPainter extends CustomPainter {
 class _ComponentWrapper extends StatefulWidget {
   final Component component;
   final bool isSelected;
+  final bool isActive;
   final double gridSize;
   final bool snapToGrid;
   final double padding;
@@ -302,6 +305,7 @@ class _ComponentWrapper extends StatefulWidget {
   const _ComponentWrapper({
     required this.component,
     required this.isSelected,
+    required this.isActive,
     required this.gridSize,
     required this.snapToGrid,
     this.padding = 0,
@@ -375,7 +379,11 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
 
   Widget _buildComponentContent() {
     return CustomPaint(
-      painter: ComponentPainter(component: widget.component, isSelected: false), // Overlay handles selection visuals
+      painter: ComponentPainter(
+        component: widget.component,
+        isSelected: false,
+        isActive: widget.isActive,
+      ), // Overlay handles selection visuals
       child: SizedBox(
         width: widget.component.width,
         height: widget.component.height,
@@ -410,8 +418,9 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
 class ComponentPainter extends CustomPainter {
   final Component component;
   final bool isSelected;
+  final bool isActive;
 
-  ComponentPainter({required this.component, required this.isSelected});
+  ComponentPainter({required this.component, required this.isSelected, required this.isActive});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -419,7 +428,7 @@ class ComponentPainter extends CustomPainter {
 
     if (component is ComponentPad) {
       final pad = component as ComponentPad;
-      paint.color = _parseColor(pad.onColor); // Using onColor for now
+      paint.color = _parseColor(isActive ? pad.onColor : pad.offColor);
 
       if (pad.shape == PadShape.rect) {
         canvas.drawRect(Offset.zero & size, paint);
@@ -477,6 +486,8 @@ class ComponentPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ComponentPainter oldDelegate) {
-    return oldDelegate.component != component || oldDelegate.isSelected != isSelected;
+    return oldDelegate.component != component ||
+        oldDelegate.isSelected != isSelected ||
+        oldDelegate.isActive != isActive;
   }
 }

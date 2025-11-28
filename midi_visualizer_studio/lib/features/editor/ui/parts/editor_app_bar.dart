@@ -34,6 +34,43 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             // We can put it in a Row in title or flexibleSpace, or just actions.
             // Let's put it in actions for now, or use a custom Title.
 
+            // File Operations
+            IconButton(
+              icon: const Icon(Icons.folder_open),
+              tooltip: 'Open Project',
+              onPressed: () async {
+                final result = await FilePicker.platform.pickFiles(
+                  type: FileType.custom,
+                  allowedExtensions: ['mvs', 'zip'],
+                );
+
+                if (result != null && result.files.single.path != null) {
+                  if (context.mounted) {
+                    context.read<EditorBloc>().add(EditorEvent.loadProject(result.files.single.path!));
+                  }
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.save),
+              tooltip: 'Save Project',
+              onPressed: () async {
+                final path = await FilePicker.platform.saveFile(
+                  dialogTitle: 'Save Project',
+                  fileName: '${project?.name ?? "project"}.mvs',
+                  type: FileType.custom,
+                  allowedExtensions: ['mvs', 'zip'],
+                );
+
+                if (path != null) {
+                  if (context.mounted) {
+                    context.read<EditorBloc>().add(EditorEvent.saveProject(path));
+                  }
+                }
+              },
+            ),
+            const VerticalDivider(indent: 10, endIndent: 10),
+
             // Tools
             IconButton(
               icon: const Icon(Icons.touch_app),
