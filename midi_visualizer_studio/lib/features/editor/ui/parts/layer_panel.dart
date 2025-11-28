@@ -12,13 +12,13 @@ class LayerPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 250,
-      color: Colors.grey[200],
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           // Toolbar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            color: Colors.grey[300],
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Row(
               children: [
                 const Text('Layers', style: TextStyle(fontWeight: FontWeight.bold)),

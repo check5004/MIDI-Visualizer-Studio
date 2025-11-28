@@ -119,19 +119,51 @@ class _StreamingSettingsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const ListTile(
-          title: Text('Chroma Key Defaults'),
-          subtitle: Text('Set the default background color for new projects.'),
-        ),
-        // TODO: Implement default settings storage
-        ListTile(
-          title: const Text('Default Color'),
-          trailing: Container(width: 24, height: 24, color: Colors.green),
-        ),
-      ],
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, state) {
+        final colors = [
+          0xFF00FF00, // Green
+          0xFF0000FF, // Blue
+          0xFFFF00FF, // Magenta
+          0xFF000000, // Black
+          0xFFFFFFFF, // White
+        ];
+
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const ListTile(
+              title: Text('Chroma Key Defaults'),
+              subtitle: Text('Set the default background color for new projects.'),
+            ),
+            ListTile(
+              title: const Text('Default Color'),
+              subtitle: Wrap(
+                spacing: 8,
+                children: colors.map((color) {
+                  final isSelected = state.defaultChromaKeyColor == color;
+                  return GestureDetector(
+                    onTap: () {
+                      context.read<SettingsBloc>().add(SettingsEvent.updateChromaKeyColor(color));
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(color),
+                        border: isSelected
+                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
+                            : Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

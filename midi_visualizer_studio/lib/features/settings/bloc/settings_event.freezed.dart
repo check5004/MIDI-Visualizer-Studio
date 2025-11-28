@@ -55,12 +55,13 @@ extension SettingsEventPatterns on SettingsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
-return toggleTheme(_that);case _:
+return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
+return updateChromaKeyColor(_that);case _:
   return orElse();
 
 }
@@ -78,12 +79,13 @@ return toggleTheme(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,}){
 final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings(_that);case ToggleTheme():
-return toggleTheme(_that);case _:
+return toggleTheme(_that);case UpdateChromaKeyColor():
+return updateChromaKeyColor(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -100,12 +102,13 @@ return toggleTheme(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
-return toggleTheme(_that);case _:
+return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
+return updateChromaKeyColor(_that);case _:
   return null;
 
 }
@@ -122,11 +125,12 @@ return toggleTheme(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
-return toggleTheme(_that.mode);case _:
+return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
+return updateChromaKeyColor(_that.color);case _:
   return orElse();
 
 }
@@ -144,11 +148,12 @@ return toggleTheme(_that.mode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,}) {final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings();case ToggleTheme():
-return toggleTheme(_that.mode);case _:
+return toggleTheme(_that.mode);case UpdateChromaKeyColor():
+return updateChromaKeyColor(_that.color);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -165,11 +170,12 @@ return toggleTheme(_that.mode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
-return toggleTheme(_that.mode);case _:
+return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
+return updateChromaKeyColor(_that.color);case _:
   return null;
 
 }
@@ -269,6 +275,72 @@ class _$ToggleThemeCopyWithImpl<$Res>
   return _then(ToggleTheme(
 null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as ThemeMode,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class UpdateChromaKeyColor implements SettingsEvent {
+  const UpdateChromaKeyColor(this.color);
+  
+
+ final  int color;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdateChromaKeyColorCopyWith<UpdateChromaKeyColor> get copyWith => _$UpdateChromaKeyColorCopyWithImpl<UpdateChromaKeyColor>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateChromaKeyColor&&(identical(other.color, color) || other.color == color));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,color);
+
+@override
+String toString() {
+  return 'SettingsEvent.updateChromaKeyColor(color: $color)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $UpdateChromaKeyColorCopyWith<$Res> implements $SettingsEventCopyWith<$Res> {
+  factory $UpdateChromaKeyColorCopyWith(UpdateChromaKeyColor value, $Res Function(UpdateChromaKeyColor) _then) = _$UpdateChromaKeyColorCopyWithImpl;
+@useResult
+$Res call({
+ int color
+});
+
+
+
+
+}
+/// @nodoc
+class _$UpdateChromaKeyColorCopyWithImpl<$Res>
+    implements $UpdateChromaKeyColorCopyWith<$Res> {
+  _$UpdateChromaKeyColorCopyWithImpl(this._self, this._then);
+
+  final UpdateChromaKeyColor _self;
+  final $Res Function(UpdateChromaKeyColor) _then;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? color = null,}) {
+  return _then(UpdateChromaKeyColor(
+null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

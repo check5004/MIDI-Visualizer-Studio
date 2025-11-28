@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingsState {
 
- ThemeMode get themeMode;
+ ThemeMode get themeMode; int get defaultChromaKeyColor;
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SettingsStateCopyWith<SettingsState> get copyWith => _$SettingsStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.defaultChromaKeyColor, defaultChromaKeyColor) || other.defaultChromaKeyColor == defaultChromaKeyColor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,themeMode);
+int get hashCode => Object.hash(runtimeType,themeMode,defaultChromaKeyColor);
 
 @override
 String toString() {
-  return 'SettingsState(themeMode: $themeMode)';
+  return 'SettingsState(themeMode: $themeMode, defaultChromaKeyColor: $defaultChromaKeyColor)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SettingsStateCopyWith<$Res>  {
   factory $SettingsStateCopyWith(SettingsState value, $Res Function(SettingsState) _then) = _$SettingsStateCopyWithImpl;
 @useResult
 $Res call({
- ThemeMode themeMode
+ ThemeMode themeMode, int defaultChromaKeyColor
 });
 
 
@@ -62,10 +62,11 @@ class _$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,Object? defaultChromaKeyColor = null,}) {
   return _then(_self.copyWith(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
-as ThemeMode,
+as ThemeMode,defaultChromaKeyColor: null == defaultChromaKeyColor ? _self.defaultChromaKeyColor : defaultChromaKeyColor // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -150,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ThemeMode themeMode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ThemeMode themeMode,  int defaultChromaKeyColor)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.themeMode);case _:
+return $default(_that.themeMode,_that.defaultChromaKeyColor);case _:
   return orElse();
 
 }
@@ -171,10 +172,10 @@ return $default(_that.themeMode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ThemeMode themeMode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ThemeMode themeMode,  int defaultChromaKeyColor)  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState():
-return $default(_that.themeMode);case _:
+return $default(_that.themeMode,_that.defaultChromaKeyColor);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -191,10 +192,10 @@ return $default(_that.themeMode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ThemeMode themeMode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ThemeMode themeMode,  int defaultChromaKeyColor)?  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.themeMode);case _:
+return $default(_that.themeMode,_that.defaultChromaKeyColor);case _:
   return null;
 
 }
@@ -206,10 +207,11 @@ return $default(_that.themeMode);case _:
 
 
 class _SettingsState implements SettingsState {
-  const _SettingsState({this.themeMode = ThemeMode.system});
+  const _SettingsState({this.themeMode = ThemeMode.light, this.defaultChromaKeyColor = 0xFF00FF00});
   
 
 @override@JsonKey() final  ThemeMode themeMode;
+@override@JsonKey() final  int defaultChromaKeyColor;
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
@@ -221,16 +223,16 @@ _$SettingsStateCopyWith<_SettingsState> get copyWith => __$SettingsStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.defaultChromaKeyColor, defaultChromaKeyColor) || other.defaultChromaKeyColor == defaultChromaKeyColor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,themeMode);
+int get hashCode => Object.hash(runtimeType,themeMode,defaultChromaKeyColor);
 
 @override
 String toString() {
-  return 'SettingsState(themeMode: $themeMode)';
+  return 'SettingsState(themeMode: $themeMode, defaultChromaKeyColor: $defaultChromaKeyColor)';
 }
 
 
@@ -241,7 +243,7 @@ abstract mixin class _$SettingsStateCopyWith<$Res> implements $SettingsStateCopy
   factory _$SettingsStateCopyWith(_SettingsState value, $Res Function(_SettingsState) _then) = __$SettingsStateCopyWithImpl;
 @override @useResult
 $Res call({
- ThemeMode themeMode
+ ThemeMode themeMode, int defaultChromaKeyColor
 });
 
 
@@ -258,10 +260,11 @@ class __$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? themeMode = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? themeMode = null,Object? defaultChromaKeyColor = null,}) {
   return _then(_SettingsState(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
-as ThemeMode,
+as ThemeMode,defaultChromaKeyColor: null == defaultChromaKeyColor ? _self.defaultChromaKeyColor : defaultChromaKeyColor // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

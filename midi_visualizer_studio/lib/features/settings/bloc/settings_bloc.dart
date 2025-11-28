@@ -7,24 +7,37 @@ import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dar
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SharedPreferences _prefs;
   static const String _themeKey = 'theme_mode';
+  static const String _chromaKeyColorKey = 'default_chroma_key_color';
 
   SettingsBloc(this._prefs) : super(const SettingsState()) {
     on<LoadSettings>(_onLoadSettings);
     on<ToggleTheme>(_onToggleTheme);
+    on<UpdateChromaKeyColor>(_onUpdateChromaKeyColor);
 
     add(const SettingsEvent.loadSettings());
   }
 
   void _onLoadSettings(LoadSettings event, Emitter<SettingsState> emit) {
     final themeIndex = _prefs.getInt(_themeKey);
+    final chromaKeyColor = _prefs.getInt(_chromaKeyColorKey);
+
+    var newState = state;
     if (themeIndex != null) {
-      final themeMode = ThemeMode.values[themeIndex];
-      emit(state.copyWith(themeMode: themeMode));
+      newState = newState.copyWith(themeMode: ThemeMode.values[themeIndex]);
     }
+    if (chromaKeyColor != null) {
+      newState = newState.copyWith(defaultChromaKeyColor: chromaKeyColor);
+    }
+    emit(newState);
   }
 
   void _onToggleTheme(ToggleTheme event, Emitter<SettingsState> emit) async {
     await _prefs.setInt(_themeKey, event.mode.index);
     emit(state.copyWith(themeMode: event.mode));
+  }
+
+  void _onUpdateChromaKeyColor(UpdateChromaKeyColor event, Emitter<SettingsState> emit) async {
+    await _prefs.setInt(_chromaKeyColorKey, event.color);
+    emit(state.copyWith(defaultChromaKeyColor: event.color));
   }
 }

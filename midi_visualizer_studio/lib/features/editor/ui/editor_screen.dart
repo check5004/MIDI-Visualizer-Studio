@@ -32,7 +32,9 @@ class EditorScreen extends StatelessWidget {
           } else {
             await windowManager.setHasShadow(true);
             await windowManager.setTitleBarStyle(TitleBarStyle.normal);
-            await windowManager.setBackgroundColor(Colors.white);
+            if (context.mounted) {
+              await windowManager.setBackgroundColor(Theme.of(context).scaffoldBackgroundColor);
+            }
             await windowManager.setAlwaysOnTop(false);
           }
         },

@@ -55,7 +55,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
       },
       child: Container(
         width: 300,
-        color: Colors.grey[200],
+        color: Theme.of(context).colorScheme.surface,
         child: BlocBuilder<EditorBloc, EditorState>(
           builder: (context, state) {
             final selectedIds = state.selectedComponentIds;
