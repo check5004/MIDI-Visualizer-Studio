@@ -112,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
 class _NewProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
@@ -123,22 +124,19 @@ class _NewProjectCard extends StatelessWidget {
           context.push('/editor/${project.id}', extra: project);
         },
         child: Container(
-          color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+          color: colorScheme.primary.withValues(alpha: 0.08),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.add, size: 32, color: Theme.of(context).primaryColor),
+                decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.15), shape: BoxShape.circle),
+                child: Icon(Icons.add, size: 32, color: colorScheme.primary),
               ),
               const SizedBox(height: 16),
               Text(
                 'New Project',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colorScheme.primary),
               ),
             ],
           ),
@@ -155,6 +153,7 @@ class _ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
@@ -169,8 +168,8 @@ class _ProjectCard extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Container(
-                color: Colors.grey[200],
-                child: Center(child: Icon(Icons.grid_view, size: 48, color: Colors.grey[400])),
+                color: colorScheme.surfaceContainerHighest,
+                child: Center(child: Icon(Icons.grid_view, size: 48, color: colorScheme.onSurfaceVariant)),
               ),
             ),
             Expanded(
