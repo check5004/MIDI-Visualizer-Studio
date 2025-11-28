@@ -14,6 +14,7 @@ abstract class EditorState with _$EditorState {
     Project? project,
     @Default({}) Set<String> selectedComponentIds,
     @Default(EditorMode.edit) EditorMode mode,
+    @Default(1.0) double zoomLevel,
     String? errorMessage,
   }) = _EditorState;
 }

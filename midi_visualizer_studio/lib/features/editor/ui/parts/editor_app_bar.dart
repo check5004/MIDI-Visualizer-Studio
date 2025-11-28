@@ -92,10 +92,20 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
             const VerticalDivider(indent: 10, endIndent: 10),
 
-            // Zoom (Placeholder)
-            IconButton(icon: const Icon(Icons.zoom_out), onPressed: () {}),
-            const Center(child: Text('100%')),
-            IconButton(icon: const Icon(Icons.zoom_in), onPressed: () {}),
+            // Zoom
+            IconButton(
+              icon: const Icon(Icons.zoom_out),
+              onPressed: () {
+                context.read<EditorBloc>().add(const EditorEvent.zoomOut());
+              },
+            ),
+            Center(child: Text('${(state.zoomLevel * 100).toInt()}%')),
+            IconButton(
+              icon: const Icon(Icons.zoom_in),
+              onPressed: () {
+                context.read<EditorBloc>().add(const EditorEvent.zoomIn());
+              },
+            ),
 
             const VerticalDivider(indent: 10, endIndent: 10),
 

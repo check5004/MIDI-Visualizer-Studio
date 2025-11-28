@@ -20,6 +20,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<RestoreProject>(_onRestoreProject);
     on<UndoEvent>(_onUndo);
     on<RedoEvent>(_onRedo);
+    on<SetZoom>(_onSetZoom);
+    on<ZoomIn>(_onZoomIn);
+    on<ZoomOut>(_onZoomOut);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -128,6 +131,20 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (nextProject != null) {
       emit(state.copyWith(project: nextProject));
     }
+  }
+
+  void _onSetZoom(SetZoom event, Emitter<EditorState> emit) {
+    emit(state.copyWith(zoomLevel: event.zoom.clamp(0.1, 5.0)));
+  }
+
+  void _onZoomIn(ZoomIn event, Emitter<EditorState> emit) {
+    final newZoom = (state.zoomLevel + 0.1).clamp(0.1, 5.0);
+    emit(state.copyWith(zoomLevel: newZoom));
+  }
+
+  void _onZoomOut(ZoomOut event, Emitter<EditorState> emit) {
+    final newZoom = (state.zoomLevel - 0.1).clamp(0.1, 5.0);
+    emit(state.copyWith(zoomLevel: newZoom));
   }
 
   // Helper to record history before mutation

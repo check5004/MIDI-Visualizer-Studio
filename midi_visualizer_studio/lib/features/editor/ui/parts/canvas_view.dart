@@ -5,12 +5,32 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 
-class CanvasView extends StatelessWidget {
+class CanvasView extends StatefulWidget {
   const CanvasView({super.key});
 
   @override
+  State<CanvasView> createState() => _CanvasViewState();
+}
+
+class _CanvasViewState extends State<CanvasView> {
+  final TransformationController _transformationController = TransformationController();
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EditorBloc, EditorState>(
+    return BlocConsumer<EditorBloc, EditorState>(
+      listenWhen: (previous, current) => previous.zoomLevel != current.zoomLevel,
+      listener: (context, state) {
+        if (_transformationController.value.getMaxScaleOnAxis() != state.zoomLevel) {
+          final matrix = Matrix4.identity()..scale(state.zoomLevel);
+          _transformationController.value = matrix;
+        }
+      },
       builder: (context, state) {
         final project = state.project;
         if (project == null) {
@@ -21,9 +41,13 @@ class CanvasView extends StatelessWidget {
         return Container(
           color: Colors.grey[900], // Dark background for canvas area
           child: InteractiveViewer(
+            transformationController: _transformationController,
             boundaryMargin: const EdgeInsets.all(double.infinity),
             minScale: 0.1,
             maxScale: 5.0,
+            onInteractionEnd: (details) {
+              context.read<EditorBloc>().add(EditorEvent.setZoom(_transformationController.value.getMaxScaleOnAxis()));
+            },
             child: Center(
               child: GestureDetector(
                 onTap: () {

@@ -14,6 +14,9 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.reorderComponent(int oldIndex, int newIndex) = ReorderComponent;
   const factory EditorEvent.updateProjectSettings(Project project) = UpdateProjectSettings;
   const factory EditorEvent.toggleMode(EditorMode mode) = ToggleMode;
+  const factory EditorEvent.setZoom(double zoom) = SetZoom;
+  const factory EditorEvent.zoomIn() = ZoomIn;
+  const factory EditorEvent.zoomOut() = ZoomOut;
   const factory EditorEvent.restoreProject(Project project) = RestoreProject;
   const factory EditorEvent.undo() = UndoEvent;
   const factory EditorEvent.redo() = RedoEvent;
