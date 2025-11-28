@@ -15,20 +15,47 @@ class LayerPanel extends StatelessWidget {
       color: Colors.grey[200],
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text('Layers', style: TextStyle(fontWeight: FontWeight.bold)),
+          // Toolbar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            color: Colors.grey[300],
+            child: Row(
+              children: [
+                const Text('Layers', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.folder_open, size: 20),
+                  tooltip: 'Group',
+                  onPressed: () {
+                    // TODO: Implement Grouping
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.lock_open, size: 20),
+                  tooltip: 'Lock',
+                  onPressed: () {
+                    // TODO: Implement Locking
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.visibility, size: 20),
+                  tooltip: 'Visibility',
+                  onPressed: () {
+                    // TODO: Implement Visibility
+                  },
+                ),
+              ],
+            ),
           ),
-          const Divider(height: 1),
+
+          // List
           Expanded(
             child: BlocBuilder<EditorBloc, EditorState>(
               builder: (context, state) {
                 final project = state.project;
                 if (project == null) return const SizedBox();
 
-                // Reverse layers to show top-most at top of list
-                // Note: ReorderableListView needs a unique key for each item
-                final layers = project.layers.reversed.toList();
+                final layers = project.layers;
 
                 return ReorderableListView.builder(
                   itemCount: layers.length,
@@ -44,16 +71,28 @@ class LayerPanel extends StatelessWidget {
                     context.read<EditorBloc>().add(EditorEvent.reorderComponent(from, to));
                   },
                   itemBuilder: (context, index) {
-                    final component = layers[index];
+                    // Reverse index to show top layer at top of list
+                    final reversedIndex = layers.length - 1 - index;
+                    final component = layers[reversedIndex];
                     final isSelected = state.selectedComponentIds.contains(component.id);
 
                     return ListTile(
                       key: ValueKey(component.id),
                       selected: isSelected,
-                      selectedTileColor: Colors.blue.withValues(alpha: 0.1),
-                      leading: Icon(_getIcon(component), size: 16),
+                      selectedTileColor: Colors.blue.withOpacity(0.1),
+                      leading: Icon(
+                        component.map(pad: (_) => Icons.crop_square, knob: (_) => Icons.radio_button_checked),
+                        size: 16,
+                      ),
                       title: Text(component.name),
-                      trailing: const Icon(Icons.drag_handle),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (component.isLocked) const Icon(Icons.lock, size: 14),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.drag_handle, size: 16),
+                        ],
+                      ),
                       onTap: () {
                         context.read<EditorBloc>().add(EditorEvent.selectComponent(component.id, multiSelect: false));
                       },
@@ -66,9 +105,5 @@ class LayerPanel extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  IconData _getIcon(Component component) {
-    return component.map(pad: (_) => Icons.crop_square, knob: (_) => Icons.radio_button_checked);
   }
 }

@@ -17,31 +17,41 @@ class CanvasView extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return GestureDetector(
-          onTap: () {
-            context.read<EditorBloc>().add(const EditorEvent.selectComponent('', multiSelect: false));
-          },
-          child: Container(
-            color: Colors.grey[900], // Dark background for canvas area
+        // Use InteractiveViewer for Zoom/Pan
+        return Container(
+          color: Colors.grey[900], // Dark background for canvas area
+          child: InteractiveViewer(
+            boundaryMargin: const EdgeInsets.all(double.infinity),
+            minScale: 0.1,
+            maxScale: 5.0,
             child: Center(
-              child: Container(
-                width: project.canvasWidth,
-                height: project.canvasHeight,
-                color: _parseColor(project.backgroundColor), // Actual canvas background
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    ...project.layers.map((component) {
-                      return Positioned(
-                        left: component.x,
-                        top: component.y,
-                        child: _ComponentWrapper(
-                          component: component,
-                          isSelected: state.selectedComponentIds.contains(component.id),
-                        ),
-                      );
-                    }),
-                  ],
+              child: GestureDetector(
+                onTap: () {
+                  context.read<EditorBloc>().add(const EditorEvent.selectComponent('', multiSelect: false));
+                },
+                child: Container(
+                  width: project.canvasWidth,
+                  height: project.canvasHeight,
+                  color: _parseColor(project.backgroundColor), // Actual canvas background
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Grid (only in Edit mode)
+                      if (state.mode == EditorMode.edit) Positioned.fill(child: CustomPaint(painter: GridPainter())),
+
+                      // Layers
+                      ...project.layers.map((component) {
+                        return Positioned(
+                          left: component.x,
+                          top: component.y,
+                          child: _ComponentWrapper(
+                            component: component,
+                            isSelected: state.selectedComponentIds.contains(component.id),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -61,6 +71,29 @@ class CanvasView extends StatelessWidget {
       return Colors.white;
     }
   }
+}
+
+class GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey.withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    const gridSize = 20.0;
+
+    for (double x = 0; x <= size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    for (double y = 0; y <= size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _ComponentWrapper extends StatefulWidget {

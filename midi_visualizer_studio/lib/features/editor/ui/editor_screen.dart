@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/canvas_view.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/inspector_panel.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/layer_panel.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/parts/editor_app_bar.dart';
 import 'package:window_manager/window_manager.dart';
 
 class EditorScreen extends StatelessWidget {
@@ -47,79 +46,20 @@ class EditorScreen extends StatelessWidget {
           }
 
           return Scaffold(
-            appBar: AppBar(
-              title: Text(state.project?.name ?? 'Editor'),
-              leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go('/home')),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.layers),
-                  tooltip: 'Toggle Overlay Mode',
-                  onPressed: () {
-                    context.read<EditorBloc>().add(const EditorEvent.toggleMode(EditorMode.overlay));
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.color_lens),
-                  tooltip: 'Chroma Key Settings',
-                  onPressed: () => _showChromaKeyDialog(context, state.project!),
-                ),
-              ],
-            ),
-            body: const Row(
+            appBar: const EditorAppBar(),
+            drawer: const Drawer(child: Center(child: Text('Menu'))),
+            body: Row(
               children: [
-                LayerPanel(),
-                Expanded(child: CanvasView()),
-                InspectorPanel(),
+                // Layer Panel (Left)
+                const SizedBox(width: 250, child: LayerPanel()),
+                // Canvas (Center)
+                const Expanded(child: CanvasView()),
+                // Inspector (Right)
+                const SizedBox(width: 300, child: InspectorPanel()),
               ],
             ),
           );
         },
-      ),
-    );
-  }
-
-  void _showChromaKeyDialog(BuildContext context, Project project) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Background Settings'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Transparent'),
-              leading: const Icon(Icons.grid_on),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(
-                    project.copyWith(backgroundColor: '#00000000'), // Transparent
-                  ),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              title: const Text('Green Screen'),
-              leading: const Icon(Icons.circle, color: Colors.green),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#00FF00')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              title: const Text('Blue Screen'),
-              leading: const Icon(Icons.circle, color: Colors.blue),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#0000FF')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
       ),
     );
   }

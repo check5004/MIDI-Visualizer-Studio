@@ -4,8 +4,12 @@ import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 
+import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
+
 class EditorBloc extends Bloc<EditorEvent, EditorState> {
-  EditorBloc() : super(const EditorState()) {
+  final HistoryCubit historyCubit;
+
+  EditorBloc({HistoryCubit? historyCubit}) : historyCubit = historyCubit ?? HistoryCubit(), super(const EditorState()) {
     on<LoadProject>(_onLoadProject);
     on<AddComponent>(_onAddComponent);
     on<UpdateComponent>(_onUpdateComponent);
@@ -13,6 +17,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<ReorderComponent>(_onReorderComponent);
     on<UpdateProjectSettings>(_onUpdateProjectSettings);
     on<ToggleMode>(_onToggleMode);
+    on<RestoreProject>(_onRestoreProject);
+    on<UndoEvent>(_onUndo);
+    on<RedoEvent>(_onRedo);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -37,6 +44,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
+    _recordHistory();
     final updatedLayers = [...project.layers, event.component];
     emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
   }
@@ -45,6 +53,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
+    _recordHistory();
     final updatedLayers = project.layers.map((c) {
       return c.id == event.id ? event.component : c;
     }).toList();
@@ -77,9 +86,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
+    _recordHistory();
     final layers = List<Component>.from(project.layers);
     if (event.oldIndex < event.newIndex) {
-      // Adjust for the item being removed
       layers.insert(event.newIndex, layers.removeAt(event.oldIndex));
     } else {
       layers.insert(event.newIndex, layers.removeAt(event.oldIndex));
@@ -89,10 +98,43 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   }
 
   void _onUpdateProjectSettings(UpdateProjectSettings event, Emitter<EditorState> emit) {
+    _recordHistory();
     emit(state.copyWith(project: event.project));
   }
 
   void _onToggleMode(ToggleMode event, Emitter<EditorState> emit) {
     emit(state.copyWith(mode: event.mode));
+  }
+
+  void _onRestoreProject(RestoreProject event, Emitter<EditorState> emit) {
+    emit(state.copyWith(project: event.project));
+  }
+
+  void _onUndo(UndoEvent event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null) return;
+
+    final previousProject = historyCubit.undo(project);
+    if (previousProject != null) {
+      emit(state.copyWith(project: previousProject));
+    }
+  }
+
+  void _onRedo(RedoEvent event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null) return;
+
+    final nextProject = historyCubit.redo(project);
+    if (nextProject != null) {
+      emit(state.copyWith(project: nextProject));
+    }
+  }
+
+  // Helper to record history before mutation
+  void _recordHistory() {
+    final project = state.project;
+    if (project != null) {
+      historyCubit.record(project);
+    }
   }
 }

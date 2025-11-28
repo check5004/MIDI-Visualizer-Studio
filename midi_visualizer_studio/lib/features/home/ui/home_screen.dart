@@ -1,75 +1,98 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uuid/uuid.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projects'),
-        actions: [IconButton(icon: const Icon(Icons.settings), onPressed: () => context.push('/settings'))],
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1.0,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index == 0) {
-                    return _NewProjectCard();
-                  }
-                  return _ProjectCard(index: index);
-                },
-                childCount: 6, // 1 New + 5 Mock Projects
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: Divider(height: 40)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Developer Tools', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      ActionChip(
-                        avatar: const Icon(Icons.format_paint, size: 16),
-                        label: const Text('PoC: Bucket Fill'),
-                        onPressed: () => context.push('/poc/bucket-fill'),
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.piano, size: 16),
-                        label: const Text('PoC: MIDI Monitor'),
-                        onPressed: () => context.push('/poc/midi'),
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.school, size: 16),
-                        label: const Text('Tutorial'),
-                        onPressed: () => context.push('/tutorial'),
-                      ),
-                    ],
-                  ),
-                ],
+      body: Row(
+        children: [
+          // Sidebar
+          NavigationRail(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (int index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              if (index == 2) {
+                context.push('/settings');
+              }
+            },
+            labelType: NavigationRailLabelType.all,
+            destinations: const [
+              NavigationRailDestination(icon: Icon(Icons.history), label: Text('Recent')),
+              NavigationRailDestination(icon: Icon(Icons.folder_open), label: Text('Local')),
+              NavigationRailDestination(icon: Icon(Icons.settings), label: Text('Settings')),
+            ],
+            trailing: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: IconButton(
+                icon: const Icon(Icons.help_outline),
+                onPressed: () => context.push('/tutorial'),
+                tooltip: 'Tutorial',
               ),
             ),
           ),
+          const VerticalDivider(thickness: 1, width: 1),
+
+          // Main Content
+          Expanded(child: _selectedIndex == 0 ? _buildRecentProjects() : _buildLocalFiles()),
         ],
       ),
     );
+  }
+
+  Widget _buildRecentProjects() {
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(32.0),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Welcome Back', style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: 8),
+                Text('Continue working on your layouts.', style: Theme.of(context).textTheme.bodyLarge),
+              ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 250,
+              mainAxisSpacing: 24,
+              crossAxisSpacing: 24,
+              childAspectRatio: 0.8,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index == 0) {
+                  return _NewProjectCard();
+                }
+                return _ProjectCard(index: index);
+              },
+              childCount: 6, // 1 New + 5 Mock Projects
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocalFiles() {
+    return const Center(child: Text('Local file browser not implemented yet.'));
   }
 }
 
@@ -78,15 +101,32 @@ class _NewProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          final newId = const Uuid().v4();
-          context.push('/editor/$newId');
+          // Start with Tutorial for new projects
+          context.push('/tutorial');
         },
-        child: const Center(
+        child: Container(
+          color: Theme.of(context).primaryColor.withOpacity(0.05),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Icon(Icons.add, size: 48), SizedBox(height: 8), Text('New Project')],
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.add, size: 32, color: Theme.of(context).primaryColor),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'New Project',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+              ),
+            ],
           ),
         ),
       ),
@@ -103,6 +143,8 @@ class _ProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
           context.push('/editor/project-$index');
@@ -111,24 +153,30 @@ class _ProjectCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
+              flex: 3,
               child: Container(
-                color: Colors.grey[300],
-                child: const Icon(Icons.image, size: 48, color: Colors.grey),
+                color: Colors.grey[200],
+                child: Center(child: Icon(Icons.grid_view, size: 48, color: Colors.grey[400])),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Project $index',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text('Edited 2h ago', style: Theme.of(context).textTheme.bodySmall),
-                ],
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Project $index',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text('Edited 2h ago', style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                ),
               ),
             ),
           ],

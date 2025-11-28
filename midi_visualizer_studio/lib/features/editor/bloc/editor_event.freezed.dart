@@ -55,7 +55,7 @@ extension EditorEventPatterns on EditorEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -65,7 +65,10 @@ return updateComponent(_that);case SelectComponent() when selectComponent != nul
 return selectComponent(_that);case ReorderComponent() when reorderComponent != null:
 return reorderComponent(_that);case UpdateProjectSettings() when updateProjectSettings != null:
 return updateProjectSettings(_that);case ToggleMode() when toggleMode != null:
-return toggleMode(_that);case _:
+return toggleMode(_that);case RestoreProject() when restoreProject != null:
+return restoreProject(_that);case UndoEvent() when undo != null:
+return undo(_that);case RedoEvent() when redo != null:
+return redo(_that);case _:
   return orElse();
 
 }
@@ -83,7 +86,7 @@ return toggleMode(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,}){
 final _that = this;
 switch (_that) {
 case LoadProject():
@@ -93,7 +96,10 @@ return updateComponent(_that);case SelectComponent():
 return selectComponent(_that);case ReorderComponent():
 return reorderComponent(_that);case UpdateProjectSettings():
 return updateProjectSettings(_that);case ToggleMode():
-return toggleMode(_that);case _:
+return toggleMode(_that);case RestoreProject():
+return restoreProject(_that);case UndoEvent():
+return undo(_that);case RedoEvent():
+return redo(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -110,7 +116,7 @@ return toggleMode(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -120,7 +126,10 @@ return updateComponent(_that);case SelectComponent() when selectComponent != nul
 return selectComponent(_that);case ReorderComponent() when reorderComponent != null:
 return reorderComponent(_that);case UpdateProjectSettings() when updateProjectSettings != null:
 return updateProjectSettings(_that);case ToggleMode() when toggleMode != null:
-return toggleMode(_that);case _:
+return toggleMode(_that);case RestoreProject() when restoreProject != null:
+return restoreProject(_that);case UndoEvent() when undo != null:
+return undo(_that);case RedoEvent() when redo != null:
+return redo(_that);case _:
   return null;
 
 }
@@ -137,7 +146,7 @@ return toggleMode(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path);case AddComponent() when addComponent != null:
@@ -146,7 +155,10 @@ return updateComponent(_that.id,_that.component);case SelectComponent() when sel
 return selectComponent(_that.id,_that.multiSelect);case ReorderComponent() when reorderComponent != null:
 return reorderComponent(_that.oldIndex,_that.newIndex);case UpdateProjectSettings() when updateProjectSettings != null:
 return updateProjectSettings(_that.project);case ToggleMode() when toggleMode != null:
-return toggleMode(_that.mode);case _:
+return toggleMode(_that.mode);case RestoreProject() when restoreProject != null:
+return restoreProject(_that.project);case UndoEvent() when undo != null:
+return undo();case RedoEvent() when redo != null:
+return redo();case _:
   return orElse();
 
 }
@@ -164,7 +176,7 @@ return toggleMode(_that.mode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,}) {final _that = this;
 switch (_that) {
 case LoadProject():
 return loadProject(_that.path);case AddComponent():
@@ -173,7 +185,10 @@ return updateComponent(_that.id,_that.component);case SelectComponent():
 return selectComponent(_that.id,_that.multiSelect);case ReorderComponent():
 return reorderComponent(_that.oldIndex,_that.newIndex);case UpdateProjectSettings():
 return updateProjectSettings(_that.project);case ToggleMode():
-return toggleMode(_that.mode);case _:
+return toggleMode(_that.mode);case RestoreProject():
+return restoreProject(_that.project);case UndoEvent():
+return undo();case RedoEvent():
+return redo();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -190,7 +205,7 @@ return toggleMode(_that.mode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path);case AddComponent() when addComponent != null:
@@ -199,7 +214,10 @@ return updateComponent(_that.id,_that.component);case SelectComponent() when sel
 return selectComponent(_that.id,_that.multiSelect);case ReorderComponent() when reorderComponent != null:
 return reorderComponent(_that.oldIndex,_that.newIndex);case UpdateProjectSettings() when updateProjectSettings != null:
 return updateProjectSettings(_that.project);case ToggleMode() when toggleMode != null:
-return toggleMode(_that.mode);case _:
+return toggleMode(_that.mode);case RestoreProject() when restoreProject != null:
+return restoreProject(_that.project);case UndoEvent() when undo != null:
+return undo();case RedoEvent() when redo != null:
+return redo();case _:
   return null;
 
 }
@@ -701,5 +719,144 @@ as EditorMode,
 
 
 }
+
+/// @nodoc
+
+
+class RestoreProject implements EditorEvent {
+  const RestoreProject(this.project);
+  
+
+ final  Project project;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RestoreProjectCopyWith<RestoreProject> get copyWith => _$RestoreProjectCopyWithImpl<RestoreProject>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RestoreProject&&(identical(other.project, project) || other.project == project));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,project);
+
+@override
+String toString() {
+  return 'EditorEvent.restoreProject(project: $project)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RestoreProjectCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $RestoreProjectCopyWith(RestoreProject value, $Res Function(RestoreProject) _then) = _$RestoreProjectCopyWithImpl;
+@useResult
+$Res call({
+ Project project
+});
+
+
+$ProjectCopyWith<$Res> get project;
+
+}
+/// @nodoc
+class _$RestoreProjectCopyWithImpl<$Res>
+    implements $RestoreProjectCopyWith<$Res> {
+  _$RestoreProjectCopyWithImpl(this._self, this._then);
+
+  final RestoreProject _self;
+  final $Res Function(RestoreProject) _then;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? project = null,}) {
+  return _then(RestoreProject(
+null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
+as Project,
+  ));
+}
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProjectCopyWith<$Res> get project {
+  
+  return $ProjectCopyWith<$Res>(_self.project, (value) {
+    return _then(_self.copyWith(project: value));
+  });
+}
+}
+
+/// @nodoc
+
+
+class UndoEvent implements EditorEvent {
+  const UndoEvent();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UndoEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EditorEvent.undo()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class RedoEvent implements EditorEvent {
+  const RedoEvent();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RedoEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EditorEvent.redo()';
+}
+
+
+}
+
+
+
 
 // dart format on

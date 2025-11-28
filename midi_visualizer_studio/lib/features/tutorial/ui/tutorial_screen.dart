@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
@@ -9,129 +10,146 @@ class TutorialScreen extends StatefulWidget {
 }
 
 class _TutorialScreenState extends State<TutorialScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-
-  final List<Map<String, String>> _slides = [
-    {
-      'title': 'Welcome to MIDI Visualizer Studio',
-      'description': 'Create stunning visualizations for your MIDI performances.',
-      'icon': 'piano',
-    },
-    {
-      'title': 'Design Your Layout',
-      'description': 'Drag and drop pads, knobs, and faders to match your controller.',
-      'icon': 'dashboard_customize',
-    },
-    {
-      'title': 'Connect & Play',
-      'description': 'Connect your MIDI device and watch your design come to life.',
-      'icon': 'cable',
-    },
-  ];
+  int _rows = 4;
+  int _cols = 4;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _slides.length,
-                itemBuilder: (context, index) {
-                  return _TutorialSlide(
-                    title: _slides[index]['title']!,
-                    description: _slides[index]['description']!,
-                    iconData: _getIconData(_slides[index]['icon']!),
-                  );
-                },
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Create Your First Layout',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(onPressed: () => context.go('/home'), child: const Text('Skip')),
-                  Row(
-                    children: List.generate(
-                      _slides.length,
-                      (index) => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _currentPage == index ? Theme.of(context).primaryColor : Colors.grey,
-                        ),
+              const SizedBox(height: 8),
+              const Text(
+                'Define the grid size for your controller.',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+
+              // Preview
+              Expanded(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        color: Colors.grey[200],
+                      ),
+                      child: CustomPaint(
+                        painter: _GridPreviewPainter(rows: _rows, cols: _cols),
                       ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      if (_currentPage < _slides.length - 1) {
-                        _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
-                      } else {
-                        context.go('/home');
-                      }
-                    },
-                    child: Text(_currentPage == _slides.length - 1 ? 'Done' : 'Next'),
-                  ),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Controls
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildControl('Rows', _rows, (val) => setState(() => _rows = val)),
+                  _buildControl('Columns', _cols, (val) => setState(() => _cols = val)),
                 ],
               ),
-            ),
-          ],
+
+              const SizedBox(height: 32),
+
+              // Action
+              ElevatedButton(
+                onPressed: _createProject,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                child: const Text('Create Project'),
+              ),
+              const SizedBox(height: 16),
+              TextButton(onPressed: () => context.go('/home'), child: const Text('Skip Tutorial')),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'piano':
-        return Icons.piano;
-      case 'dashboard_customize':
-        return Icons.dashboard_customize;
-      case 'cable':
-        return Icons.cable;
-      default:
-        return Icons.help;
-    }
+  Widget _buildControl(String label, int value, ValueChanged<int> onChanged) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.remove_circle_outline),
+              onPressed: value > 1 ? () => onChanged(value - 1) : null,
+            ),
+            Text('$value', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline),
+              onPressed: value < 16 ? () => onChanged(value + 1) : null,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _createProject() {
+    // In a real app, we would save the project here.
+    // For now, we'll just navigate to editor with a "new" ID and maybe pass params?
+    // Since we can't pass objects easily, we'll assume the Editor loads a default or we mock it.
+    // Ideally, we should use a Repository to save the project.
+
+    // Let's generate a UUID
+    const uuid = Uuid();
+    final projectId = uuid.v4();
+
+    // TODO: Save project with _rows and _cols configuration
+    // For now, just go to editor. The EditorBloc will load a dummy project.
+    // We can't easily inject the rows/cols into the dummy project without a repository.
+
+    context.go('/editor/$projectId');
   }
 }
 
-class _TutorialSlide extends StatelessWidget {
-  final String title;
-  final String description;
-  final IconData iconData;
+class _GridPreviewPainter extends CustomPainter {
+  final int rows;
+  final int cols;
 
-  const _TutorialSlide({required this.title, required this.description, required this.iconData});
+  _GridPreviewPainter({required this.rows, required this.cols});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(iconData, size: 120, color: Theme.of(context).primaryColor),
-          const SizedBox(height: 40),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Text(description, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
-        ],
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final cellWidth = size.width / cols;
+    final cellHeight = size.height / rows;
+
+    for (int i = 0; i < cols; i++) {
+      for (int j = 0; j < rows; j++) {
+        final rect = Rect.fromLTWH(i * cellWidth + 4, j * cellHeight + 4, cellWidth - 8, cellHeight - 8);
+        canvas.drawRect(rect, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GridPreviewPainter oldDelegate) {
+    return oldDelegate.rows != rows || oldDelegate.cols != cols;
   }
 }
