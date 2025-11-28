@@ -106,38 +106,43 @@ class LayerPanel extends StatelessWidget {
                     final component = layers[reversedIndex];
                     final isSelected = state.selectedComponentIds.contains(component.id);
 
-                    return ListTile(
+                    return Container(
                       key: ValueKey(component.id),
-                      selected: isSelected,
-                      selectedTileColor: Colors.blue.withValues(alpha: 0.1),
-                      leading: Icon(
-                        component.map(
-                          pad: (_) => Icons.crop_square,
-                          knob: (_) => Icons.radio_button_checked,
-                          staticImage: (_) => Icons.image,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.5), width: 1),
                         ),
-                        size: 16,
-                        color: component.isVisible ? null : Colors.grey,
                       ),
-                      title: Text(
-                        component.name,
-                        style: TextStyle(
+                      child: ListTile(
+                        selected: isSelected,
+                        selectedTileColor: Colors.blue.withValues(alpha: 0.1),
+                        leading: Icon(
+                          component.map(
+                            pad: (_) => Icons.crop_square,
+                            knob: (_) => Icons.radio_button_checked,
+                            staticImage: (_) => Icons.image,
+                          ),
+                          size: 16,
                           color: component.isVisible ? null : Colors.grey,
-                          decoration: component.isVisible ? null : TextDecoration.lineThrough,
                         ),
+                        title: Text(
+                          component.name,
+                          style: TextStyle(
+                            color: component.isVisible ? null : Colors.grey,
+                            decoration: component.isVisible ? null : TextDecoration.lineThrough,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (!component.isVisible) const Icon(Icons.visibility_off, size: 14, color: Colors.grey),
+                            if (component.isLocked) const Icon(Icons.lock, size: 14),
+                          ],
+                        ),
+                        onTap: () {
+                          context.read<EditorBloc>().add(EditorEvent.selectComponent(component.id, multiSelect: false));
+                        },
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (!component.isVisible) const Icon(Icons.visibility_off, size: 14, color: Colors.grey),
-                          if (component.isLocked) const Icon(Icons.lock, size: 14),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.drag_handle, size: 16),
-                        ],
-                      ),
-                      onTap: () {
-                        context.read<EditorBloc>().add(EditorEvent.selectComponent(component.id, multiSelect: false));
-                      },
                     );
                   },
                 );
