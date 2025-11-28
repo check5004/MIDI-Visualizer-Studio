@@ -52,9 +52,9 @@ class MidiVisualizerApp extends StatelessWidget {
           builder: (context, state) {
             return MaterialApp.router(
               title: 'MIDI Visualizer Studio',
-              theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
+              theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue), useMaterial3: true),
               darkTheme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.dark),
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue, brightness: Brightness.dark),
                 useMaterial3: true,
               ),
               themeMode: state.themeMode,
