@@ -4,8 +4,25 @@ import 'package:midi_visualizer_studio/core/router/app_router.dart';
 import 'package:midi_visualizer_studio/core/services/midi_service.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 
-void main() {
+import 'package:window_manager/window_manager.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = const WindowOptions(
+    size: Size(1280, 720),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.normal,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
   final midiService = MidiService();
   runApp(MidiVisualizerApp(midiService: midiService));
 }
