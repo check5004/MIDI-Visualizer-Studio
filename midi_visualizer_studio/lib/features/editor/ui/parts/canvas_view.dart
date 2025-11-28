@@ -1,14 +1,19 @@
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/ruler_widget.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/parts/selection_overlay.dart';
 
 class CanvasView extends StatefulWidget {
   const CanvasView({super.key});
+
+  static const double kHandlePadding = 30.0;
 
   @override
   State<CanvasView> createState() => _CanvasViewState();
@@ -16,6 +21,8 @@ class CanvasView extends StatefulWidget {
 
 class _CanvasViewState extends State<CanvasView> {
   final TransformationController _transformationController = TransformationController();
+  bool _isMiddleClicking = false;
+  Offset? _lastMousePos;
 
   @override
   void dispose() {
@@ -67,67 +74,129 @@ class _CanvasViewState extends State<CanvasView> {
                   Expanded(
                     child: Container(
                       color: Colors.grey[900], // Dark background for canvas area
-                      child: InteractiveViewer(
-                        transformationController: _transformationController,
-                        boundaryMargin: const EdgeInsets.all(double.infinity),
-                        minScale: 0.1,
-                        maxScale: 5.0,
-                        onInteractionEnd: (details) {
-                          context.read<EditorBloc>().add(
-                            EditorEvent.setZoom(_transformationController.value.getMaxScaleOnAxis()),
-                          );
+                      child: Listener(
+                        onPointerDown: (event) {
+                          if (event.buttons == kMiddleMouseButton) {
+                            _isMiddleClicking = true;
+                            _lastMousePos = event.position;
+                          }
                         },
-                        child: Center(
-                          child: GestureDetector(
-                            onTapUp: (details) {
-                              if (state.currentTool == EditorTool.path) {
-                                context.read<EditorBloc>().add(EditorEvent.addPathPoint(details.localPosition));
+                        onPointerMove: (event) {
+                          if (_isMiddleClicking && _lastMousePos != null) {
+                            final delta = event.position - _lastMousePos!;
+                            _lastMousePos = event.position;
+
+                            final matrix = _transformationController.value.clone();
+                            // Pan is inverted relative to drag for "moving the viewport", but standard for "moving the canvas"
+                            // InteractiveViewer moves content with drag.
+                            // We want to move content with drag.
+                            // Translation should be scaled by zoom level?
+                            // InteractiveViewer's matrix translation is in viewport pixels?
+                            // Let's try direct translation first.
+                            final scale = matrix.getMaxScaleOnAxis();
+                            matrix.translate(delta.dx / scale, delta.dy / scale);
+                            _transformationController.value = matrix;
+                          }
+                        },
+                        onPointerUp: (event) {
+                          if (_isMiddleClicking) {
+                            _isMiddleClicking = false;
+                            _lastMousePos = null;
+                          }
+                        },
+                        onPointerSignal: (event) {
+                          if (event is PointerScrollEvent) {
+                            final matrix = _transformationController.value.clone();
+                            final scale = matrix.getMaxScaleOnAxis();
+
+                            if (event.scrollDelta.dy != 0) {
+                              if (HardwareKeyboard.instance.isControlPressed ||
+                                  HardwareKeyboard.instance.isMetaPressed) {
+                                // Zoom
+                                final zoomFactor = event.scrollDelta.dy > 0 ? 0.9 : 1.1;
+                                final newScale = (scale * zoomFactor).clamp(0.1, 5.0);
+                                context.read<EditorBloc>().add(EditorEvent.setZoom(newScale));
+                              } else if (HardwareKeyboard.instance.isShiftPressed) {
+                                // Pan X
+                                matrix.translate(-event.scrollDelta.dy / scale, 0.0);
+                                _transformationController.value = matrix;
                               } else {
-                                context.read<EditorBloc>().add(
-                                  const EditorEvent.selectComponent('', multiSelect: false),
-                                );
+                                // Pan Y
+                                matrix.translate(0.0, -event.scrollDelta.dy / scale);
+                                _transformationController.value = matrix;
                               }
-                            },
-                            onDoubleTap: () {
-                              if (state.currentTool == EditorTool.path) {
-                                context.read<EditorBloc>().add(const EditorEvent.finishPath());
-                              }
-                            },
-                            child: Container(
-                              width: project.canvasWidth,
-                              height: project.canvasHeight,
-                              color: _parseColor(project.backgroundColor), // Actual canvas background
-                              child: Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  // Grid (only in Edit mode)
-                                  if (state.mode == EditorMode.edit && state.showGrid)
-                                    Positioned.fill(
-                                      child: CustomPaint(painter: GridPainter(gridSize: state.gridSize)),
-                                    ),
-
-                                  // Layers
-                                  ...project.layers.map((component) {
-                                    if (!component.isVisible) return const SizedBox();
-
-                                    return Positioned(
-                                      left: component.x,
-                                      top: component.y,
-                                      child: _ComponentWrapper(
-                                        component: component,
-                                        isSelected: state.selectedComponentIds.contains(component.id),
-                                        gridSize: state.gridSize,
-                                        snapToGrid: state.snapToGrid,
+                            }
+                          }
+                        },
+                        child: InteractiveViewer(
+                          transformationController: _transformationController,
+                          boundaryMargin: const EdgeInsets.all(double.infinity),
+                          minScale: 0.1,
+                          maxScale: 5.0,
+                          panEnabled: false, // Disable default pan (Left Click Drag)
+                          scaleEnabled: false, // Disable default scale (Pinch/Scroll Zoom) - we handle it manually
+                          onInteractionEnd: (details) {
+                            context.read<EditorBloc>().add(
+                              EditorEvent.setZoom(_transformationController.value.getMaxScaleOnAxis()),
+                            );
+                          },
+                          child: Center(
+                            child: GestureDetector(
+                              onTapUp: (details) {
+                                if (state.currentTool == EditorTool.path) {
+                                  context.read<EditorBloc>().add(EditorEvent.addPathPoint(details.localPosition));
+                                } else {
+                                  context.read<EditorBloc>().add(
+                                    const EditorEvent.selectComponent('', multiSelect: false),
+                                  );
+                                }
+                              },
+                              onDoubleTap: () {
+                                if (state.currentTool == EditorTool.path) {
+                                  context.read<EditorBloc>().add(const EditorEvent.finishPath());
+                                }
+                              },
+                              child: Container(
+                                width: project.canvasWidth,
+                                height: project.canvasHeight,
+                                color: _parseColor(project.backgroundColor), // Actual canvas background
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    // Grid (only in Edit mode)
+                                    if (state.mode == EditorMode.edit && state.showGrid)
+                                      Positioned.fill(
+                                        child: CustomPaint(painter: GridPainter(gridSize: state.gridSize)),
                                       ),
-                                    );
-                                  }),
+                                    // Path Preview
+                                    if (state.currentTool == EditorTool.path && state.currentPathPoints.isNotEmpty)
+                                      Positioned.fill(
+                                        child: CustomPaint(
+                                          painter: PathPreviewPainter(points: state.currentPathPoints),
+                                        ),
+                                      ),
 
-                                  // Path Preview
-                                  if (state.currentTool == EditorTool.path && state.currentPathPoints.isNotEmpty)
-                                    Positioned.fill(
-                                      child: CustomPaint(painter: PathPreviewPainter(points: state.currentPathPoints)),
-                                    ),
-                                ],
+                                    // Layers
+                                    ...project.layers.map((component) {
+                                      if (!component.isVisible) return const SizedBox();
+
+                                      final isSelected = state.selectedComponentIds.contains(component.id);
+                                      final padding = isSelected ? CanvasView.kHandlePadding : 0.0;
+
+                                      return Positioned(
+                                        left: component.x - padding,
+                                        top: component.y - padding,
+                                        child: _ComponentWrapper(
+                                          component: component,
+                                          isSelected: isSelected,
+                                          gridSize: state.gridSize,
+                                          snapToGrid: state.snapToGrid,
+                                          padding: padding,
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -228,12 +297,14 @@ class _ComponentWrapper extends StatefulWidget {
   final bool isSelected;
   final double gridSize;
   final bool snapToGrid;
+  final double padding;
 
   const _ComponentWrapper({
     required this.component,
     required this.isSelected,
     required this.gridSize,
     required this.snapToGrid,
+    this.padding = 0,
   });
 
   @override
@@ -286,34 +357,49 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
             _dragOffset = Offset.zero;
           });
         },
-        child: CustomPaint(
-          painter: ComponentPainter(component: widget.component, isSelected: widget.isSelected),
-          child: SizedBox(
-            width: widget.component.width,
-            height: widget.component.height,
-            child: widget.component.map(
-              pad: (c) => Center(
-                child: Text(
-                  c.name,
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              knob: (c) => Center(
-                child: Text(
-                  c.name,
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              staticImage: (c) => Image.file(
-                File(c.imagePath),
-                fit: BoxFit.fill,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Icon(Icons.broken_image, color: Colors.red));
-                },
-              ),
+        child: Transform.rotate(
+          angle: widget.component.rotation,
+          child: widget.isSelected
+              ? ComponentSelectionOverlay(
+                  component: widget.component,
+                  gridSize: widget.gridSize,
+                  snapToGrid: widget.snapToGrid,
+                  padding: widget.padding,
+                  child: _buildComponentContent(),
+                )
+              : Padding(padding: EdgeInsets.all(widget.padding), child: _buildComponentContent()),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComponentContent() {
+    return CustomPaint(
+      painter: ComponentPainter(component: widget.component, isSelected: false), // Overlay handles selection visuals
+      child: SizedBox(
+        width: widget.component.width,
+        height: widget.component.height,
+        child: widget.component.map(
+          pad: (c) => Center(
+            child: Text(
+              c.name,
+              style: const TextStyle(color: Colors.white, fontSize: 10),
+              overflow: TextOverflow.ellipsis,
             ),
+          ),
+          knob: (c) => Center(
+            child: Text(
+              c.name,
+              style: const TextStyle(color: Colors.white, fontSize: 10),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          staticImage: (c) => Image.file(
+            File(c.imagePath),
+            fit: BoxFit.fill,
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(child: Icon(Icons.broken_image, color: Colors.red));
+            },
           ),
         ),
       ),
@@ -351,14 +437,6 @@ class ComponentPainter extends CustomPainter {
     } else {
       paint.color = Colors.orange;
       canvas.drawRect(Offset.zero & size, paint);
-    }
-
-    if (isSelected) {
-      final borderPaint = Paint()
-        ..color = Colors.blue
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-      canvas.drawRect(Offset.zero & size, borderPaint);
     }
   }
 

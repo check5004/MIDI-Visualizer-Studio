@@ -26,6 +26,9 @@ abstract class Component with _$Component {
     @Default(true) bool isVisible,
     @Default(PadShape.rect) PadShape shape,
     String? pathData,
+    @Default(0.0) double cornerRadius,
+    @Default(0.0) double borderWidth,
+    @Default('#FFFFFF') String borderColor,
     @Default('#00FF00') String onColor,
     @Default('#333333') String offColor,
     int? midiChannel,
@@ -48,6 +51,8 @@ abstract class Component with _$Component {
     @Default(135.0) double maxAngle,
     @Default(false) bool isRelative,
     @Default(KnobRelativeEffect.tint) KnobRelativeEffect relativeEffect,
+    String? knobImage,
+    String? pointerImage,
     int? midiChannel,
     int? midiCc,
   }) = ComponentKnob;

@@ -12,6 +12,16 @@ _Project _$ProjectFromJson(Map<String, dynamic> json) =>
         id: $checkedConvert('id', (v) => v as String),
         name: $checkedConvert('name', (v) => v as String),
         version: $checkedConvert('version', (v) => v as String),
+        description: $checkedConvert('description', (v) => v as String? ?? ''),
+        author: $checkedConvert('author', (v) => v as String? ?? ''),
+        createdAt: $checkedConvert(
+          'createdAt',
+          (v) => v == null ? null : DateTime.parse(v as String),
+        ),
+        updatedAt: $checkedConvert(
+          'updatedAt',
+          (v) => v == null ? null : DateTime.parse(v as String),
+        ),
         canvasWidth: $checkedConvert(
           'canvasWidth',
           (v) => (v as num?)?.toDouble() ?? 800,
@@ -44,6 +54,10 @@ Map<String, dynamic> _$ProjectToJson(_Project instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
   'version': instance.version,
+  'description': instance.description,
+  'author': instance.author,
+  'createdAt': instance.createdAt?.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
   'canvasWidth': instance.canvasWidth,
   'canvasHeight': instance.canvasHeight,
   'backgroundColor': instance.backgroundColor,
