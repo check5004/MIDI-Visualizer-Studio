@@ -7,6 +7,7 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'package:go_router/go_router.dart';
 
 class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EditorAppBar({super.key});
@@ -21,9 +22,13 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
         final project = state.project;
         return AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Scaffold.of(context).openDrawer();
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
             },
           ),
           title: Text(project?.name ?? 'Untitled Project'),

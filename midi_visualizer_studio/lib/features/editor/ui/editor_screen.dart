@@ -59,7 +59,6 @@ class EditorScreen extends StatelessWidget {
 
           return Scaffold(
             appBar: const EditorAppBar(),
-            drawer: const Drawer(child: Center(child: Text('Menu'))),
             body: Row(
               children: [
                 // Layer Panel (Left)

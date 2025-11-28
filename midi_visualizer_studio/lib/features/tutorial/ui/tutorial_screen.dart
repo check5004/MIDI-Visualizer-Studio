@@ -16,6 +16,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Tutorial')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),

@@ -9,7 +9,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(MidiVisualizerApp(midiService: midiService, prefs: prefs));
-    await tester.pumpAndSettle();
-    expect(find.text('Splash Screen'), findsOneWidget);
+    expect(find.text('MIDI Visualizer Studio'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(); // Process navigation
+    expect(find.text('Welcome Back'), findsOneWidget);
   });
 }

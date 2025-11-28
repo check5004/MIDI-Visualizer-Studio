@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/features/settings/ui/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,9 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() {
                 _selectedIndex = index;
               });
-              if (index == 2) {
-                context.push('/settings');
-              }
             },
             labelType: NavigationRailLabelType.all,
             destinations: const [
@@ -45,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const VerticalDivider(thickness: 1, width: 1),
 
           // Main Content
-          Expanded(child: _selectedIndex == 0 ? _buildRecentProjects() : _buildLocalFiles()),
+          Expanded(child: _buildMainContent()),
         ],
       ),
     );
@@ -89,6 +87,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildMainContent() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildRecentProjects();
+      case 1:
+        return _buildLocalFiles();
+      case 2:
+        return const SettingsScreen();
+      default:
+        return _buildRecentProjects();
+    }
   }
 
   Widget _buildLocalFiles() {
