@@ -25,4 +25,7 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.restoreProject(Project project) = RestoreProject;
   const factory EditorEvent.undo() = UndoEvent;
   const factory EditorEvent.redo() = RedoEvent;
+  const factory EditorEvent.toggleGrid() = ToggleGrid;
+  const factory EditorEvent.toggleSnapToGrid() = ToggleSnapToGrid;
+  const factory EditorEvent.setGridSize(double size) = SetGridSize;
 }

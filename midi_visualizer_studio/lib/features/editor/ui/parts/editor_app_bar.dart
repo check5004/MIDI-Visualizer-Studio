@@ -139,6 +139,37 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
             const VerticalDivider(indent: 10, endIndent: 10),
 
+            // Grid Settings
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.grid_on),
+              tooltip: 'Grid Settings',
+              itemBuilder: (context) => [
+                CheckedPopupMenuItem(checked: state.showGrid, value: 'show_grid', child: const Text('Show Grid')),
+                CheckedPopupMenuItem(
+                  checked: state.snapToGrid,
+                  value: 'snap_to_grid',
+                  child: const Text('Snap to Grid'),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(value: 'grid_size', child: Text('Grid Size: ${state.gridSize.toInt()}')),
+              ],
+              onSelected: (value) {
+                if (value == 'show_grid') {
+                  context.read<EditorBloc>().add(const EditorEvent.toggleGrid());
+                } else if (value == 'snap_to_grid') {
+                  context.read<EditorBloc>().add(const EditorEvent.toggleSnapToGrid());
+                } else if (value == 'grid_size') {
+                  // Cycle grid size
+                  final sizes = [10.0, 20.0, 50.0, 100.0];
+                  final currentIndex = sizes.indexOf(state.gridSize);
+                  final nextIndex = (currentIndex + 1) % sizes.length;
+                  context.read<EditorBloc>().add(EditorEvent.setGridSize(sizes[nextIndex]));
+                }
+              },
+            ),
+
+            const VerticalDivider(indent: 10, endIndent: 10),
+
             // Zoom
             IconButton(
               icon: const Icon(Icons.zoom_out),

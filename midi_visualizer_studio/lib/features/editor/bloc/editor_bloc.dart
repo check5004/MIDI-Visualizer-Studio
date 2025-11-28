@@ -27,6 +27,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<AddPathPoint>(_onAddPathPoint);
     on<FinishPath>(_onFinishPath);
     on<CancelPath>(_onCancelPath);
+    on<ToggleGrid>(_onToggleGrid);
+    on<ToggleSnapToGrid>(_onToggleSnapToGrid);
+    on<SetGridSize>(_onSetGridSize);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -231,6 +234,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
   void _onCancelPath(CancelPath event, Emitter<EditorState> emit) {
     emit(state.copyWith(currentPathPoints: [], currentTool: EditorTool.select));
+  }
+
+  void _onToggleGrid(ToggleGrid event, Emitter<EditorState> emit) {
+    emit(state.copyWith(showGrid: !state.showGrid));
+  }
+
+  void _onToggleSnapToGrid(ToggleSnapToGrid event, Emitter<EditorState> emit) {
+    emit(state.copyWith(snapToGrid: !state.snapToGrid));
+  }
+
+  void _onSetGridSize(SetGridSize event, Emitter<EditorState> emit) {
+    emit(state.copyWith(gridSize: event.size.clamp(5.0, 100.0)));
   }
 
   // Helper to record history before mutation
