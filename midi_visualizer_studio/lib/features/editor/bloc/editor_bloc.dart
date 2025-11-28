@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
@@ -23,6 +24,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<SetZoom>(_onSetZoom);
     on<ZoomIn>(_onZoomIn);
     on<ZoomOut>(_onZoomOut);
+    on<SelectTool>(_onSelectTool);
+    on<AddPathPoint>(_onAddPathPoint);
+    on<FinishPath>(_onFinishPath);
+    on<CancelPath>(_onCancelPath);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -145,6 +150,88 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   void _onZoomOut(ZoomOut event, Emitter<EditorState> emit) {
     final newZoom = (state.zoomLevel - 0.1).clamp(0.1, 5.0);
     emit(state.copyWith(zoomLevel: newZoom));
+  }
+
+  void _onSelectTool(SelectTool event, Emitter<EditorState> emit) {
+    emit(state.copyWith(currentTool: event.tool, currentPathPoints: []));
+  }
+
+  void _onAddPathPoint(AddPathPoint event, Emitter<EditorState> emit) {
+    final updatedPoints = [...state.currentPathPoints, event.point];
+    emit(state.copyWith(currentPathPoints: updatedPoints));
+  }
+
+  void _onFinishPath(FinishPath event, Emitter<EditorState> emit) {
+    final points = state.currentPathPoints;
+    if (points.length < 3) return; // Need at least 3 points for a polygon
+
+    final project = state.project;
+    if (project == null) return;
+
+    _recordHistory();
+
+    // Generate SVG path data
+    final buffer = StringBuffer();
+    buffer.write('M ${points[0].dx} ${points[0].dy}');
+    for (int i = 1; i < points.length; i++) {
+      buffer.write(' L ${points[i].dx} ${points[i].dy}');
+    }
+    buffer.write(' Z');
+
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    // Calculate bounding box
+    double minX = points[0].dx;
+    double minY = points[0].dy;
+    double maxX = points[0].dx;
+    double maxY = points[0].dy;
+
+    for (final point in points) {
+      if (point.dx < minX) minX = point.dx;
+      if (point.dy < minY) minY = point.dy;
+      if (point.dx > maxX) maxX = point.dx;
+      if (point.dy > maxY) maxY = point.dy;
+    }
+
+    final width = maxX - minX;
+    final height = maxY - minY;
+
+    // Create component
+    // Note: We might want to normalize points relative to x,y, but for now absolute path is fine or we can adjust.
+    // Ideally, x,y is top-left, and path is relative to it.
+    // Let's stick to absolute path for simplicity first, or adjust if needed.
+    // If we want x,y to be meaningful, we should subtract minX, minY from points.
+
+    // Adjust points to be relative to minX, minY
+    final relativeBuffer = StringBuffer();
+    relativeBuffer.write('M ${points[0].dx - minX} ${points[0].dy - minY}');
+    for (int i = 1; i < points.length; i++) {
+      relativeBuffer.write(' L ${points[i].dx - minX} ${points[i].dy - minY}');
+    }
+    relativeBuffer.write(' Z');
+
+    final component = Component.pad(
+      id: id,
+      name: 'Path $id',
+      x: minX,
+      y: minY,
+      width: width,
+      height: height,
+      shape: PadShape.path,
+      pathData: relativeBuffer.toString(),
+    );
+
+    final updatedLayers = [...project.layers, component];
+    emit(
+      state.copyWith(
+        project: project.copyWith(layers: updatedLayers),
+        currentPathPoints: [],
+        currentTool: EditorTool.select, // Reset tool after finishing
+      ),
+    );
+  }
+
+  void _onCancelPath(CancelPath event, Emitter<EditorState> emit) {
+    emit(state.copyWith(currentPathPoints: [], currentTool: EditorTool.select));
   }
 
   // Helper to record history before mutation

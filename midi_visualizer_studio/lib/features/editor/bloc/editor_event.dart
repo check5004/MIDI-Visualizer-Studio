@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
@@ -17,6 +18,10 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.setZoom(double zoom) = SetZoom;
   const factory EditorEvent.zoomIn() = ZoomIn;
   const factory EditorEvent.zoomOut() = ZoomOut;
+  const factory EditorEvent.selectTool(EditorTool tool) = SelectTool;
+  const factory EditorEvent.addPathPoint(Offset point) = AddPathPoint;
+  const factory EditorEvent.finishPath() = FinishPath;
+  const factory EditorEvent.cancelPath() = CancelPath;
   const factory EditorEvent.restoreProject(Project project) = RestoreProject;
   const factory EditorEvent.undo() = UndoEvent;
   const factory EditorEvent.redo() = RedoEvent;

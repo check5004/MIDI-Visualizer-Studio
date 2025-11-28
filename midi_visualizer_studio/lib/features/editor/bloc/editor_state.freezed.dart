@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EditorState {
 
- EditorStatus get status; Project? get project; Set<String> get selectedComponentIds; EditorMode get mode; double get zoomLevel; String? get errorMessage;
+ EditorStatus get status; Project? get project; Set<String> get selectedComponentIds; EditorMode get mode; double get zoomLevel; EditorTool get currentTool; List<Offset> get currentPathPoints; String? get errorMessage;
 /// Create a copy of EditorState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $EditorStateCopyWith<EditorState> get copyWith => _$EditorStateCopyWithImpl<Edit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other.selectedComponentIds, selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other.selectedComponentIds, selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.currentTool, currentTool) || other.currentTool == currentTool)&&const DeepCollectionEquality().equals(other.currentPathPoints, currentPathPoints)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(selectedComponentIds),mode,zoomLevel,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(selectedComponentIds),mode,zoomLevel,currentTool,const DeepCollectionEquality().hash(currentPathPoints),errorMessage);
 
 @override
 String toString() {
-  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, errorMessage: $errorMessage)';
+  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, currentTool: $currentTool, currentPathPoints: $currentPathPoints, errorMessage: $errorMessage)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $EditorStateCopyWith<$Res>  {
   factory $EditorStateCopyWith(EditorState value, $Res Function(EditorState) _then) = _$EditorStateCopyWithImpl;
 @useResult
 $Res call({
- EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, String? errorMessage
+ EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, EditorTool currentTool, List<Offset> currentPathPoints, String? errorMessage
 });
 
 
@@ -62,14 +62,16 @@ class _$EditorStateCopyWithImpl<$Res>
 
 /// Create a copy of EditorState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? currentTool = null,Object? currentPathPoints = null,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as EditorStatus,project: freezed == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
 as Project?,selectedComponentIds: null == selectedComponentIds ? _self.selectedComponentIds : selectedComponentIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as EditorMode,zoomLevel: null == zoomLevel ? _self.zoomLevel : zoomLevel // ignore: cast_nullable_to_non_nullable
-as double,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as double,currentTool: null == currentTool ? _self.currentTool : currentTool // ignore: cast_nullable_to_non_nullable
+as EditorTool,currentPathPoints: null == currentPathPoints ? _self.currentPathPoints : currentPathPoints // ignore: cast_nullable_to_non_nullable
+as List<Offset>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -167,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EditorState() when $default != null:
-return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.errorMessage);case _:
+return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -188,10 +190,10 @@ return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _EditorState():
-return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.errorMessage);case _:
+return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -208,10 +210,10 @@ return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EditorStatus status,  Project? project,  Set<String> selectedComponentIds,  EditorMode mode,  double zoomLevel,  EditorTool currentTool,  List<Offset> currentPathPoints,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _EditorState() when $default != null:
-return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.errorMessage);case _:
+return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode,_that.zoomLevel,_that.currentTool,_that.currentPathPoints,_that.errorMessage);case _:
   return null;
 
 }
@@ -223,7 +225,7 @@ return $default(_that.status,_that.project,_that.selectedComponentIds,_that.mode
 
 
 class _EditorState implements EditorState {
-  const _EditorState({this.status = EditorStatus.initial, this.project, final  Set<String> selectedComponentIds = const {}, this.mode = EditorMode.edit, this.zoomLevel = 1.0, this.errorMessage}): _selectedComponentIds = selectedComponentIds;
+  const _EditorState({this.status = EditorStatus.initial, this.project, final  Set<String> selectedComponentIds = const {}, this.mode = EditorMode.edit, this.zoomLevel = 1.0, this.currentTool = EditorTool.select, final  List<Offset> currentPathPoints = const [], this.errorMessage}): _selectedComponentIds = selectedComponentIds,_currentPathPoints = currentPathPoints;
   
 
 @override@JsonKey() final  EditorStatus status;
@@ -237,6 +239,14 @@ class _EditorState implements EditorState {
 
 @override@JsonKey() final  EditorMode mode;
 @override@JsonKey() final  double zoomLevel;
+@override@JsonKey() final  EditorTool currentTool;
+ final  List<Offset> _currentPathPoints;
+@override@JsonKey() List<Offset> get currentPathPoints {
+  if (_currentPathPoints is EqualUnmodifiableListView) return _currentPathPoints;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_currentPathPoints);
+}
+
 @override final  String? errorMessage;
 
 /// Create a copy of EditorState
@@ -249,16 +259,16 @@ _$EditorStateCopyWith<_EditorState> get copyWith => __$EditorStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other._selectedComponentIds, _selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EditorState&&(identical(other.status, status) || other.status == status)&&(identical(other.project, project) || other.project == project)&&const DeepCollectionEquality().equals(other._selectedComponentIds, _selectedComponentIds)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.zoomLevel, zoomLevel) || other.zoomLevel == zoomLevel)&&(identical(other.currentTool, currentTool) || other.currentTool == currentTool)&&const DeepCollectionEquality().equals(other._currentPathPoints, _currentPathPoints)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(_selectedComponentIds),mode,zoomLevel,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,project,const DeepCollectionEquality().hash(_selectedComponentIds),mode,zoomLevel,currentTool,const DeepCollectionEquality().hash(_currentPathPoints),errorMessage);
 
 @override
 String toString() {
-  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, errorMessage: $errorMessage)';
+  return 'EditorState(status: $status, project: $project, selectedComponentIds: $selectedComponentIds, mode: $mode, zoomLevel: $zoomLevel, currentTool: $currentTool, currentPathPoints: $currentPathPoints, errorMessage: $errorMessage)';
 }
 
 
@@ -269,7 +279,7 @@ abstract mixin class _$EditorStateCopyWith<$Res> implements $EditorStateCopyWith
   factory _$EditorStateCopyWith(_EditorState value, $Res Function(_EditorState) _then) = __$EditorStateCopyWithImpl;
 @override @useResult
 $Res call({
- EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, String? errorMessage
+ EditorStatus status, Project? project, Set<String> selectedComponentIds, EditorMode mode, double zoomLevel, EditorTool currentTool, List<Offset> currentPathPoints, String? errorMessage
 });
 
 
@@ -286,14 +296,16 @@ class __$EditorStateCopyWithImpl<$Res>
 
 /// Create a copy of EditorState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? project = freezed,Object? selectedComponentIds = null,Object? mode = null,Object? zoomLevel = null,Object? currentTool = null,Object? currentPathPoints = null,Object? errorMessage = freezed,}) {
   return _then(_EditorState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as EditorStatus,project: freezed == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
 as Project?,selectedComponentIds: null == selectedComponentIds ? _self._selectedComponentIds : selectedComponentIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
 as EditorMode,zoomLevel: null == zoomLevel ? _self.zoomLevel : zoomLevel // ignore: cast_nullable_to_non_nullable
-as double,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as double,currentTool: null == currentTool ? _self.currentTool : currentTool // ignore: cast_nullable_to_non_nullable
+as EditorTool,currentPathPoints: null == currentPathPoints ? _self._currentPathPoints : currentPathPoints // ignore: cast_nullable_to_non_nullable
+as List<Offset>,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

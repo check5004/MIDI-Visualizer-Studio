@@ -35,15 +35,25 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.touch_app),
               tooltip: 'Select',
+              color: state.currentTool == EditorTool.select ? Theme.of(context).primaryColor : null,
               onPressed: () {
-                // Set tool mode (not implemented in Bloc yet, but we can just deselect)
-                context.read<EditorBloc>().add(const EditorEvent.selectComponent('', multiSelect: false));
+                context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.select));
               },
             ),
             IconButton(
               icon: const Icon(Icons.crop_square),
               tooltip: 'Rectangle',
+              color: state.currentTool == EditorTool.rectangle ? Theme.of(context).primaryColor : null,
               onPressed: () {
+                // For now, rectangle/circle just add immediately, but ideally they should be tools too.
+                // Keeping original behavior for now but switching tool state for visual consistency if needed.
+                // Actually, let's make them tools later. For now, just keep add behavior but maybe reset tool to select?
+                // Or better: The plan said "Update tool buttons to use selectTool event".
+                // But existing code adds component immediately.
+                // Let's stick to the plan for Path tool specifically, and maybe Select.
+                // For Rectangle/Circle, let's keep them as "Add" actions for now, or switch to tool if we want drag-to-create.
+                // The prompt implies "Path Tool" is the focus.
+                // Let's update Select and Path.
                 _addComponent(context, PadShape.rect);
               },
             ),
@@ -57,8 +67,9 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.gesture),
               tooltip: 'Path',
+              color: state.currentTool == EditorTool.path ? Theme.of(context).primaryColor : null,
               onPressed: () {
-                // TODO: Implement Path tool
+                context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.path));
               },
             ),
             IconButton(

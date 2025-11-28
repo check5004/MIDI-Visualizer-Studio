@@ -50,8 +50,21 @@ class _CanvasViewState extends State<CanvasView> {
             },
             child: Center(
               child: GestureDetector(
-                onTap: () {
-                  context.read<EditorBloc>().add(const EditorEvent.selectComponent('', multiSelect: false));
+                onTapUp: (details) {
+                  if (state.currentTool == EditorTool.path) {
+                    // Add point relative to canvas
+                    // We need to convert global position to local position relative to the canvas container
+                    // But GestureDetector is inside Center inside InteractiveViewer.
+                    // details.localPosition should be relative to the child of GestureDetector, which is the Container.
+                    context.read<EditorBloc>().add(EditorEvent.addPathPoint(details.localPosition));
+                  } else {
+                    context.read<EditorBloc>().add(const EditorEvent.selectComponent('', multiSelect: false));
+                  }
+                },
+                onDoubleTap: () {
+                  if (state.currentTool == EditorTool.path) {
+                    context.read<EditorBloc>().add(const EditorEvent.finishPath());
+                  }
                 },
                 child: Container(
                   width: project.canvasWidth,
@@ -74,6 +87,12 @@ class _CanvasViewState extends State<CanvasView> {
                           ),
                         );
                       }),
+
+                      // Path Preview
+                      if (state.currentTool == EditorTool.path && state.currentPathPoints.isNotEmpty)
+                        Positioned.fill(
+                          child: CustomPaint(painter: PathPreviewPainter(points: state.currentPathPoints)),
+                        ),
                     ],
                   ),
                 ),
@@ -118,6 +137,48 @@ class GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class PathPreviewPainter extends CustomPainter {
+  final List<Offset> points;
+
+  PathPreviewPainter({required this.points});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (points.isEmpty) return;
+
+    final paint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final pointPaint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill;
+
+    for (int i = 0; i < points.length; i++) {
+      canvas.drawCircle(points[i], 4, pointPaint);
+      if (i > 0) {
+        canvas.drawLine(points[i - 1], points[i], paint);
+      }
+    }
+
+    // Close the loop preview if more than 2 points
+    if (points.length > 2) {
+      final closePaint = Paint()
+        ..color = Colors.blue.withOpacity(0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1;
+
+      canvas.drawLine(points.last, points.first, closePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant PathPreviewPainter oldDelegate) {
+    return oldDelegate.points != points;
+  }
 }
 
 class _ComponentWrapper extends StatefulWidget {
@@ -170,30 +231,100 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
             _dragOffset = Offset.zero;
           });
         },
-        child: Container(
-          width: widget.component.width,
-          height: widget.component.height,
-          decoration: BoxDecoration(
-            border: widget.isSelected ? Border.all(color: Colors.blue, width: 2) : null,
-            color: _getColor(widget.component),
-          ),
-          child: Center(
-            child: Text(
-              widget.component.name,
-              style: const TextStyle(color: Colors.white, fontSize: 10),
-              overflow: TextOverflow.ellipsis,
+        child: CustomPaint(
+          painter: ComponentPainter(component: widget.component, isSelected: widget.isSelected),
+          child: SizedBox(
+            width: widget.component.width,
+            height: widget.component.height,
+            child: Center(
+              child: Text(
+                widget.component.name,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
 
-  Color _getColor(Component component) {
-    // Helper to parse hex color or return default
-    return component.map(
-      pad: (c) => Colors.green, // Placeholder
-      knob: (c) => Colors.orange, // Placeholder
-    );
+class ComponentPainter extends CustomPainter {
+  final Component component;
+  final bool isSelected;
+
+  ComponentPainter({required this.component, required this.isSelected});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    if (component is ComponentPad) {
+      final pad = component as ComponentPad;
+      paint.color = _parseColor(pad.onColor); // Using onColor for now
+
+      if (pad.shape == PadShape.rect) {
+        canvas.drawRect(Offset.zero & size, paint);
+      } else if (pad.shape == PadShape.circle) {
+        canvas.drawOval(Offset.zero & size, paint);
+      } else if (pad.shape == PadShape.path && pad.pathData != null) {
+        final path = _parseSvgPath(pad.pathData!);
+        // Scale path to fit size if needed, but pathData is absolute/relative to 0,0 of component
+        // Since we created path relative to minX, minY, it should fit in width/height (size)
+        canvas.drawPath(path, paint);
+      }
+    } else {
+      paint.color = Colors.orange;
+      canvas.drawRect(Offset.zero & size, paint);
+    }
+
+    if (isSelected) {
+      final borderPaint = Paint()
+        ..color = Colors.blue
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      canvas.drawRect(Offset.zero & size, borderPaint);
+    }
+  }
+
+  Path _parseSvgPath(String pathData) {
+    // Simple parser for M and L commands
+    final path = Path();
+    final parts = pathData.split(' ');
+
+    if (parts.isEmpty) return path;
+
+    for (int i = 0; i < parts.length; i++) {
+      final cmd = parts[i];
+      if (cmd == 'M') {
+        final x = double.parse(parts[++i]);
+        final y = double.parse(parts[++i]);
+        path.moveTo(x, y);
+      } else if (cmd == 'L') {
+        final x = double.parse(parts[++i]);
+        final y = double.parse(parts[++i]);
+        path.lineTo(x, y);
+      } else if (cmd == 'Z') {
+        path.close();
+      }
+    }
+    return path;
+  }
+
+  Color _parseColor(String hexString) {
+    try {
+      final buffer = StringBuffer();
+      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+      buffer.write(hexString.replaceFirst('#', ''));
+      return Color(int.parse(buffer.toString(), radix: 16));
+    } catch (e) {
+      return Colors.white;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant ComponentPainter oldDelegate) {
+    return oldDelegate.component != component || oldDelegate.isSelected != isSelected;
   }
 }

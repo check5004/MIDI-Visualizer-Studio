@@ -55,7 +55,7 @@ extension EditorEventPatterns on EditorEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -68,7 +68,11 @@ return updateProjectSettings(_that);case ToggleMode() when toggleMode != null:
 return toggleMode(_that);case SetZoom() when setZoom != null:
 return setZoom(_that);case ZoomIn() when zoomIn != null:
 return zoomIn(_that);case ZoomOut() when zoomOut != null:
-return zoomOut(_that);case RestoreProject() when restoreProject != null:
+return zoomOut(_that);case SelectTool() when selectTool != null:
+return selectTool(_that);case AddPathPoint() when addPathPoint != null:
+return addPathPoint(_that);case FinishPath() when finishPath != null:
+return finishPath(_that);case CancelPath() when cancelPath != null:
+return cancelPath(_that);case RestoreProject() when restoreProject != null:
 return restoreProject(_that);case UndoEvent() when undo != null:
 return undo(_that);case RedoEvent() when redo != null:
 return redo(_that);case _:
@@ -89,7 +93,7 @@ return redo(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,}){
 final _that = this;
 switch (_that) {
 case LoadProject():
@@ -102,7 +106,11 @@ return updateProjectSettings(_that);case ToggleMode():
 return toggleMode(_that);case SetZoom():
 return setZoom(_that);case ZoomIn():
 return zoomIn(_that);case ZoomOut():
-return zoomOut(_that);case RestoreProject():
+return zoomOut(_that);case SelectTool():
+return selectTool(_that);case AddPathPoint():
+return addPathPoint(_that);case FinishPath():
+return finishPath(_that);case CancelPath():
+return cancelPath(_that);case RestoreProject():
 return restoreProject(_that);case UndoEvent():
 return undo(_that);case RedoEvent():
 return redo(_that);case _:
@@ -122,7 +130,7 @@ return redo(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -135,7 +143,11 @@ return updateProjectSettings(_that);case ToggleMode() when toggleMode != null:
 return toggleMode(_that);case SetZoom() when setZoom != null:
 return setZoom(_that);case ZoomIn() when zoomIn != null:
 return zoomIn(_that);case ZoomOut() when zoomOut != null:
-return zoomOut(_that);case RestoreProject() when restoreProject != null:
+return zoomOut(_that);case SelectTool() when selectTool != null:
+return selectTool(_that);case AddPathPoint() when addPathPoint != null:
+return addPathPoint(_that);case FinishPath() when finishPath != null:
+return finishPath(_that);case CancelPath() when cancelPath != null:
+return cancelPath(_that);case RestoreProject() when restoreProject != null:
 return restoreProject(_that);case UndoEvent() when undo != null:
 return undo(_that);case RedoEvent() when redo != null:
 return redo(_that);case _:
@@ -155,7 +167,7 @@ return redo(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path);case AddComponent() when addComponent != null:
@@ -167,7 +179,11 @@ return updateProjectSettings(_that.project);case ToggleMode() when toggleMode !=
 return toggleMode(_that.mode);case SetZoom() when setZoom != null:
 return setZoom(_that.zoom);case ZoomIn() when zoomIn != null:
 return zoomIn();case ZoomOut() when zoomOut != null:
-return zoomOut();case RestoreProject() when restoreProject != null:
+return zoomOut();case SelectTool() when selectTool != null:
+return selectTool(_that.tool);case AddPathPoint() when addPathPoint != null:
+return addPathPoint(_that.point);case FinishPath() when finishPath != null:
+return finishPath();case CancelPath() when cancelPath != null:
+return cancelPath();case RestoreProject() when restoreProject != null:
 return restoreProject(_that.project);case UndoEvent() when undo != null:
 return undo();case RedoEvent() when redo != null:
 return redo();case _:
@@ -188,7 +204,7 @@ return redo();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,}) {final _that = this;
 switch (_that) {
 case LoadProject():
 return loadProject(_that.path);case AddComponent():
@@ -200,7 +216,11 @@ return updateProjectSettings(_that.project);case ToggleMode():
 return toggleMode(_that.mode);case SetZoom():
 return setZoom(_that.zoom);case ZoomIn():
 return zoomIn();case ZoomOut():
-return zoomOut();case RestoreProject():
+return zoomOut();case SelectTool():
+return selectTool(_that.tool);case AddPathPoint():
+return addPathPoint(_that.point);case FinishPath():
+return finishPath();case CancelPath():
+return cancelPath();case RestoreProject():
 return restoreProject(_that.project);case UndoEvent():
 return undo();case RedoEvent():
 return redo();case _:
@@ -220,7 +240,7 @@ return redo();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path);case AddComponent() when addComponent != null:
@@ -232,7 +252,11 @@ return updateProjectSettings(_that.project);case ToggleMode() when toggleMode !=
 return toggleMode(_that.mode);case SetZoom() when setZoom != null:
 return setZoom(_that.zoom);case ZoomIn() when zoomIn != null:
 return zoomIn();case ZoomOut() when zoomOut != null:
-return zoomOut();case RestoreProject() when restoreProject != null:
+return zoomOut();case SelectTool() when selectTool != null:
+return selectTool(_that.tool);case AddPathPoint() when addPathPoint != null:
+return addPathPoint(_that.point);case FinishPath() when finishPath != null:
+return finishPath();case CancelPath() when cancelPath != null:
+return cancelPath();case RestoreProject() when restoreProject != null:
 return restoreProject(_that.project);case UndoEvent() when undo != null:
 return undo();case RedoEvent() when redo != null:
 return redo();case _:
@@ -860,6 +884,202 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'EditorEvent.zoomOut()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class SelectTool implements EditorEvent {
+  const SelectTool(this.tool);
+  
+
+ final  EditorTool tool;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SelectToolCopyWith<SelectTool> get copyWith => _$SelectToolCopyWithImpl<SelectTool>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SelectTool&&(identical(other.tool, tool) || other.tool == tool));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,tool);
+
+@override
+String toString() {
+  return 'EditorEvent.selectTool(tool: $tool)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SelectToolCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $SelectToolCopyWith(SelectTool value, $Res Function(SelectTool) _then) = _$SelectToolCopyWithImpl;
+@useResult
+$Res call({
+ EditorTool tool
+});
+
+
+
+
+}
+/// @nodoc
+class _$SelectToolCopyWithImpl<$Res>
+    implements $SelectToolCopyWith<$Res> {
+  _$SelectToolCopyWithImpl(this._self, this._then);
+
+  final SelectTool _self;
+  final $Res Function(SelectTool) _then;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? tool = null,}) {
+  return _then(SelectTool(
+null == tool ? _self.tool : tool // ignore: cast_nullable_to_non_nullable
+as EditorTool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class AddPathPoint implements EditorEvent {
+  const AddPathPoint(this.point);
+  
+
+ final  Offset point;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AddPathPointCopyWith<AddPathPoint> get copyWith => _$AddPathPointCopyWithImpl<AddPathPoint>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddPathPoint&&(identical(other.point, point) || other.point == point));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,point);
+
+@override
+String toString() {
+  return 'EditorEvent.addPathPoint(point: $point)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AddPathPointCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $AddPathPointCopyWith(AddPathPoint value, $Res Function(AddPathPoint) _then) = _$AddPathPointCopyWithImpl;
+@useResult
+$Res call({
+ Offset point
+});
+
+
+
+
+}
+/// @nodoc
+class _$AddPathPointCopyWithImpl<$Res>
+    implements $AddPathPointCopyWith<$Res> {
+  _$AddPathPointCopyWithImpl(this._self, this._then);
+
+  final AddPathPoint _self;
+  final $Res Function(AddPathPoint) _then;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? point = null,}) {
+  return _then(AddPathPoint(
+null == point ? _self.point : point // ignore: cast_nullable_to_non_nullable
+as Offset,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class FinishPath implements EditorEvent {
+  const FinishPath();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FinishPath);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EditorEvent.finishPath()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class CancelPath implements EditorEvent {
+  const CancelPath();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CancelPath);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EditorEvent.cancelPath()';
 }
 
 
