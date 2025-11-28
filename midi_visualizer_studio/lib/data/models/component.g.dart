@@ -19,6 +19,7 @@ ComponentPad _$ComponentPadFromJson(
     rotation: $checkedConvert('rotation', (v) => (v as num?)?.toDouble() ?? 0),
     zIndex: $checkedConvert('zIndex', (v) => (v as num?)?.toInt() ?? 0),
     isLocked: $checkedConvert('isLocked', (v) => v as bool? ?? false),
+    isVisible: $checkedConvert('isVisible', (v) => v as bool? ?? true),
     shape: $checkedConvert(
       'shape',
       (v) => $enumDecodeNullable(_$PadShapeEnumMap, v) ?? PadShape.rect,
@@ -44,6 +45,7 @@ Map<String, dynamic> _$ComponentPadToJson(ComponentPad instance) =>
       'rotation': instance.rotation,
       'zIndex': instance.zIndex,
       'isLocked': instance.isLocked,
+      'isVisible': instance.isVisible,
       'shape': _$PadShapeEnumMap[instance.shape]!,
       'pathData': instance.pathData,
       'onColor': instance.onColor,
@@ -72,6 +74,7 @@ ComponentKnob _$ComponentKnobFromJson(
     rotation: $checkedConvert('rotation', (v) => (v as num?)?.toDouble() ?? 0),
     zIndex: $checkedConvert('zIndex', (v) => (v as num?)?.toInt() ?? 0),
     isLocked: $checkedConvert('isLocked', (v) => v as bool? ?? false),
+    isVisible: $checkedConvert('isVisible', (v) => v as bool? ?? true),
     style: $checkedConvert(
       'style',
       (v) => $enumDecodeNullable(_$KnobStyleEnumMap, v) ?? KnobStyle.vectorArc,
@@ -109,6 +112,7 @@ Map<String, dynamic> _$ComponentKnobToJson(ComponentKnob instance) =>
       'rotation': instance.rotation,
       'zIndex': instance.zIndex,
       'isLocked': instance.isLocked,
+      'isVisible': instance.isVisible,
       'style': _$KnobStyleEnumMap[instance.style]!,
       'minAngle': instance.minAngle,
       'maxAngle': instance.maxAngle,
@@ -144,6 +148,7 @@ ComponentStaticImage _$ComponentStaticImageFromJson(
     rotation: $checkedConvert('rotation', (v) => (v as num?)?.toDouble() ?? 0),
     zIndex: $checkedConvert('zIndex', (v) => (v as num?)?.toInt() ?? 0),
     isLocked: $checkedConvert('isLocked', (v) => v as bool? ?? false),
+    isVisible: $checkedConvert('isVisible', (v) => v as bool? ?? true),
     imagePath: $checkedConvert('imagePath', (v) => v as String),
     $type: $checkedConvert('type', (v) => v as String?),
   );
@@ -162,6 +167,7 @@ Map<String, dynamic> _$ComponentStaticImageToJson(
   'rotation': instance.rotation,
   'zIndex': instance.zIndex,
   'isLocked': instance.isLocked,
+  'isVisible': instance.isVisible,
   'imagePath': instance.imagePath,
   'type': instance.$type,
 };

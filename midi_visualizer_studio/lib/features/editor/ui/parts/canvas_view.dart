@@ -79,6 +79,8 @@ class _CanvasViewState extends State<CanvasView> {
 
                       // Layers
                       ...project.layers.map((component) {
+                        if (!component.isVisible) return const SizedBox();
+
                         return Positioned(
                           left: component.x,
                           top: component.y,

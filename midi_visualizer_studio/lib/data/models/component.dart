@@ -23,6 +23,7 @@ abstract class Component with _$Component {
     @Default(0) double rotation,
     @Default(0) int zIndex,
     @Default(false) bool isLocked,
+    @Default(true) bool isVisible,
     @Default(PadShape.rect) PadShape shape,
     String? pathData,
     @Default('#00FF00') String onColor,
@@ -41,6 +42,7 @@ abstract class Component with _$Component {
     @Default(0) double rotation,
     @Default(0) int zIndex,
     @Default(false) bool isLocked,
+    @Default(true) bool isVisible,
     @Default(KnobStyle.vectorArc) KnobStyle style,
     @Default(-135.0) double minAngle,
     @Default(135.0) double maxAngle,
@@ -60,6 +62,7 @@ abstract class Component with _$Component {
     @Default(0) double rotation,
     @Default(0) int zIndex,
     @Default(false) bool isLocked,
+    @Default(true) bool isVisible,
     required String imagePath,
   }) = ComponentStaticImage;
 

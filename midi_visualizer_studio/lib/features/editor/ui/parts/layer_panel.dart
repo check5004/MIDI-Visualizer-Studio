@@ -56,7 +56,22 @@ class LayerPanel extends StatelessWidget {
                   icon: const Icon(Icons.visibility, size: 20),
                   tooltip: 'Visibility',
                   onPressed: () {
-                    // TODO: Implement Visibility
+                    final selectedIds = context.read<EditorBloc>().state.selectedComponentIds;
+                    if (selectedIds.isEmpty) return;
+
+                    final project = context.read<EditorBloc>().state.project;
+                    if (project == null) return;
+
+                    final id = selectedIds.first;
+                    final component = project.layers.firstWhere((c) => c.id == id);
+
+                    final updated = component.map(
+                      pad: (c) => c.copyWith(isVisible: !c.isVisible),
+                      knob: (c) => c.copyWith(isVisible: !c.isVisible),
+                      staticImage: (c) => c.copyWith(isVisible: !c.isVisible),
+                    );
+
+                    context.read<EditorBloc>().add(EditorEvent.updateComponent(id, updated));
                   },
                 ),
               ],
@@ -102,11 +117,19 @@ class LayerPanel extends StatelessWidget {
                           staticImage: (_) => Icons.image,
                         ),
                         size: 16,
+                        color: component.isVisible ? null : Colors.grey,
                       ),
-                      title: Text(component.name),
+                      title: Text(
+                        component.name,
+                        style: TextStyle(
+                          color: component.isVisible ? null : Colors.grey,
+                          decoration: component.isVisible ? null : TextDecoration.lineThrough,
+                        ),
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (!component.isVisible) const Icon(Icons.visibility_off, size: 14, color: Colors.grey),
                           if (component.isLocked) const Icon(Icons.lock, size: 14),
                           const SizedBox(width: 4),
                           const Icon(Icons.drag_handle, size: 16),
