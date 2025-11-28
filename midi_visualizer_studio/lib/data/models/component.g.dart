@@ -130,3 +130,38 @@ const _$KnobRelativeEffectEnumMap = {
   KnobRelativeEffect.pop: 'pop',
   KnobRelativeEffect.spin: 'spin',
 };
+
+ComponentStaticImage _$ComponentStaticImageFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('ComponentStaticImage', json, ($checkedConvert) {
+  final val = ComponentStaticImage(
+    id: $checkedConvert('id', (v) => v as String),
+    name: $checkedConvert('name', (v) => v as String),
+    x: $checkedConvert('x', (v) => (v as num).toDouble()),
+    y: $checkedConvert('y', (v) => (v as num).toDouble()),
+    width: $checkedConvert('width', (v) => (v as num).toDouble()),
+    height: $checkedConvert('height', (v) => (v as num).toDouble()),
+    rotation: $checkedConvert('rotation', (v) => (v as num?)?.toDouble() ?? 0),
+    zIndex: $checkedConvert('zIndex', (v) => (v as num?)?.toInt() ?? 0),
+    isLocked: $checkedConvert('isLocked', (v) => v as bool? ?? false),
+    imagePath: $checkedConvert('imagePath', (v) => v as String),
+    $type: $checkedConvert('type', (v) => v as String?),
+  );
+  return val;
+}, fieldKeyMap: const {r'$type': 'type'});
+
+Map<String, dynamic> _$ComponentStaticImageToJson(
+  ComponentStaticImage instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'x': instance.x,
+  'y': instance.y,
+  'width': instance.width,
+  'height': instance.height,
+  'rotation': instance.rotation,
+  'zIndex': instance.zIndex,
+  'isLocked': instance.isLocked,
+  'imagePath': instance.imagePath,
+  'type': instance.$type,
+};

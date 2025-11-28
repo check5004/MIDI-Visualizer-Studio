@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
@@ -203,19 +204,19 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
           context.read<EditorBloc>().add(EditorEvent.selectComponent(widget.component.id, multiSelect: false));
         },
         onPanStart: (details) {
-          if (!widget.isSelected) return;
+          if (!widget.isSelected || widget.component.isLocked) return;
           setState(() {
             _dragOffset = Offset.zero;
           });
         },
         onPanUpdate: (details) {
-          if (!widget.isSelected) return;
+          if (!widget.isSelected || widget.component.isLocked) return;
           setState(() {
             _dragOffset += details.delta;
           });
         },
         onPanEnd: (details) {
-          if (!widget.isSelected) return;
+          if (!widget.isSelected || widget.component.isLocked) return;
 
           final newX = widget.component.x + _dragOffset.dx;
           final newY = widget.component.y + _dragOffset.dy;
@@ -223,6 +224,7 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
           final updatedComponent = widget.component.map(
             pad: (c) => c.copyWith(x: newX, y: newY),
             knob: (c) => c.copyWith(x: newX, y: newY),
+            staticImage: (c) => c.copyWith(x: newX, y: newY),
           );
 
           context.read<EditorBloc>().add(EditorEvent.updateComponent(widget.component.id, updatedComponent));
@@ -236,11 +238,27 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
           child: SizedBox(
             width: widget.component.width,
             height: widget.component.height,
-            child: Center(
-              child: Text(
-                widget.component.name,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-                overflow: TextOverflow.ellipsis,
+            child: widget.component.map(
+              pad: (c) => Center(
+                child: Text(
+                  c.name,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              knob: (c) => Center(
+                child: Text(
+                  c.name,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              staticImage: (c) => Image.file(
+                File(c.imagePath),
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(child: Icon(Icons.broken_image, color: Colors.red));
+                },
               ),
             ),
           ),
@@ -274,6 +292,9 @@ class ComponentPainter extends CustomPainter {
         // Since we created path relative to minX, minY, it should fit in width/height (size)
         canvas.drawPath(path, paint);
       }
+    } else if (component is ComponentStaticImage) {
+      // Image is rendered by the child widget, so we don't need to paint anything here
+      // unless we want a background or something.
     } else {
       paint.color = Colors.orange;
       canvas.drawRect(Offset.zero & size, paint);

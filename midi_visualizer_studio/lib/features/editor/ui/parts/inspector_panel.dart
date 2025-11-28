@@ -96,6 +96,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
     final updated = component.map(
       pad: (c) => c.copyWith(midiChannel: channel, midiNote: note),
       knob: (c) => c.copyWith(midiChannel: channel, midiCc: cc),
+      staticImage: (c) => c, // No MIDI binding for images yet
     );
 
     editorBloc.add(EditorEvent.updateComponent(componentId, updated));
@@ -176,10 +177,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
         _PropertyField(
           label: 'Name',
           value: component.name,
+          enabled: !component.isLocked,
           onChanged: (value) {
             final updated = component.map(
               pad: (c) => c.copyWith(name: value),
               knob: (c) => c.copyWith(name: value),
+              staticImage: (c) => c.copyWith(name: value),
             );
             context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
           },
@@ -191,10 +194,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
               child: _NumberField(
                 label: 'X',
                 value: component.x,
+                enabled: !component.isLocked,
                 onChanged: (value) {
                   final updated = component.map(
                     pad: (c) => c.copyWith(x: value),
                     knob: (c) => c.copyWith(x: value),
+                    staticImage: (c) => c.copyWith(x: value),
                   );
                   context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
                 },
@@ -205,10 +210,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
               child: _NumberField(
                 label: 'Y',
                 value: component.y,
+                enabled: !component.isLocked,
                 onChanged: (value) {
                   final updated = component.map(
                     pad: (c) => c.copyWith(y: value),
                     knob: (c) => c.copyWith(y: value),
+                    staticImage: (c) => c.copyWith(y: value),
                   );
                   context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
                 },
@@ -223,10 +230,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
               child: _NumberField(
                 label: 'W',
                 value: component.width,
+                enabled: !component.isLocked,
                 onChanged: (value) {
                   final updated = component.map(
                     pad: (c) => c.copyWith(width: value),
                     knob: (c) => c.copyWith(width: value),
+                    staticImage: (c) => c.copyWith(width: value),
                   );
                   context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
                 },
@@ -237,10 +246,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
               child: _NumberField(
                 label: 'H',
                 value: component.height,
+                enabled: !component.isLocked,
                 onChanged: (value) {
                   final updated = component.map(
                     pad: (c) => c.copyWith(height: value),
                     knob: (c) => c.copyWith(height: value),
+                    staticImage: (c) => c.copyWith(height: value),
                   );
                   context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
                 },
@@ -258,6 +269,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
             component.map(
               pad: (c) => c.midiNote != null ? 'CH:${c.midiChannel} Note:${c.midiNote}' : 'Not bound',
               knob: (c) => c.midiCc != null ? 'CH:${c.midiChannel} CC:${c.midiCc}' : 'Not bound',
+              staticImage: (c) => 'Not supported',
             ),
           ),
           tileColor: isLearningThis ? Colors.red.withOpacity(0.1) : null,
@@ -358,14 +370,16 @@ class _InspectorPanelState extends State<InspectorPanel> {
 class _PropertyField extends StatelessWidget {
   final String label;
   final String value;
+  final bool enabled;
   final ValueChanged<String> onChanged;
 
-  const _PropertyField({required this.label, required this.value, required this.onChanged});
+  const _PropertyField({required this.label, required this.value, this.enabled = true, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: value,
+      enabled: enabled,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
@@ -379,14 +393,16 @@ class _PropertyField extends StatelessWidget {
 class _NumberField extends StatelessWidget {
   final String label;
   final double value;
+  final bool enabled;
   final ValueChanged<double> onChanged;
 
-  const _NumberField({required this.label, required this.value, required this.onChanged});
+  const _NumberField({required this.label, required this.value, this.enabled = true, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: value.toString(),
+      enabled: enabled,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         labelText: label,

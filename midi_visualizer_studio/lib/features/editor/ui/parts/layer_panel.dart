@@ -34,7 +34,22 @@ class LayerPanel extends StatelessWidget {
                   icon: const Icon(Icons.lock_open, size: 20),
                   tooltip: 'Lock',
                   onPressed: () {
-                    // TODO: Implement Locking
+                    final selectedIds = context.read<EditorBloc>().state.selectedComponentIds;
+                    if (selectedIds.isEmpty) return;
+
+                    final project = context.read<EditorBloc>().state.project;
+                    if (project == null) return;
+
+                    final id = selectedIds.first;
+                    final component = project.layers.firstWhere((c) => c.id == id);
+
+                    final updated = component.map(
+                      pad: (c) => c.copyWith(isLocked: !c.isLocked),
+                      knob: (c) => c.copyWith(isLocked: !c.isLocked),
+                      staticImage: (c) => c.copyWith(isLocked: !c.isLocked),
+                    );
+
+                    context.read<EditorBloc>().add(EditorEvent.updateComponent(id, updated));
                   },
                 ),
                 IconButton(
@@ -81,7 +96,11 @@ class LayerPanel extends StatelessWidget {
                       selected: isSelected,
                       selectedTileColor: Colors.blue.withOpacity(0.1),
                       leading: Icon(
-                        component.map(pad: (_) => Icons.crop_square, knob: (_) => Icons.radio_button_checked),
+                        component.map(
+                          pad: (_) => Icons.crop_square,
+                          knob: (_) => Icons.radio_button_checked,
+                          staticImage: (_) => Icons.image,
+                        ),
                         size: 16,
                       ),
                       title: Text(component.name),

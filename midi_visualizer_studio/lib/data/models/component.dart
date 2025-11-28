@@ -50,5 +50,18 @@ abstract class Component with _$Component {
     int? midiCc,
   }) = ComponentKnob;
 
+  const factory Component.staticImage({
+    required String id,
+    required String name,
+    required double x,
+    required double y,
+    required double width,
+    required double height,
+    @Default(0) double rotation,
+    @Default(0) int zIndex,
+    @Default(false) bool isLocked,
+    required String imagePath,
+  }) = ComponentStaticImage;
+
   factory Component.fromJson(Map<String, dynamic> json) => _$ComponentFromJson(json);
 }

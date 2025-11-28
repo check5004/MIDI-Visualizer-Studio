@@ -1,9 +1,12 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EditorAppBar({super.key});
@@ -75,8 +78,41 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.image),
               tooltip: 'Image',
-              onPressed: () {
-                // TODO: Implement Image import
+              onPressed: () async {
+                final result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+                if (result != null && result.files.single.path != null) {
+                  final path = result.files.single.path!;
+                  final id = DateTime.now().millisecondsSinceEpoch.toString();
+
+                  final decodedImage = await ui.instantiateImageCodec(File(path).readAsBytesSync());
+                  final frameInfo = await decodedImage.getNextFrame();
+                  final width = frameInfo.image.width.toDouble();
+                  final height = frameInfo.image.height.toDouble();
+
+                  // Scale down if too big (e.g. > 300px)
+                  double finalWidth = width;
+                  double finalHeight = height;
+                  if (width > 300) {
+                    final scale = 300 / width;
+                    finalWidth = 300;
+                    finalHeight = height * scale;
+                  }
+
+                  final component = Component.staticImage(
+                    id: id,
+                    name: 'Image $id',
+                    x: 100,
+                    y: 100,
+                    width: finalWidth,
+                    height: finalHeight,
+                    imagePath: path,
+                  );
+
+                  if (context.mounted) {
+                    context.read<EditorBloc>().add(EditorEvent.addComponent(component));
+                  }
+                }
               },
             ),
 
