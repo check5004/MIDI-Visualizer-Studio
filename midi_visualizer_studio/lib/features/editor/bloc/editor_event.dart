@@ -9,7 +9,7 @@ part 'editor_event.freezed.dart';
 
 @freezed
 abstract class EditorEvent with _$EditorEvent {
-  const factory EditorEvent.loadProject(String path) = LoadProject;
+  const factory EditorEvent.loadProject(String path, {Project? project}) = LoadProject;
   const factory EditorEvent.addComponent(Component component) = AddComponent;
   const factory EditorEvent.updateComponent(String id, Component component) = UpdateComponent;
   const factory EditorEvent.selectComponent(String id, {required bool multiSelect}) = SelectComponent;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uuid/uuid.dart';
+import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
@@ -108,20 +109,10 @@ class _TutorialScreenState extends State<TutorialScreen> {
   }
 
   void _createProject() {
-    // In a real app, we would save the project here.
-    // For now, we'll just navigate to editor with a "new" ID and maybe pass params?
-    // Since we can't pass objects easily, we'll assume the Editor loads a default or we mock it.
-    // Ideally, we should use a Repository to save the project.
+    final projectRepository = context.read<ProjectRepository>();
+    final project = projectRepository.createProject(rows: _rows, cols: _cols);
 
-    // Let's generate a UUID
-    const uuid = Uuid();
-    final projectId = uuid.v4();
-
-    // TODO: Save project with _rows and _cols configuration
-    // For now, just go to editor. The EditorBloc will load a dummy project.
-    // We can't easily inject the rows/cols into the dummy project without a repository.
-
-    context.go('/editor/$projectId');
+    context.go('/editor/${project.id}', extra: project);
   }
 }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
 import 'package:midi_visualizer_studio/features/settings/ui/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -116,8 +118,9 @@ class _NewProjectCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          // Start with Tutorial for new projects
-          context.push('/tutorial');
+          final projectRepository = context.read<ProjectRepository>();
+          final project = projectRepository.createEmptyProject();
+          context.push('/editor/${project.id}', extra: project);
         },
         child: Container(
           color: Theme.of(context).primaryColor.withValues(alpha: 0.05),

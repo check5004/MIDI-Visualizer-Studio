@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
@@ -14,8 +15,9 @@ import 'package:window_manager/window_manager.dart';
 
 class EditorScreen extends StatelessWidget {
   final String projectId;
+  final Project? project;
 
-  const EditorScreen({super.key, required this.projectId});
+  const EditorScreen({super.key, required this.projectId, this.project});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class EditorScreen extends StatelessWidget {
           create: (context) => EditorBloc(
             historyCubit: context.read<HistoryCubit>(),
             projectRepository: context.read<ProjectRepository>(),
-          )..add(EditorEvent.loadProject(projectId)),
+          )..add(EditorEvent.loadProject(projectId, project: project)),
         ),
       ],
       child: BlocConsumer<EditorBloc, EditorState>(

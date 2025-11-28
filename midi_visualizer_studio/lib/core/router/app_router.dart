@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/editor_screen.dart';
 import 'package:midi_visualizer_studio/features/home/ui/home_screen.dart';
 import 'package:midi_visualizer_studio/features/settings/ui/settings_screen.dart';
@@ -17,7 +18,8 @@ final appRouter = GoRouter(
       path: '/editor/:projectId',
       builder: (context, state) {
         final projectId = state.pathParameters['projectId']!;
-        return EditorScreen(projectId: projectId);
+        final project = state.extra as Project?;
+        return EditorScreen(projectId: projectId, project: project);
       },
     ),
     GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),

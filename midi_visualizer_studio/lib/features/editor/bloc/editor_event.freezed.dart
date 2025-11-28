@@ -182,10 +182,10 @@ return saveProject(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function( String path)?  saveProject,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path,  Project? project)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function( String path)?  saveProject,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
-return loadProject(_that.path);case AddComponent() when addComponent != null:
+return loadProject(_that.path,_that.project);case AddComponent() when addComponent != null:
 return addComponent(_that.component);case UpdateComponent() when updateComponent != null:
 return updateComponent(_that.id,_that.component);case SelectComponent() when selectComponent != null:
 return selectComponent(_that.id,_that.multiSelect);case ReorderComponent() when reorderComponent != null:
@@ -224,10 +224,10 @@ return saveProject(_that.path);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function( String path)  saveProject,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path,  Project? project)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function( String path)  saveProject,}) {final _that = this;
 switch (_that) {
 case LoadProject():
-return loadProject(_that.path);case AddComponent():
+return loadProject(_that.path,_that.project);case AddComponent():
 return addComponent(_that.component);case UpdateComponent():
 return updateComponent(_that.id,_that.component);case SelectComponent():
 return selectComponent(_that.id,_that.multiSelect);case ReorderComponent():
@@ -265,10 +265,10 @@ return saveProject(_that.path);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function( String path)?  saveProject,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path,  Project? project)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function( String path)?  saveProject,}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
-return loadProject(_that.path);case AddComponent() when addComponent != null:
+return loadProject(_that.path,_that.project);case AddComponent() when addComponent != null:
 return addComponent(_that.component);case UpdateComponent() when updateComponent != null:
 return updateComponent(_that.id,_that.component);case SelectComponent() when selectComponent != null:
 return selectComponent(_that.id,_that.multiSelect);case ReorderComponent() when reorderComponent != null:
@@ -301,10 +301,11 @@ return saveProject(_that.path);case _:
 
 
 class LoadProject implements EditorEvent {
-  const LoadProject(this.path);
+  const LoadProject(this.path, {this.project});
   
 
  final  String path;
+ final  Project? project;
 
 /// Create a copy of EditorEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -316,16 +317,16 @@ $LoadProjectCopyWith<LoadProject> get copyWith => _$LoadProjectCopyWithImpl<Load
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoadProject&&(identical(other.path, path) || other.path == path));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LoadProject&&(identical(other.path, path) || other.path == path)&&(identical(other.project, project) || other.project == project));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,path);
+int get hashCode => Object.hash(runtimeType,path,project);
 
 @override
 String toString() {
-  return 'EditorEvent.loadProject(path: $path)';
+  return 'EditorEvent.loadProject(path: $path, project: $project)';
 }
 
 
@@ -336,11 +337,11 @@ abstract mixin class $LoadProjectCopyWith<$Res> implements $EditorEventCopyWith<
   factory $LoadProjectCopyWith(LoadProject value, $Res Function(LoadProject) _then) = _$LoadProjectCopyWithImpl;
 @useResult
 $Res call({
- String path
+ String path, Project? project
 });
 
 
-
+$ProjectCopyWith<$Res>? get project;
 
 }
 /// @nodoc
@@ -353,14 +354,27 @@ class _$LoadProjectCopyWithImpl<$Res>
 
 /// Create a copy of EditorEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? path = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? path = null,Object? project = freezed,}) {
   return _then(LoadProject(
 null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
-as String,
+as String,project: freezed == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
+as Project?,
   ));
 }
 
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProjectCopyWith<$Res>? get project {
+    if (_self.project == null) {
+    return null;
+  }
 
+  return $ProjectCopyWith<$Res>(_self.project!, (value) {
+    return _then(_self.copyWith(project: value));
+  });
+}
 }
 
 /// @nodoc

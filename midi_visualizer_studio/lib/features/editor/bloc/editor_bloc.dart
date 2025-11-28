@@ -41,6 +41,14 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
     emit(state.copyWith(status: EditorStatus.loading));
 
+    if (event.project != null) {
+      // Use the provided project (e.g. from New Project flow)
+      _historyCubit.clear();
+      _historyCubit.record(event.project!);
+      emit(state.copyWith(status: EditorStatus.ready, project: event.project));
+      return;
+    }
+
     if (event.path.isEmpty || event.path == 'dummy' || event.path.startsWith('project-')) {
       // Simulate loading a project with some dummy data
       await Future.delayed(const Duration(milliseconds: 500));
