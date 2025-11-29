@@ -158,6 +158,9 @@ class _CanvasViewState extends State<CanvasView> {
                                   context.read<EditorBloc>().add(const EditorEvent.finishPath());
                                 }
                               },
+                              onSecondaryTapUp: (details) {
+                                _showContextMenu(context, details.globalPosition);
+                              },
                               child: Container(
                                 width: project.canvasWidth,
                                 height: project.canvasHeight,
@@ -208,6 +211,14 @@ class _CanvasViewState extends State<CanvasView> {
                                             setState(() {
                                               _selectionDragDelta += details.delta;
                                             });
+                                          },
+                                          onSecondaryTapUp: (details) {
+                                            if (!isSelected) {
+                                              context.read<EditorBloc>().add(
+                                                EditorEvent.selectComponent(component.id, multiSelect: false),
+                                              );
+                                            }
+                                            _showContextMenu(context, details.globalPosition);
                                           },
                                           onDragEnd: (details) {
                                             if (!isSelected) return;
@@ -276,6 +287,57 @@ class _CanvasViewState extends State<CanvasView> {
     } catch (e) {
       return Colors.white;
     }
+  }
+
+  void _showContextMenu(BuildContext context, Offset position) {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromRect(position & const Size(1, 1), Offset.zero & overlay.size),
+      items: [
+        const PopupMenuItem(
+          value: 'cut',
+          child: Row(children: [Icon(Icons.content_cut, size: 18), SizedBox(width: 8), Text('Cut')]),
+        ),
+        const PopupMenuItem(
+          value: 'copy',
+          child: Row(children: [Icon(Icons.content_copy, size: 18), SizedBox(width: 8), Text('Copy')]),
+        ),
+        const PopupMenuItem(
+          value: 'paste',
+          child: Row(children: [Icon(Icons.content_paste, size: 18), SizedBox(width: 8), Text('Paste')]),
+        ),
+        const PopupMenuItem(
+          value: 'duplicate',
+          child: Row(children: [Icon(Icons.copy_all, size: 18), SizedBox(width: 8), Text('Duplicate')]),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Row(children: [Icon(Icons.delete, size: 18), SizedBox(width: 8), Text('Delete')]),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'cut':
+            context.read<EditorBloc>().add(const EditorEvent.cut());
+            break;
+          case 'copy':
+            context.read<EditorBloc>().add(const EditorEvent.copy());
+            break;
+          case 'paste':
+            context.read<EditorBloc>().add(const EditorEvent.paste());
+            break;
+          case 'duplicate':
+            context.read<EditorBloc>().add(const EditorEvent.duplicate());
+            break;
+          case 'delete':
+            context.read<EditorBloc>().add(const EditorEvent.delete());
+            break;
+        }
+      }
+    });
   }
 }
 
@@ -357,6 +419,7 @@ class _ComponentWrapper extends StatefulWidget {
   final ValueChanged<DragStartDetails>? onDragStart;
   final ValueChanged<DragUpdateDetails>? onDragUpdate;
   final ValueChanged<DragEndDetails>? onDragEnd;
+  final ValueChanged<TapUpDetails>? onSecondaryTapUp;
 
   const _ComponentWrapper({
     required this.component,
@@ -369,6 +432,7 @@ class _ComponentWrapper extends StatefulWidget {
     this.onDragStart,
     this.onDragUpdate,
     this.onDragEnd,
+    this.onSecondaryTapUp,
   });
 
   @override
@@ -381,6 +445,7 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
     return Transform.translate(
       offset: widget.dragDelta,
       child: GestureDetector(
+        onSecondaryTapUp: widget.onSecondaryTapUp,
         onTapUp: (details) {
           final state = context.read<EditorBloc>().state;
           if (state.currentTool == EditorTool.bucketFill) {

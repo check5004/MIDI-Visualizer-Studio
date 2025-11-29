@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
@@ -67,47 +68,101 @@ class _EditorScreenState extends State<EditorScreen> {
             return const Scaffold(backgroundColor: Colors.transparent, body: CanvasView());
           }
 
-          return Scaffold(
-            appBar: const EditorAppBar(),
-            body: Row(
-              children: [
-                // Layer Panel (Left)
-                SizedBox(width: _layerPanelWidth, child: const LayerPanel()),
-                // Left Resize Handle
-                MouseRegion(
-                  cursor: SystemMouseCursors.resizeColumn,
-                  child: GestureDetector(
-                    onHorizontalDragUpdate: (details) {
-                      setState(() {
-                        _layerPanelWidth += details.delta.dx;
-                        _layerPanelWidth = _layerPanelWidth.clamp(200.0, 500.0);
-                      });
-                    },
-                    child: Container(width: 5, color: Theme.of(context).colorScheme.surface),
-                  ),
+          return Actions(
+            actions: {
+              CopyIntent: CallbackAction<CopyIntent>(
+                onInvoke: (_) => context.read<EditorBloc>().add(const EditorEvent.copy()),
+              ),
+              PasteIntent: CallbackAction<PasteIntent>(
+                onInvoke: (_) => context.read<EditorBloc>().add(const EditorEvent.paste()),
+              ),
+              CutIntent: CallbackAction<CutIntent>(
+                onInvoke: (_) => context.read<EditorBloc>().add(const EditorEvent.cut()),
+              ),
+              DeleteIntent: CallbackAction<DeleteIntent>(
+                onInvoke: (_) => context.read<EditorBloc>().add(const EditorEvent.delete()),
+              ),
+              DuplicateIntent: CallbackAction<DuplicateIntent>(
+                onInvoke: (_) => context.read<EditorBloc>().add(const EditorEvent.duplicate()),
+              ),
+            },
+            child: FocusableActionDetector(
+              autofocus: true,
+              shortcuts: {
+                LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyC): const CopyIntent(),
+                LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyC): const CopyIntent(),
+                LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyV): const PasteIntent(),
+                LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyV): const PasteIntent(),
+                LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyX): const CutIntent(),
+                LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyX): const CutIntent(),
+                LogicalKeySet(LogicalKeyboardKey.delete): const DeleteIntent(),
+                LogicalKeySet(LogicalKeyboardKey.backspace): const DeleteIntent(),
+                LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyD): const DuplicateIntent(),
+                LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyD): const DuplicateIntent(),
+              },
+              child: Scaffold(
+                appBar: const EditorAppBar(),
+                body: Row(
+                  children: [
+                    // Layer Panel (Left)
+                    SizedBox(width: _layerPanelWidth, child: const LayerPanel()),
+                    // Left Resize Handle
+                    MouseRegion(
+                      cursor: SystemMouseCursors.resizeColumn,
+                      child: GestureDetector(
+                        onHorizontalDragUpdate: (details) {
+                          setState(() {
+                            _layerPanelWidth += details.delta.dx;
+                            _layerPanelWidth = _layerPanelWidth.clamp(200.0, 500.0);
+                          });
+                        },
+                        child: Container(width: 5, color: Theme.of(context).colorScheme.surface),
+                      ),
+                    ),
+                    // Canvas (Center)
+                    const Expanded(child: CanvasView()),
+                    // Right Resize Handle
+                    MouseRegion(
+                      cursor: SystemMouseCursors.resizeColumn,
+                      child: GestureDetector(
+                        onHorizontalDragUpdate: (details) {
+                          setState(() {
+                            _inspectorWidth -= details.delta.dx;
+                            _inspectorWidth = _inspectorWidth.clamp(300.0, 600.0);
+                          });
+                        },
+                        child: Container(width: 5, color: Theme.of(context).colorScheme.surface),
+                      ),
+                    ),
+                    // Inspector (Right)
+                    SizedBox(width: _inspectorWidth, child: const InspectorPanel()),
+                  ],
                 ),
-                // Canvas (Center)
-                const Expanded(child: CanvasView()),
-                // Right Resize Handle
-                MouseRegion(
-                  cursor: SystemMouseCursors.resizeColumn,
-                  child: GestureDetector(
-                    onHorizontalDragUpdate: (details) {
-                      setState(() {
-                        _inspectorWidth -= details.delta.dx;
-                        _inspectorWidth = _inspectorWidth.clamp(300.0, 600.0);
-                      });
-                    },
-                    child: Container(width: 5, color: Theme.of(context).colorScheme.surface),
-                  ),
-                ),
-                // Inspector (Right)
-                SizedBox(width: _inspectorWidth, child: const InspectorPanel()),
-              ],
+              ),
             ),
           );
         },
       ),
     );
   }
+}
+
+class CopyIntent extends Intent {
+  const CopyIntent();
+}
+
+class PasteIntent extends Intent {
+  const PasteIntent();
+}
+
+class CutIntent extends Intent {
+  const CutIntent();
+}
+
+class DeleteIntent extends Intent {
+  const DeleteIntent();
+}
+
+class DuplicateIntent extends Intent {
+  const DuplicateIntent();
 }

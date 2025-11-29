@@ -34,4 +34,9 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.saveProject(String path) = SaveProject;
   const factory EditorEvent.fillImageArea(String componentId, Offset position, Color color) = FillImageArea;
   const factory EditorEvent.setFloodFillTolerance(int tolerance) = SetFloodFillTolerance;
+  const factory EditorEvent.copy() = CopyEvent;
+  const factory EditorEvent.paste() = PasteEvent;
+  const factory EditorEvent.cut() = CutEvent;
+  const factory EditorEvent.delete() = DeleteEvent;
+  const factory EditorEvent.duplicate() = DuplicateEvent;
 }

@@ -140,4 +140,63 @@ void main() {
       expect(editorBloc.state.activeComponentIds, isEmpty);
     });
   });
+
+  group('EditorBloc Clipboard & Editing', () {
+    late HistoryCubit historyCubit;
+    late ProjectRepository projectRepository;
+    late EditorBloc editorBloc;
+
+    final testProject = Project(
+      id: 'test',
+      name: 'Test Project',
+      version: '1.0.0',
+      layers: [const Component.pad(id: 'pad1', name: 'Pad 1', x: 0, y: 0, width: 100, height: 100)],
+    );
+
+    setUp(() {
+      historyCubit = FakeHistoryCubit();
+      projectRepository = FakeProjectRepository();
+      editorBloc = EditorBloc(historyCubit: historyCubit, projectRepository: projectRepository);
+      editorBloc.emit(EditorState(project: testProject, status: EditorStatus.ready));
+    });
+
+    tearDown(() {
+      editorBloc.close();
+    });
+
+    test('deletes selected component', () async {
+      // Select component
+      editorBloc.add(const EditorEvent.selectComponent('pad1', multiSelect: false));
+      await Future.delayed(Duration.zero); // Wait for event processing if needed, or just rely on stream
+
+      // Delete
+      editorBloc.add(const EditorEvent.delete());
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(isA<EditorState>().having((s) => s.project!.layers.length, 'layers length', 0)),
+      );
+    });
+
+    test('duplicates selected component', () async {
+      // Select component
+      editorBloc.add(const EditorEvent.selectComponent('pad1', multiSelect: false));
+
+      // Duplicate
+      editorBloc.add(const EditorEvent.duplicate());
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(isA<EditorState>().having((s) => s.project!.layers.length, 'layers length', 2)),
+      );
+
+      final state = editorBloc.state;
+      expect(state.project!.layers.length, 2);
+      final newComponent = state.project!.layers.last;
+      expect(newComponent.id, isNot('pad1'));
+      expect(newComponent.x, 20.0); // Offset by 20
+      expect(newComponent.y, 20.0);
+      expect(state.selectedComponentIds, {newComponent.id});
+    });
+  });
 }

@@ -1,8 +1,11 @@
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
@@ -44,6 +47,11 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<SaveProject>(_onSaveProject);
     on<FillImageArea>(_onFillImageArea);
     on<SetFloodFillTolerance>(_onSetFloodFillTolerance);
+    on<CopyEvent>(_onCopy);
+    on<PasteEvent>(_onPaste);
+    on<CutEvent>(_onCut);
+    on<DeleteEvent>(_onDelete);
+    on<DuplicateEvent>(_onDuplicate);
   }
 
   void _onSetFloodFillTolerance(SetFloodFillTolerance event, Emitter<EditorState> emit) {
@@ -671,6 +679,117 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     }
     simplified.add(points.last);
     return simplified;
+  }
+
+  Future<void> _onCopy(CopyEvent event, Emitter<EditorState> emit) async {
+    final project = state.project;
+    if (project == null || state.selectedComponentIds.isEmpty) return;
+
+    final selectedComponents = project.layers.where((c) => state.selectedComponentIds.contains(c.id)).toList();
+    if (selectedComponents.isEmpty) return;
+
+    final jsonList = selectedComponents.map((c) => c.toJson()).toList();
+    final jsonString = jsonEncode(jsonList);
+
+    await Clipboard.setData(ClipboardData(text: jsonString));
+  }
+
+  Future<void> _onPaste(PasteEvent event, Emitter<EditorState> emit) async {
+    final project = state.project;
+    if (project == null) return;
+
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data?.text == null) return;
+
+    try {
+      final jsonList = jsonDecode(data!.text!) as List;
+      final newComponents = <Component>[];
+      final newIds = <String>{};
+
+      for (final item in jsonList) {
+        final component = Component.fromJson(item as Map<String, dynamic>);
+        final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
+
+        // Offset position slightly to make it visible
+        final newComponent = component.copyWith(
+          id: newId,
+          x: component.x + 20,
+          y: component.y + 20,
+          name: '${component.name} (Copy)',
+        );
+
+        newComponents.add(newComponent);
+        newIds.add(newId);
+      }
+
+      if (newComponents.isEmpty) return;
+
+      _recordHistory();
+      final updatedLayers = [...project.layers, ...newComponents];
+
+      emit(
+        state.copyWith(
+          project: project.copyWith(layers: updatedLayers),
+          selectedComponentIds: newIds,
+        ),
+      );
+    } catch (e) {
+      // Ignore invalid JSON or clipboard data not matching our format
+      debugPrint('Paste failed: $e');
+    }
+  }
+
+  Future<void> _onCut(CutEvent event, Emitter<EditorState> emit) async {
+    await _onCopy(const CopyEvent(), emit);
+    _onDelete(const DeleteEvent(), emit);
+  }
+
+  void _onDelete(DeleteEvent event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null || state.selectedComponentIds.isEmpty) return;
+
+    _recordHistory();
+    final updatedLayers = project.layers.where((c) => !state.selectedComponentIds.contains(c.id)).toList();
+
+    emit(
+      state.copyWith(
+        project: project.copyWith(layers: updatedLayers),
+        selectedComponentIds: {},
+      ),
+    );
+  }
+
+  void _onDuplicate(DuplicateEvent event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null || state.selectedComponentIds.isEmpty) return;
+
+    final selectedComponents = project.layers.where((c) => state.selectedComponentIds.contains(c.id)).toList();
+    if (selectedComponents.isEmpty) return;
+
+    _recordHistory();
+    final newComponents = <Component>[];
+    final newIds = <String>{};
+
+    for (final component in selectedComponents) {
+      final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
+      final newComponent = component.copyWith(
+        id: newId,
+        x: component.x + 20,
+        y: component.y + 20,
+        name: '${component.name} (Copy)',
+      );
+      newComponents.add(newComponent);
+      newIds.add(newId);
+    }
+
+    final updatedLayers = [...project.layers, ...newComponents];
+
+    emit(
+      state.copyWith(
+        project: project.copyWith(layers: updatedLayers),
+        selectedComponentIds: newIds,
+      ),
+    );
   }
 
   // Helper to record history before mutation
