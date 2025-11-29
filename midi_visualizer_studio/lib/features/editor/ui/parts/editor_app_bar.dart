@@ -34,11 +34,6 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
           title: Text(project?.name ?? 'Untitled Project'),
           centerTitle: false,
           actions: [
-            // Toolbar (Center-ish)
-            // Ideally this should be in the center of the AppBar, but AppBar layout is rigid.
-            // We can put it in a Row in title or flexibleSpace, or just actions.
-            // Let's put it in actions for now, or use a custom Title.
-
             // File Operations
             IconButton(
               icon: const Icon(Icons.folder_open),
@@ -80,7 +75,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.touch_app),
               tooltip: 'Select',
-              color: state.currentTool == EditorTool.select ? Theme.of(context).primaryColor : null,
+              color: state.currentTool == EditorTool.select ? Theme.of(context).colorScheme.primary : null,
               onPressed: () {
                 context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.select));
               },
@@ -88,17 +83,8 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.crop_square),
               tooltip: 'Rectangle',
-              color: state.currentTool == EditorTool.rectangle ? Theme.of(context).primaryColor : null,
+              color: state.currentTool == EditorTool.rectangle ? Theme.of(context).colorScheme.primary : null,
               onPressed: () {
-                // For now, rectangle/circle just add immediately, but ideally they should be tools too.
-                // Keeping original behavior for now but switching tool state for visual consistency if needed.
-                // Actually, let's make them tools later. For now, just keep add behavior but maybe reset tool to select?
-                // Or better: The plan said "Update tool buttons to use selectTool event".
-                // But existing code adds component immediately.
-                // Let's stick to the plan for Path tool specifically, and maybe Select.
-                // For Rectangle/Circle, let's keep them as "Add" actions for now, or switch to tool if we want drag-to-create.
-                // The prompt implies "Path Tool" is the focus.
-                // Let's update Select and Path.
                 _addComponent(context, PadShape.rect);
               },
             ),
@@ -112,11 +98,40 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.gesture),
               tooltip: 'Path',
-              color: state.currentTool == EditorTool.path ? Theme.of(context).primaryColor : null,
+              color: state.currentTool == EditorTool.path ? Theme.of(context).colorScheme.primary : null,
               onPressed: () {
                 context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.path));
               },
             ),
+            IconButton(
+              icon: const Icon(Icons.format_color_fill),
+              tooltip: 'Bucket Fill',
+              color: state.currentTool == EditorTool.bucketFill ? Theme.of(context).colorScheme.primary : null,
+              onPressed: () {
+                context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.bucketFill));
+              },
+            ),
+
+            // Tolerance Slider
+            if (state.currentTool == EditorTool.bucketFill) ...[
+              const VerticalDivider(),
+              const Center(child: Text('Tolerance:')),
+              SizedBox(
+                width: 150,
+                child: Slider(
+                  value: state.floodFillTolerance.toDouble(),
+                  min: 0,
+                  max: 100,
+                  divisions: 100,
+                  label: state.floodFillTolerance.toString(),
+                  onChanged: (value) {
+                    context.read<EditorBloc>().add(EditorEvent.setFloodFillTolerance(value.toInt()));
+                  },
+                ),
+              ),
+              Center(child: Text('${state.floodFillTolerance}')),
+            ],
+
             IconButton(
               icon: const Icon(Icons.image),
               tooltip: 'Image',
@@ -157,11 +172,6 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                 }
               },
             ),
-
-            const VerticalDivider(indent: 10, endIndent: 10),
-
-            // MIDI Status (Placeholder)
-            const Icon(Icons.music_note, color: Colors.grey),
 
             const VerticalDivider(indent: 10, endIndent: 10),
 

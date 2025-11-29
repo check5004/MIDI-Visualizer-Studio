@@ -161,6 +161,17 @@ class _StreamingSettingsTab extends StatelessWidget {
                 }).toList(),
               ),
             ),
+            const Divider(),
+            ListTile(
+              title: const Text('Windowless Mode'),
+              subtitle: const Text('Hide window title bar and frame (for OBS capturing).'),
+              trailing: Switch(
+                value: state.isWindowless,
+                onChanged: (value) {
+                  context.read<SettingsBloc>().add(SettingsEvent.toggleWindowless(value));
+                },
+              ),
+            ),
           ],
         );
       },

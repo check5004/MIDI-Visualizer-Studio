@@ -55,7 +55,7 @@ extension EditorEventPatterns on EditorEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( UpdateComponents value)?  updateComponents,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,TResult Function( ToggleGrid value)?  toggleGrid,TResult Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult Function( SetGridSize value)?  setGridSize,TResult Function( HandleMidiMessage value)?  handleMidiMessage,TResult Function( SaveProject value)?  saveProject,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( UpdateComponents value)?  updateComponents,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,TResult Function( ToggleGrid value)?  toggleGrid,TResult Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult Function( SetGridSize value)?  setGridSize,TResult Function( HandleMidiMessage value)?  handleMidiMessage,TResult Function( SaveProject value)?  saveProject,TResult Function( FillImageArea value)?  fillImageArea,TResult Function( SetFloodFillTolerance value)?  setFloodFillTolerance,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -81,7 +81,9 @@ return toggleGrid(_that);case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid(_that);case SetGridSize() when setGridSize != null:
 return setGridSize(_that);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that);case SaveProject() when saveProject != null:
-return saveProject(_that);case _:
+return saveProject(_that);case FillImageArea() when fillImageArea != null:
+return fillImageArea(_that);case SetFloodFillTolerance() when setFloodFillTolerance != null:
+return setFloodFillTolerance(_that);case _:
   return orElse();
 
 }
@@ -99,7 +101,7 @@ return saveProject(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( UpdateComponents value)  updateComponents,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,required TResult Function( ToggleGrid value)  toggleGrid,required TResult Function( ToggleSnapToGrid value)  toggleSnapToGrid,required TResult Function( SetGridSize value)  setGridSize,required TResult Function( HandleMidiMessage value)  handleMidiMessage,required TResult Function( SaveProject value)  saveProject,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( UpdateComponents value)  updateComponents,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,required TResult Function( ToggleGrid value)  toggleGrid,required TResult Function( ToggleSnapToGrid value)  toggleSnapToGrid,required TResult Function( SetGridSize value)  setGridSize,required TResult Function( HandleMidiMessage value)  handleMidiMessage,required TResult Function( SaveProject value)  saveProject,required TResult Function( FillImageArea value)  fillImageArea,required TResult Function( SetFloodFillTolerance value)  setFloodFillTolerance,}){
 final _that = this;
 switch (_that) {
 case LoadProject():
@@ -125,7 +127,9 @@ return toggleGrid(_that);case ToggleSnapToGrid():
 return toggleSnapToGrid(_that);case SetGridSize():
 return setGridSize(_that);case HandleMidiMessage():
 return handleMidiMessage(_that);case SaveProject():
-return saveProject(_that);case _:
+return saveProject(_that);case FillImageArea():
+return fillImageArea(_that);case SetFloodFillTolerance():
+return setFloodFillTolerance(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -142,7 +146,7 @@ return saveProject(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( UpdateComponents value)?  updateComponents,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,TResult? Function( ToggleGrid value)?  toggleGrid,TResult? Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult? Function( SetGridSize value)?  setGridSize,TResult? Function( HandleMidiMessage value)?  handleMidiMessage,TResult? Function( SaveProject value)?  saveProject,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( UpdateComponents value)?  updateComponents,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,TResult? Function( ToggleGrid value)?  toggleGrid,TResult? Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult? Function( SetGridSize value)?  setGridSize,TResult? Function( HandleMidiMessage value)?  handleMidiMessage,TResult? Function( SaveProject value)?  saveProject,TResult? Function( FillImageArea value)?  fillImageArea,TResult? Function( SetFloodFillTolerance value)?  setFloodFillTolerance,}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -168,7 +172,9 @@ return toggleGrid(_that);case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid(_that);case SetGridSize() when setGridSize != null:
 return setGridSize(_that);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that);case SaveProject() when saveProject != null:
-return saveProject(_that);case _:
+return saveProject(_that);case FillImageArea() when fillImageArea != null:
+return fillImageArea(_that);case SetFloodFillTolerance() when setFloodFillTolerance != null:
+return setFloodFillTolerance(_that);case _:
   return null;
 
 }
@@ -185,7 +191,7 @@ return saveProject(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path,  Project? project)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( List<Component> components)?  updateComponents,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function( String path)?  saveProject,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path,  Project? project)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( List<Component> components)?  updateComponents,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function( String path)?  saveProject,TResult Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult Function( int tolerance)?  setFloodFillTolerance,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path,_that.project);case AddComponent() when addComponent != null:
@@ -210,7 +216,9 @@ return toggleGrid();case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid();case SetGridSize() when setGridSize != null:
 return setGridSize(_that.size);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that.packet);case SaveProject() when saveProject != null:
-return saveProject(_that.path);case _:
+return saveProject(_that.path);case FillImageArea() when fillImageArea != null:
+return fillImageArea(_that.componentId,_that.position,_that.color);case SetFloodFillTolerance() when setFloodFillTolerance != null:
+return setFloodFillTolerance(_that.tolerance);case _:
   return orElse();
 
 }
@@ -228,7 +236,7 @@ return saveProject(_that.path);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path,  Project? project)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( List<Component> components)  updateComponents,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function( String path)  saveProject,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path,  Project? project)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( List<Component> components)  updateComponents,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function( String path)  saveProject,required TResult Function( String componentId,  Offset position,  Color color)  fillImageArea,required TResult Function( int tolerance)  setFloodFillTolerance,}) {final _that = this;
 switch (_that) {
 case LoadProject():
 return loadProject(_that.path,_that.project);case AddComponent():
@@ -253,7 +261,9 @@ return toggleGrid();case ToggleSnapToGrid():
 return toggleSnapToGrid();case SetGridSize():
 return setGridSize(_that.size);case HandleMidiMessage():
 return handleMidiMessage(_that.packet);case SaveProject():
-return saveProject(_that.path);case _:
+return saveProject(_that.path);case FillImageArea():
+return fillImageArea(_that.componentId,_that.position,_that.color);case SetFloodFillTolerance():
+return setFloodFillTolerance(_that.tolerance);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -270,7 +280,7 @@ return saveProject(_that.path);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path,  Project? project)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( List<Component> components)?  updateComponents,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function( String path)?  saveProject,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path,  Project? project)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( List<Component> components)?  updateComponents,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function( String path)?  saveProject,TResult? Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult? Function( int tolerance)?  setFloodFillTolerance,}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path,_that.project);case AddComponent() when addComponent != null:
@@ -295,7 +305,9 @@ return toggleGrid();case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid();case SetGridSize() when setGridSize != null:
 return setGridSize(_that.size);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that.packet);case SaveProject() when saveProject != null:
-return saveProject(_that.path);case _:
+return saveProject(_that.path);case FillImageArea() when fillImageArea != null:
+return fillImageArea(_that.componentId,_that.position,_that.color);case SetFloodFillTolerance() when setFloodFillTolerance != null:
+return setFloodFillTolerance(_that.tolerance);case _:
   return null;
 
 }
@@ -1605,6 +1617,142 @@ class _$SaveProjectCopyWithImpl<$Res>
   return _then(SaveProject(
 null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class FillImageArea implements EditorEvent {
+  const FillImageArea(this.componentId, this.position, this.color);
+  
+
+ final  String componentId;
+ final  Offset position;
+ final  Color color;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FillImageAreaCopyWith<FillImageArea> get copyWith => _$FillImageAreaCopyWithImpl<FillImageArea>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FillImageArea&&(identical(other.componentId, componentId) || other.componentId == componentId)&&(identical(other.position, position) || other.position == position)&&(identical(other.color, color) || other.color == color));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,componentId,position,color);
+
+@override
+String toString() {
+  return 'EditorEvent.fillImageArea(componentId: $componentId, position: $position, color: $color)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FillImageAreaCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $FillImageAreaCopyWith(FillImageArea value, $Res Function(FillImageArea) _then) = _$FillImageAreaCopyWithImpl;
+@useResult
+$Res call({
+ String componentId, Offset position, Color color
+});
+
+
+
+
+}
+/// @nodoc
+class _$FillImageAreaCopyWithImpl<$Res>
+    implements $FillImageAreaCopyWith<$Res> {
+  _$FillImageAreaCopyWithImpl(this._self, this._then);
+
+  final FillImageArea _self;
+  final $Res Function(FillImageArea) _then;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? componentId = null,Object? position = null,Object? color = null,}) {
+  return _then(FillImageArea(
+null == componentId ? _self.componentId : componentId // ignore: cast_nullable_to_non_nullable
+as String,null == position ? _self.position : position // ignore: cast_nullable_to_non_nullable
+as Offset,null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as Color,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SetFloodFillTolerance implements EditorEvent {
+  const SetFloodFillTolerance(this.tolerance);
+  
+
+ final  int tolerance;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SetFloodFillToleranceCopyWith<SetFloodFillTolerance> get copyWith => _$SetFloodFillToleranceCopyWithImpl<SetFloodFillTolerance>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetFloodFillTolerance&&(identical(other.tolerance, tolerance) || other.tolerance == tolerance));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,tolerance);
+
+@override
+String toString() {
+  return 'EditorEvent.setFloodFillTolerance(tolerance: $tolerance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SetFloodFillToleranceCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $SetFloodFillToleranceCopyWith(SetFloodFillTolerance value, $Res Function(SetFloodFillTolerance) _then) = _$SetFloodFillToleranceCopyWithImpl;
+@useResult
+$Res call({
+ int tolerance
+});
+
+
+
+
+}
+/// @nodoc
+class _$SetFloodFillToleranceCopyWithImpl<$Res>
+    implements $SetFloodFillToleranceCopyWith<$Res> {
+  _$SetFloodFillToleranceCopyWithImpl(this._self, this._then);
+
+  final SetFloodFillTolerance _self;
+  final $Res Function(SetFloodFillTolerance) _then;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? tolerance = null,}) {
+  return _then(SetFloodFillTolerance(
+null == tolerance ? _self.tolerance : tolerance // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

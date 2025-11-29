@@ -32,4 +32,6 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.setGridSize(double size) = SetGridSize;
   const factory EditorEvent.handleMidiMessage(MidiPacket packet) = HandleMidiMessage;
   const factory EditorEvent.saveProject(String path) = SaveProject;
+  const factory EditorEvent.fillImageArea(String componentId, Offset position, Color color) = FillImageArea;
+  const factory EditorEvent.setFloodFillTolerance(int tolerance) = SetFloodFillTolerance;
 }

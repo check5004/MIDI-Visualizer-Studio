@@ -8,7 +8,7 @@ enum EditorStatus { initial, loading, ready, error }
 
 enum EditorMode { edit, play, overlay }
 
-enum EditorTool { select, rectangle, circle, path }
+enum EditorTool { select, rectangle, circle, path, bucketFill }
 
 @freezed
 abstract class EditorState with _$EditorState {
@@ -20,9 +20,10 @@ abstract class EditorState with _$EditorState {
     @Default(1.0) double zoomLevel,
     @Default(EditorTool.select) EditorTool currentTool,
     @Default([]) List<Offset> currentPathPoints,
-    @Default(20.0) double gridSize,
     @Default(true) bool showGrid,
-    @Default(true) bool snapToGrid,
+    @Default(false) bool snapToGrid,
+    @Default(20.0) double gridSize,
+    @Default(10) int floodFillTolerance,
     @Default({}) Set<String> activeComponentIds,
     String? errorMessage,
   }) = _EditorState;

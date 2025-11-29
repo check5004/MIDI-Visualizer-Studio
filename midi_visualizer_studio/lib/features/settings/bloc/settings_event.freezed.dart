@@ -55,13 +55,14 @@ extension SettingsEventPatterns on SettingsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult Function( ToggleWindowless value)?  toggleWindowless,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
-return updateChromaKeyColor(_that);case _:
+return updateChromaKeyColor(_that);case ToggleWindowless() when toggleWindowless != null:
+return toggleWindowless(_that);case _:
   return orElse();
 
 }
@@ -79,13 +80,14 @@ return updateChromaKeyColor(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,required TResult Function( ToggleWindowless value)  toggleWindowless,}){
 final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings(_that);case ToggleTheme():
 return toggleTheme(_that);case UpdateChromaKeyColor():
-return updateChromaKeyColor(_that);case _:
+return updateChromaKeyColor(_that);case ToggleWindowless():
+return toggleWindowless(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -102,13 +104,14 @@ return updateChromaKeyColor(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult? Function( ToggleWindowless value)?  toggleWindowless,}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
-return updateChromaKeyColor(_that);case _:
+return updateChromaKeyColor(_that);case ToggleWindowless() when toggleWindowless != null:
+return toggleWindowless(_that);case _:
   return null;
 
 }
@@ -125,12 +128,13 @@ return updateChromaKeyColor(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,TResult Function( bool isWindowless)?  toggleWindowless,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
-return updateChromaKeyColor(_that.color);case _:
+return updateChromaKeyColor(_that.color);case ToggleWindowless() when toggleWindowless != null:
+return toggleWindowless(_that.isWindowless);case _:
   return orElse();
 
 }
@@ -148,12 +152,13 @@ return updateChromaKeyColor(_that.color);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,required TResult Function( bool isWindowless)  toggleWindowless,}) {final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings();case ToggleTheme():
 return toggleTheme(_that.mode);case UpdateChromaKeyColor():
-return updateChromaKeyColor(_that.color);case _:
+return updateChromaKeyColor(_that.color);case ToggleWindowless():
+return toggleWindowless(_that.isWindowless);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -170,12 +175,13 @@ return updateChromaKeyColor(_that.color);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,TResult? Function( bool isWindowless)?  toggleWindowless,}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
-return updateChromaKeyColor(_that.color);case _:
+return updateChromaKeyColor(_that.color);case ToggleWindowless() when toggleWindowless != null:
+return toggleWindowless(_that.isWindowless);case _:
   return null;
 
 }
@@ -341,6 +347,72 @@ class _$UpdateChromaKeyColorCopyWithImpl<$Res>
   return _then(UpdateChromaKeyColor(
 null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ToggleWindowless implements SettingsEvent {
+  const ToggleWindowless(this.isWindowless);
+  
+
+ final  bool isWindowless;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ToggleWindowlessCopyWith<ToggleWindowless> get copyWith => _$ToggleWindowlessCopyWithImpl<ToggleWindowless>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ToggleWindowless&&(identical(other.isWindowless, isWindowless) || other.isWindowless == isWindowless));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isWindowless);
+
+@override
+String toString() {
+  return 'SettingsEvent.toggleWindowless(isWindowless: $isWindowless)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ToggleWindowlessCopyWith<$Res> implements $SettingsEventCopyWith<$Res> {
+  factory $ToggleWindowlessCopyWith(ToggleWindowless value, $Res Function(ToggleWindowless) _then) = _$ToggleWindowlessCopyWithImpl;
+@useResult
+$Res call({
+ bool isWindowless
+});
+
+
+
+
+}
+/// @nodoc
+class _$ToggleWindowlessCopyWithImpl<$Res>
+    implements $ToggleWindowlessCopyWith<$Res> {
+  _$ToggleWindowlessCopyWithImpl(this._self, this._then);
+
+  final ToggleWindowless _self;
+  final $Res Function(ToggleWindowless) _then;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? isWindowless = null,}) {
+  return _then(ToggleWindowless(
+null == isWindowless ? _self.isWindowless : isWindowless // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -380,12 +381,25 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
     return Transform.translate(
       offset: widget.dragDelta,
       child: GestureDetector(
-        onTap: () {
-          final isMultiSelect =
-              HardwareKeyboard.instance.isShiftPressed ||
-              HardwareKeyboard.instance.isMetaPressed ||
-              HardwareKeyboard.instance.isControlPressed;
-          context.read<EditorBloc>().add(EditorEvent.selectComponent(widget.component.id, multiSelect: isMultiSelect));
+        onTapUp: (details) {
+          final state = context.read<EditorBloc>().state;
+          if (state.currentTool == EditorTool.bucketFill) {
+            context.read<EditorBloc>().add(
+              EditorEvent.fillImageArea(
+                widget.component.id,
+                details.localPosition,
+                Colors.green, // Default fill color
+              ),
+            );
+          } else {
+            final isMultiSelect =
+                HardwareKeyboard.instance.isShiftPressed ||
+                HardwareKeyboard.instance.isMetaPressed ||
+                HardwareKeyboard.instance.isControlPressed;
+            context.read<EditorBloc>().add(
+              EditorEvent.selectComponent(widget.component.id, multiSelect: isMultiSelect),
+            );
+          }
         },
         onPanStart: (details) {
           if (!widget.isSelected || widget.component.isLocked) return;
@@ -478,13 +492,67 @@ class ComponentPainter extends CustomPainter {
         // Since we created path relative to minX, minY, it should fit in width/height (size)
         canvas.drawPath(path, paint);
       }
-    } else if (component is ComponentStaticImage) {
-      // Image is rendered by the child widget, so we don't need to paint anything here
       // unless we want a background or something.
+    } else if (component is ComponentKnob) {
+      _drawKnob(canvas, size, component as ComponentKnob, paint);
     } else {
       paint.color = Colors.orange;
       canvas.drawRect(Offset.zero & size, paint);
     }
+  }
+
+  void _drawKnob(Canvas canvas, Size size, ComponentKnob knob, Paint paint) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width, size.height) / 2;
+
+    // Tint Effect
+    Color knobColor = Colors.grey[800]!;
+    if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.tint && isActive) {
+      knobColor = Colors.redAccent;
+    }
+
+    paint.color = knobColor;
+    paint.style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius, paint);
+
+    // Draw Vector Arc (Background)
+    if (knob.style == KnobStyle.vectorArc) {
+      final arcPaint = Paint()
+        ..color = Colors.grey[600]!
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4;
+
+      // Draw full circle background for arc
+      canvas.drawCircle(center, radius - 4, arcPaint);
+    }
+
+    // Draw Pointer / Marker
+    final pointerPaint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    // Rotation
+    // For absolute knobs, rotation should map value to angle.
+    // For relative knobs (spin), rotation is updated by state.
+    // Currently ComponentKnob has 'rotation' property which is usually for the component itself (orientation).
+    // But for Spin effect, we are using it as the current angle.
+    // For normal knobs, we might need a 'value' property which maps to angle.
+    // But `ComponentKnob` doesn't have a 'value' property in the model yet (it's stateless mostly).
+    // However, for visualization, we might want to show the last received value?
+    // The spec says "Visual feedback".
+    // For now, let's use `rotation` as the indicator angle.
+
+    final angle = knob.rotation; // This is in radians
+
+    final pointerEnd = Offset(center.dx + (radius * 0.7) * cos(angle), center.dy + (radius * 0.7) * sin(angle));
+
+    canvas.drawLine(center, pointerEnd, pointerPaint);
+
+    // Draw a dot at the end
+    final dotPaint = Paint()..color = Colors.white;
+    canvas.drawCircle(pointerEnd, 4, dotPaint);
   }
 
   Path _parseSvgPath(String pathData) {

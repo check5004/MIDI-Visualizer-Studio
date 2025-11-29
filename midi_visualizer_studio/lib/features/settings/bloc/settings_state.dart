@@ -8,5 +8,6 @@ abstract class SettingsState with _$SettingsState {
   const factory SettingsState({
     @Default(ThemeMode.light) ThemeMode themeMode,
     @Default(0xFF00FF00) int defaultChromaKeyColor, // Default to Green
+    @Default(false) bool isWindowless,
   }) = _SettingsState;
 }
