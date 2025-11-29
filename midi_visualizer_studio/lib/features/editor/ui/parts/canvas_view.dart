@@ -23,6 +23,7 @@ class _CanvasViewState extends State<CanvasView> {
   final TransformationController _transformationController = TransformationController();
   bool _isMiddleClicking = false;
   Offset? _lastMousePos;
+  Offset _selectionDragDelta = Offset.zero;
 
   @override
   void dispose() {
@@ -194,6 +195,56 @@ class _CanvasViewState extends State<CanvasView> {
                                           gridSize: state.gridSize,
                                           snapToGrid: state.snapToGrid,
                                           padding: padding,
+                                          dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
+                                          onDragStart: (details) {
+                                            if (!isSelected) return;
+                                            setState(() {
+                                              _selectionDragDelta = Offset.zero;
+                                            });
+                                          },
+                                          onDragUpdate: (details) {
+                                            if (!isSelected) return;
+                                            setState(() {
+                                              _selectionDragDelta += details.delta;
+                                            });
+                                          },
+                                          onDragEnd: (details) {
+                                            if (!isSelected) return;
+
+                                            final selectedIds = state.selectedComponentIds;
+                                            final project = state.project;
+                                            if (project == null) return;
+
+                                            final updates = <Component>[];
+
+                                            for (final id in selectedIds) {
+                                              final comp = project.layers.firstWhere(
+                                                (c) => c.id == id,
+                                                orElse: () => throw Exception('Component not found'),
+                                              );
+
+                                              double newX = comp.x + _selectionDragDelta.dx;
+                                              double newY = comp.y + _selectionDragDelta.dy;
+
+                                              if (state.snapToGrid) {
+                                                newX = (newX / state.gridSize).round() * state.gridSize;
+                                                newY = (newY / state.gridSize).round() * state.gridSize;
+                                              }
+
+                                              final updated = comp.map(
+                                                pad: (c) => c.copyWith(x: newX, y: newY),
+                                                knob: (c) => c.copyWith(x: newX, y: newY),
+                                                staticImage: (c) => c.copyWith(x: newX, y: newY),
+                                              );
+                                              updates.add(updated);
+                                            }
+
+                                            context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+
+                                            setState(() {
+                                              _selectionDragDelta = Offset.zero;
+                                            });
+                                          },
                                         ),
                                       );
                                     }),
@@ -301,6 +352,10 @@ class _ComponentWrapper extends StatefulWidget {
   final double gridSize;
   final bool snapToGrid;
   final double padding;
+  final Offset dragDelta;
+  final ValueChanged<DragStartDetails>? onDragStart;
+  final ValueChanged<DragUpdateDetails>? onDragUpdate;
+  final ValueChanged<DragEndDetails>? onDragEnd;
 
   const _ComponentWrapper({
     required this.component,
@@ -309,6 +364,10 @@ class _ComponentWrapper extends StatefulWidget {
     required this.gridSize,
     required this.snapToGrid,
     this.padding = 0,
+    this.dragDelta = Offset.zero,
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
   });
 
   @override
@@ -316,50 +375,29 @@ class _ComponentWrapper extends StatefulWidget {
 }
 
 class _ComponentWrapperState extends State<_ComponentWrapper> {
-  Offset _dragOffset = Offset.zero;
-
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset: _dragOffset,
+      offset: widget.dragDelta,
       child: GestureDetector(
         onTap: () {
-          context.read<EditorBloc>().add(EditorEvent.selectComponent(widget.component.id, multiSelect: false));
+          final isMultiSelect =
+              HardwareKeyboard.instance.isShiftPressed ||
+              HardwareKeyboard.instance.isMetaPressed ||
+              HardwareKeyboard.instance.isControlPressed;
+          context.read<EditorBloc>().add(EditorEvent.selectComponent(widget.component.id, multiSelect: isMultiSelect));
         },
         onPanStart: (details) {
           if (!widget.isSelected || widget.component.isLocked) return;
-          setState(() {
-            _dragOffset = Offset.zero;
-          });
+          widget.onDragStart?.call(details);
         },
         onPanUpdate: (details) {
           if (!widget.isSelected || widget.component.isLocked) return;
-          setState(() {
-            _dragOffset += details.delta;
-          });
+          widget.onDragUpdate?.call(details);
         },
         onPanEnd: (details) {
           if (!widget.isSelected || widget.component.isLocked) return;
-
-          double newX = widget.component.x + _dragOffset.dx;
-          double newY = widget.component.y + _dragOffset.dy;
-
-          if (widget.snapToGrid) {
-            newX = (newX / widget.gridSize).round() * widget.gridSize;
-            newY = (newY / widget.gridSize).round() * widget.gridSize;
-          }
-
-          final updatedComponent = widget.component.map(
-            pad: (c) => c.copyWith(x: newX, y: newY),
-            knob: (c) => c.copyWith(x: newX, y: newY),
-            staticImage: (c) => c.copyWith(x: newX, y: newY),
-          );
-
-          context.read<EditorBloc>().add(EditorEvent.updateComponent(widget.component.id, updatedComponent));
-
-          setState(() {
-            _dragOffset = Offset.zero;
-          });
+          widget.onDragEnd?.call(details);
         },
         child: Transform.rotate(
           angle: widget.component.rotation,

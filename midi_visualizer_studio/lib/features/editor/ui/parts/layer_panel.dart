@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
@@ -139,7 +140,13 @@ class LayerPanel extends StatelessWidget {
                           ],
                         ),
                         onTap: () {
-                          context.read<EditorBloc>().add(EditorEvent.selectComponent(component.id, multiSelect: false));
+                          final isMultiSelect =
+                              HardwareKeyboard.instance.isShiftPressed ||
+                              HardwareKeyboard.instance.isMetaPressed ||
+                              HardwareKeyboard.instance.isControlPressed;
+                          context.read<EditorBloc>().add(
+                            EditorEvent.selectComponent(component.id, multiSelect: isMultiSelect),
+                          );
                         },
                       ),
                     );

@@ -74,7 +74,8 @@ class _InspectorPanelState extends State<InspectorPanel> {
             }
 
             if (selectedIds.length > 1) {
-              return const Center(child: Text('Multiple Selection'));
+              final selectedComponents = project.layers.where((c) => selectedIds.contains(c.id)).toList();
+              return _buildMultiSelectionProperties(context, selectedComponents);
             }
 
             final selectedId = selectedIds.first;
@@ -649,6 +650,251 @@ class _ColorPickerField extends StatelessWidget {
     } catch (e) {
       return Colors.white;
     }
+  }
+}
+
+Widget _buildMultiSelectionProperties(BuildContext context, List<Component> components) {
+  return ListView(
+    padding: const EdgeInsets.all(16),
+    children: [
+      const Text('Multiple Selection', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+      const SizedBox(height: 16),
+      _buildAlignmentTools(context, components),
+      const SizedBox(height: 16),
+      const Divider(),
+      const SizedBox(height: 16),
+      const Text('Properties', style: TextStyle(fontWeight: FontWeight.bold)),
+      const SizedBox(height: 8),
+      // Shared Properties
+      Row(
+        children: [
+          Expanded(
+            child: _MixedNumberInput(
+              label: 'X',
+              values: components.map((c) => c.x).toList(),
+              onChanged: (value) {
+                final updates = components.map((c) {
+                  return c.map(
+                    pad: (comp) => comp.copyWith(x: value),
+                    knob: (comp) => comp.copyWith(x: value),
+                    staticImage: (comp) => comp.copyWith(x: value),
+                  );
+                }).toList();
+                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _MixedNumberInput(
+              label: 'Y',
+              values: components.map((c) => c.y).toList(),
+              onChanged: (value) {
+                final updates = components.map((c) {
+                  return c.map(
+                    pad: (comp) => comp.copyWith(y: value),
+                    knob: (comp) => comp.copyWith(y: value),
+                    staticImage: (comp) => comp.copyWith(y: value),
+                  );
+                }).toList();
+                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              },
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: _MixedNumberInput(
+              label: 'W',
+              values: components.map((c) => c.width).toList(),
+              onChanged: (value) {
+                final updates = components.map((c) {
+                  return c.map(
+                    pad: (comp) => comp.copyWith(width: value),
+                    knob: (comp) => comp.copyWith(width: value),
+                    staticImage: (comp) => comp.copyWith(width: value),
+                  );
+                }).toList();
+                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _MixedNumberInput(
+              label: 'H',
+              values: components.map((c) => c.height).toList(),
+              onChanged: (value) {
+                final updates = components.map((c) {
+                  return c.map(
+                    pad: (comp) => comp.copyWith(height: value),
+                    knob: (comp) => comp.copyWith(height: value),
+                    staticImage: (comp) => comp.copyWith(height: value),
+                  );
+                }).toList();
+                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              },
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Alignment', style: TextStyle(fontWeight: FontWeight.bold)),
+      const SizedBox(height: 8),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.align_horizontal_left),
+            tooltip: 'Align Left',
+            onPressed: () {
+              if (components.isEmpty) return;
+              final minX = components.map((c) => c.x).reduce((a, b) => a < b ? a : b);
+              final updates = components.map((c) {
+                return c.map(
+                  pad: (comp) => comp.copyWith(x: minX),
+                  knob: (comp) => comp.copyWith(x: minX),
+                  staticImage: (comp) => comp.copyWith(x: minX),
+                );
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.align_horizontal_center),
+            tooltip: 'Align Center',
+            onPressed: () {
+              if (components.isEmpty) return;
+              // Center relative to selection bounding box
+              final minX = components.map((c) => c.x).reduce((a, b) => a < b ? a : b);
+              final maxX = components.map((c) => c.x + c.width).reduce((a, b) => a > b ? a : b);
+              final centerX = (minX + maxX) / 2;
+
+              final updates = components.map((c) {
+                final newX = centerX - (c.width / 2);
+                return c.map(
+                  pad: (comp) => comp.copyWith(x: newX),
+                  knob: (comp) => comp.copyWith(x: newX),
+                  staticImage: (comp) => comp.copyWith(x: newX),
+                );
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.align_horizontal_right),
+            tooltip: 'Align Right',
+            onPressed: () {
+              if (components.isEmpty) return;
+              final maxX = components.map((c) => c.x + c.width).reduce((a, b) => a > b ? a : b);
+              final updates = components.map((c) {
+                final newX = maxX - c.width;
+                return c.map(
+                  pad: (comp) => comp.copyWith(x: newX),
+                  knob: (comp) => comp.copyWith(x: newX),
+                  staticImage: (comp) => comp.copyWith(x: newX),
+                );
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+        ],
+      ),
+      const SizedBox(height: 4),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.align_vertical_top),
+            tooltip: 'Align Top',
+            onPressed: () {
+              if (components.isEmpty) return;
+              final minY = components.map((c) => c.y).reduce((a, b) => a < b ? a : b);
+              final updates = components.map((c) {
+                return c.map(
+                  pad: (comp) => comp.copyWith(y: minY),
+                  knob: (comp) => comp.copyWith(y: minY),
+                  staticImage: (comp) => comp.copyWith(y: minY),
+                );
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.align_vertical_center),
+            tooltip: 'Align Middle',
+            onPressed: () {
+              if (components.isEmpty) return;
+              final minY = components.map((c) => c.y).reduce((a, b) => a < b ? a : b);
+              final maxY = components.map((c) => c.y + c.height).reduce((a, b) => a > b ? a : b);
+              final centerY = (minY + maxY) / 2;
+
+              final updates = components.map((c) {
+                final newY = centerY - (c.height / 2);
+                return c.map(
+                  pad: (comp) => comp.copyWith(y: newY),
+                  knob: (comp) => comp.copyWith(y: newY),
+                  staticImage: (comp) => comp.copyWith(y: newY),
+                );
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.align_vertical_bottom),
+            tooltip: 'Align Bottom',
+            onPressed: () {
+              if (components.isEmpty) return;
+              final maxY = components.map((c) => c.y + c.height).reduce((a, b) => a > b ? a : b);
+              final updates = components.map((c) {
+                final newY = maxY - c.height;
+                return c.map(
+                  pad: (comp) => comp.copyWith(y: newY),
+                  knob: (comp) => comp.copyWith(y: newY),
+                  staticImage: (comp) => comp.copyWith(y: newY),
+                );
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+class _MixedNumberInput extends StatelessWidget {
+  final String label;
+  final List<double> values;
+  final ValueChanged<double> onChanged;
+
+  const _MixedNumberInput({required this.label, required this.values, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final firstValue = values.isNotEmpty ? values.first : 0.0;
+    final allSame = values.every((v) => v == firstValue);
+
+    return NumberInput(
+      label: label,
+      value: allSame ? firstValue : 0, // 0 as placeholder if mixed, but we should probably handle display differently
+      // Since NumberInput might not support "Mixed" text, we might need to modify NumberInput or use a controller.
+      // For now, if mixed, we show the first value but maybe with a different color or indicator?
+      // Or we can just pass the first value and let user overwrite.
+      // Ideally NumberInput should support a "hint" or "placeholder" for mixed values.
+      // But let's stick to simple behavior: show first value if mixed.
+      onChanged: onChanged,
+    );
   }
 }
 

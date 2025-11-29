@@ -12,6 +12,7 @@ abstract class EditorEvent with _$EditorEvent {
   const factory EditorEvent.loadProject(String path, {Project? project}) = LoadProject;
   const factory EditorEvent.addComponent(Component component) = AddComponent;
   const factory EditorEvent.updateComponent(String id, Component component) = UpdateComponent;
+  const factory EditorEvent.updateComponents(List<Component> components) = UpdateComponents;
   const factory EditorEvent.selectComponent(String id, {required bool multiSelect}) = SelectComponent;
   const factory EditorEvent.reorderComponent(int oldIndex, int newIndex) = ReorderComponent;
   const factory EditorEvent.updateProjectSettings(Project project) = UpdateProjectSettings;

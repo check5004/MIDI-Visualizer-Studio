@@ -17,6 +17,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<LoadProject>(_onLoadProject);
     on<AddComponent>(_onAddComponent);
     on<UpdateComponent>(_onUpdateComponent);
+    on<UpdateComponents>(_onUpdateComponents);
     on<SelectComponent>(_onSelectComponent);
     on<ReorderComponent>(_onReorderComponent);
     on<UpdateProjectSettings>(_onUpdateProjectSettings);
@@ -124,6 +125,22 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     _recordHistory();
     final updatedLayers = project.layers.map((c) {
       return c.id == event.id ? event.component : c;
+    }).toList();
+
+    emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
+  }
+
+  void _onUpdateComponents(UpdateComponents event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null) return;
+
+    _recordHistory();
+
+    // Create a map for faster lookup
+    final updates = {for (var c in event.components) c.id: c};
+
+    final updatedLayers = project.layers.map((c) {
+      return updates.containsKey(c.id) ? updates[c.id]! : c;
     }).toList();
 
     emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
