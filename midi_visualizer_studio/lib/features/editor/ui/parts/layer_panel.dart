@@ -11,7 +11,6 @@ class LayerPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250,
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [

@@ -5,6 +5,7 @@ import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/parts/number_input.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 
 class InspectorPanel extends StatefulWidget {
@@ -54,7 +55,6 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('MIDI Bound!')));
       },
       child: Container(
-        width: 300,
         color: Theme.of(context).colorScheme.surface,
         child: BlocBuilder<EditorBloc, EditorState>(
           builder: (context, state) {
@@ -125,9 +125,10 @@ class _InspectorPanelState extends State<InspectorPanel> {
         Row(
           children: [
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'Width',
                 value: project.canvasWidth,
+                step: 10,
                 onChanged: (value) {
                   context.read<EditorBloc>().add(
                     EditorEvent.updateProjectSettings(project.copyWith(canvasWidth: value)),
@@ -137,9 +138,10 @@ class _InspectorPanelState extends State<InspectorPanel> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'Height',
                 value: project.canvasHeight,
+                step: 10,
                 onChanged: (value) {
                   context.read<EditorBloc>().add(
                     EditorEvent.updateProjectSettings(project.copyWith(canvasHeight: value)),
@@ -195,7 +197,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         Row(
           children: [
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'X',
                 value: component.x,
                 enabled: !component.isLocked,
@@ -211,7 +213,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'Y',
                 value: component.y,
                 enabled: !component.isLocked,
@@ -231,7 +233,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         Row(
           children: [
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'W',
                 value: component.width,
                 enabled: !component.isLocked,
@@ -247,7 +249,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'H',
                 value: component.height,
                 enabled: !component.isLocked,
@@ -287,13 +289,15 @@ class _InspectorPanelState extends State<InspectorPanel> {
         Row(
           children: [
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: 'Channel',
                 value: component.map(
                   pad: (c) => (c.midiChannel ?? 0).toDouble(),
                   knob: (c) => (c.midiChannel ?? 0).toDouble(),
                   staticImage: (_) => 0,
                 ),
+                min: 0,
+                max: 15,
                 enabled: !component.isLocked && component is! ComponentStaticImage,
                 onChanged: (value) {
                   final channel = value.toInt().clamp(0, 15);
@@ -308,13 +312,15 @@ class _InspectorPanelState extends State<InspectorPanel> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _NumberField(
+              child: NumberInput(
                 label: component.map(pad: (_) => 'Note', knob: (_) => 'CC', staticImage: (_) => 'N/A'),
                 value: component.map(
                   pad: (c) => (c.midiNote ?? -1).toDouble(),
                   knob: (c) => (c.midiCc ?? -1).toDouble(),
                   staticImage: (_) => -1,
                 ),
+                min: -1,
+                max: 127,
                 enabled: !component.isLocked && component is! ComponentStaticImage,
                 onChanged: (value) {
                   final val = value.toInt();
@@ -429,7 +435,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
       Row(
         children: [
           Expanded(
-            child: _NumberField(
+            child: NumberInput(
               label: 'Min Angle',
               value: knob.minAngle,
               onChanged: (value) {
@@ -439,7 +445,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _NumberField(
+            child: NumberInput(
               label: 'Max Angle',
               value: knob.maxAngle,
               onChanged: (value) {
@@ -547,35 +553,6 @@ class _PropertyField extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       ),
       onChanged: onChanged,
-    );
-  }
-}
-
-class _NumberField extends StatelessWidget {
-  final String label;
-  final double value;
-  final bool enabled;
-  final ValueChanged<double> onChanged;
-
-  const _NumberField({required this.label, required this.value, this.enabled = true, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value.toString(),
-      enabled: enabled,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      ),
-      onChanged: (val) {
-        final num = double.tryParse(val);
-        if (num != null) {
-          onChanged(num);
-        }
-      },
     );
   }
 }

@@ -13,11 +13,19 @@ import 'package:midi_visualizer_studio/data/repositories/project_repository.dart
 import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 import 'package:window_manager/window_manager.dart';
 
-class EditorScreen extends StatelessWidget {
+class EditorScreen extends StatefulWidget {
   final String projectId;
   final Project? project;
 
   const EditorScreen({super.key, required this.projectId, this.project});
+
+  @override
+  State<EditorScreen> createState() => _EditorScreenState();
+}
+
+class _EditorScreenState extends State<EditorScreen> {
+  double _inspectorWidth = 350.0;
+  double _layerPanelWidth = 250.0;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +36,7 @@ class EditorScreen extends StatelessWidget {
           create: (context) => EditorBloc(
             historyCubit: context.read<HistoryCubit>(),
             projectRepository: context.read<ProjectRepository>(),
-          )..add(EditorEvent.loadProject(projectId, project: project)),
+          )..add(EditorEvent.loadProject(widget.projectId, project: widget.project)),
         ),
       ],
       child: BlocConsumer<EditorBloc, EditorState>(
@@ -64,11 +72,37 @@ class EditorScreen extends StatelessWidget {
             body: Row(
               children: [
                 // Layer Panel (Left)
-                const SizedBox(width: 250, child: LayerPanel()),
+                SizedBox(width: _layerPanelWidth, child: const LayerPanel()),
+                // Left Resize Handle
+                MouseRegion(
+                  cursor: SystemMouseCursors.resizeColumn,
+                  child: GestureDetector(
+                    onHorizontalDragUpdate: (details) {
+                      setState(() {
+                        _layerPanelWidth += details.delta.dx;
+                        _layerPanelWidth = _layerPanelWidth.clamp(200.0, 500.0);
+                      });
+                    },
+                    child: Container(width: 5, color: Theme.of(context).colorScheme.surface),
+                  ),
+                ),
                 // Canvas (Center)
                 const Expanded(child: CanvasView()),
+                // Right Resize Handle
+                MouseRegion(
+                  cursor: SystemMouseCursors.resizeColumn,
+                  child: GestureDetector(
+                    onHorizontalDragUpdate: (details) {
+                      setState(() {
+                        _inspectorWidth -= details.delta.dx;
+                        _inspectorWidth = _inspectorWidth.clamp(300.0, 600.0);
+                      });
+                    },
+                    child: Container(width: 5, color: Theme.of(context).colorScheme.surface),
+                  ),
+                ),
                 // Inspector (Right)
-                const SizedBox(width: 300, child: InspectorPanel()),
+                SizedBox(width: _inspectorWidth, child: const InspectorPanel()),
               ],
             ),
           );
