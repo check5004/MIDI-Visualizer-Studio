@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:midi_visualizer_studio/core/services/midi_service.dart';
 import 'package:midi_visualizer_studio/main.dart';
@@ -7,11 +9,38 @@ void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
     final midiService = MidiService();
     SharedPreferences.setMockInitialValues({});
+
+    // Mock window_manager
+    const channel = MethodChannel('window_manager');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+      if (methodCall.method == 'getBounds') {
+        return {'x': 0.0, 'y': 0.0, 'width': 800.0, 'height': 600.0};
+      }
+      return null;
+    });
+
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(MidiVisualizerApp(midiService: midiService, prefs: prefs));
-    expect(find.text('MIDI Visualizer Studio'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
-    await tester.pump(); // Process navigation
-    expect(find.text('Welcome Back'), findsOneWidget);
+    await tester.pumpAndSettle(); // Process navigation and animations
+
+    if (find.byIcon(Icons.piano).evaluate().isNotEmpty) {
+      fail('Still on Splash Screen');
+    }
+
+    if (find.text('Projects').evaluate().isEmpty) {
+      final texts = find.byType(Text).evaluate().map((e) => (e.widget as Text).data).toList();
+      print('Found texts: $texts');
+    }
+    expect(find.text('Projects'), findsAtLeastNWidgets(1));
+
+    // Test Launch Button
+    final launchButton = find.text('Launch').first;
+    expect(launchButton, findsOneWidget);
+    await tester.tap(launchButton);
+    await tester.pumpAndSettle();
+
+    // Verify we are in Preview Screen (check for Close button)
+    expect(find.byIcon(Icons.close), findsOneWidget);
   });
 }

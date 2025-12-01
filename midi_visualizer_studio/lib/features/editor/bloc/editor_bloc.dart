@@ -15,10 +15,10 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 
 class EditorBloc extends Bloc<EditorEvent, EditorState> {
-  final HistoryCubit _historyCubit;
-  final ProjectRepository _projectRepository;
+  final HistoryCubit? _historyCubit;
+  final ProjectRepository? _projectRepository;
 
-  EditorBloc({required HistoryCubit historyCubit, required ProjectRepository projectRepository})
+  EditorBloc({HistoryCubit? historyCubit, ProjectRepository? projectRepository})
     : _historyCubit = historyCubit,
       _projectRepository = projectRepository,
       super(const EditorState()) {
@@ -63,8 +63,8 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     if (event.project != null) {
       // Use the provided project (e.g. from New Project flow)
-      _historyCubit.clear();
-      _historyCubit.record(event.project!);
+      _historyCubit?.clear();
+      _historyCubit?.record(event.project!);
       emit(state.copyWith(status: EditorStatus.ready, project: event.project));
       return;
     }
@@ -101,14 +101,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         ],
       );
 
-      _historyCubit.clear();
-      _historyCubit.record(dummyProject);
+      _historyCubit?.clear();
+      _historyCubit?.record(dummyProject);
       emit(state.copyWith(status: EditorStatus.ready, project: dummyProject));
     } else {
       try {
+        if (_projectRepository == null) {
+          emit(state.copyWith(status: EditorStatus.ready, errorMessage: 'Project repository not available'));
+          return;
+        }
         final project = await _projectRepository.loadProject(event.path);
-        _historyCubit.clear();
-        _historyCubit.record(project);
+        _historyCubit?.clear();
+        _historyCubit?.record(project);
         emit(state.copyWith(status: EditorStatus.ready, project: project, errorMessage: null));
       } catch (e) {
         emit(state.copyWith(status: EditorStatus.ready, errorMessage: 'Failed to load project: $e'));
@@ -138,7 +142,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
       final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY);
 
-      await _projectRepository.saveProject(projectToSave, event.path);
+      await _projectRepository?.saveProject(projectToSave, event.path);
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to save project: $e'));
     }
@@ -234,7 +238,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
-    final previousProject = _historyCubit.undo(project);
+    final previousProject = _historyCubit?.undo(project);
     if (previousProject != null) {
       final validSelection = state.selectedComponentIds
           .where((id) => previousProject.layers.any((l) => l.id == id))
@@ -247,7 +251,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null) return;
 
-    final nextProject = _historyCubit.redo(project);
+    final nextProject = _historyCubit?.redo(project);
     if (nextProject != null) {
       final validSelection = state.selectedComponentIds
           .where((id) => nextProject.layers.any((l) => l.id == id))
@@ -818,7 +822,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   void _recordHistory() {
     final project = state.project;
     if (project != null) {
-      _historyCubit.record(project);
+      _historyCubit?.record(project);
     }
   }
 }

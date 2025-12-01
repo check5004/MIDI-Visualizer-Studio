@@ -246,18 +246,15 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
             const VerticalDivider(indent: 10, endIndent: 10),
 
-            // Mode Switch
-            Row(
-              children: [
-                const Text('Edit'),
-                Switch(
-                  value: state.mode == EditorMode.play,
-                  onChanged: (value) {
-                    context.read<EditorBloc>().add(EditorEvent.toggleMode(value ? EditorMode.play : EditorMode.edit));
-                  },
-                ),
-                const Text('Play'),
-              ],
+            // Preview Button
+            FilledButton.icon(
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Preview'),
+              onPressed: () {
+                if (project != null) {
+                  context.push('/preview', extra: project);
+                }
+              },
             ),
             const SizedBox(width: 16),
           ],

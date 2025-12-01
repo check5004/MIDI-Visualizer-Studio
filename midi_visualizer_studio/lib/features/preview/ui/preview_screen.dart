@@ -1,0 +1,209 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
+import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
+import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/parts/canvas_view.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:flutter/foundation.dart';
+import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
+import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
+
+class PreviewScreen extends StatefulWidget {
+  final Project project;
+
+  const PreviewScreen({super.key, required this.project});
+
+  @override
+  State<PreviewScreen> createState() => _PreviewScreenState();
+}
+
+class _PreviewScreenState extends State<PreviewScreen> {
+  bool _isHovering = false;
+  Rect _contentBounds = Rect.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateContentBounds();
+    _enterPreviewMode();
+  }
+
+  @override
+  void dispose() {
+    _exitPreviewMode();
+    super.dispose();
+  }
+
+  void _calculateContentBounds() {
+    if (widget.project.layers.isEmpty) {
+      _contentBounds = const Rect.fromLTWH(0, 0, 800, 600);
+      return;
+    }
+
+    double minX = double.infinity;
+    double minY = double.infinity;
+    double maxX = double.negativeInfinity;
+    double maxY = double.negativeInfinity;
+
+    for (final layer in widget.project.layers) {
+      if (layer.x < minX) minX = layer.x;
+      if (layer.y < minY) minY = layer.y;
+      if (layer.x + layer.width > maxX) maxX = layer.x + layer.width;
+      if (layer.y + layer.height > maxY) maxY = layer.y + layer.height;
+    }
+
+    // Add some padding
+    const padding = 20.0;
+    _contentBounds = Rect.fromLTRB(minX - padding, minY - padding, maxX + padding, maxY + padding);
+  }
+
+  Future<void> _enterPreviewMode() async {
+    if (kIsWeb) return;
+    await windowManager.setHasShadow(false);
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    await windowManager.setBackgroundColor(Colors.transparent);
+    await windowManager.setAlwaysOnTop(true);
+
+    // Auto-resize
+    // We need to ensure the window is at least a certain size and fits the content
+    // Note: This sets the window size, not the content scale.
+    // The content will be scaled to fit this window size by FittedBox.
+    // But ideally, we want the window to match the content size 1:1 initially if possible.
+    // Let's try to set the window size to the content size.
+    await windowManager.setSize(Size(_contentBounds.width, _contentBounds.height));
+    // Optionally center? Or keep position?
+    // User didn't specify, but centering is safe.
+    // await windowManager.center();
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _exitPreviewMode() async {
+    if (kIsWeb) return;
+    await windowManager.setHasShadow(true);
+    await windowManager.setTitleBarStyle(TitleBarStyle.normal);
+    await windowManager.setAlwaysOnTop(false);
+    // Restore default size? Or let the user resize.
+    await windowManager.setSize(const Size(1280, 720));
+    await windowManager.center();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          EditorBloc(historyCubit: null, projectRepository: null)
+            ..add(EditorEvent.loadProject(widget.project.id, project: widget.project)),
+      child: BlocListener<MidiBloc, MidiState>(
+        listener: (context, midiState) {
+          if (midiState.lastPacket != null) {
+            context.read<EditorBloc>().add(EditorEvent.handleMidiMessage(midiState.lastPacket!));
+          }
+        },
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: MouseRegion(
+            onEnter: (_) => setState(() => _isHovering = true),
+            onExit: (_) => setState(() => _isHovering = false),
+            child: Stack(
+              children: [
+                // Content
+                Positioned.fill(
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: _contentBounds.width,
+                        height: _contentBounds.height,
+                        child: BlocBuilder<EditorBloc, EditorState>(
+                          builder: (context, state) {
+                            final project = state.project;
+                            if (project == null) return const SizedBox();
+
+                            return Stack(
+                              children: [
+                                // Translate content so that top-left is at (0,0) of the SizedBox
+                                Transform.translate(
+                                  offset: Offset(-_contentBounds.left, -_contentBounds.top),
+                                  child: Stack(
+                                    children: project.layers.map((component) {
+                                      if (!component.isVisible) return const SizedBox();
+
+                                      final isActive = state.activeComponentIds.contains(component.id);
+
+                                      return Positioned(
+                                        left: component.x,
+                                        top: component.y,
+                                        child: CustomPaint(
+                                          painter: ComponentPainter(
+                                            component: component,
+                                            isSelected: false,
+                                            isActive: isActive,
+                                          ),
+                                          size: Size(component.width, component.height),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Hover Controls
+                AnimatedOpacity(
+                  opacity: _isHovering ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: SafeArea(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Drag Handle (Window Mover)
+                              GestureDetector(
+                                onPanStart: (details) => windowManager.startDragging(),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.drag_handle, color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              FloatingActionButton(
+                                mini: true,
+                                backgroundColor: Colors.red,
+                                child: const Icon(Icons.close, color: Colors.white),
+                                onPressed: () {
+                                  context.go('/home');
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

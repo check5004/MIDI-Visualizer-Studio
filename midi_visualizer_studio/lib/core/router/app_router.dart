@@ -7,6 +7,7 @@ import 'package:midi_visualizer_studio/features/splash/ui/splash_screen.dart';
 import 'package:midi_visualizer_studio/features/tutorial/ui/tutorial_screen.dart';
 import 'package:midi_visualizer_studio/features/poc/bucket_fill/ui/bucket_fill_screen.dart';
 import 'package:midi_visualizer_studio/features/poc/midi/ui/midi_monitor_screen.dart';
+import 'package:midi_visualizer_studio/features/preview/ui/preview_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -25,5 +26,12 @@ final appRouter = GoRouter(
     GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
     GoRoute(path: '/poc/bucket-fill', builder: (context, state) => const BucketFillScreen()),
     GoRoute(path: '/poc/midi', builder: (context, state) => const MidiMonitorScreen()),
+    GoRoute(
+      path: '/preview',
+      builder: (context, state) {
+        final project = state.extra as Project;
+        return PreviewScreen(project: project);
+      },
+    ),
   ],
 );

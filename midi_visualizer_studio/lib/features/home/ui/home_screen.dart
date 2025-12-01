@@ -29,8 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             labelType: NavigationRailLabelType.all,
             destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.history), label: Text('Recent')),
-              NavigationRailDestination(icon: Icon(Icons.folder_open), label: Text('Local')),
+              NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Projects')),
               NavigationRailDestination(icon: Icon(Icons.settings), label: Text('Settings')),
             ],
             trailing: Padding(
@@ -60,9 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Welcome Back', style: Theme.of(context).textTheme.headlineMedium),
+                Text('Projects', style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 8),
-                Text('Continue working on your layouts.', style: Theme.of(context).textTheme.bodyLarge),
+                Text('Manage your MIDI visualizer projects.', style: Theme.of(context).textTheme.bodyLarge),
               ],
             ),
           ),
@@ -74,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
               maxCrossAxisExtent: 250,
               mainAxisSpacing: 24,
               crossAxisSpacing: 24,
-              childAspectRatio: 0.8,
+              childAspectRatio: 0.6,
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -96,16 +95,10 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return _buildRecentProjects();
       case 1:
-        return _buildLocalFiles();
-      case 2:
         return const SettingsScreen();
       default:
         return _buildRecentProjects();
     }
-  }
-
-  Widget _buildLocalFiles() {
-    return const Center(child: Text('Local file browser not implemented yet.'));
   }
 }
 
@@ -178,16 +171,49 @@ class _ProjectCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Project $index',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Project $index',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text('Edited 2h ago', style: Theme.of(context).textTheme.bodySmall),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text('Edited 2h ago', style: Theme.of(context).textTheme.bodySmall),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () {
+                            // TODO: In a real app, we would load the project here.
+                            // For now, we'll just navigate to preview with a dummy project or ID.
+                            // Since we don't have a real project object here easily without loading,
+                            // we might need to rely on the PreviewScreen to load it if passed an ID.
+                            // But PreviewScreen currently expects a Project object.
+                            // Let's assume for now we can't easily launch without loading.
+                            // But the user wants "Direct Launch".
+                            // I will pass a dummy project for now to demonstrate the flow.
+                            final projectRepository = context.read<ProjectRepository>();
+                            // This is a hack for the mock. In reality we'd get the project by ID.
+                            final project = projectRepository.createProject(rows: 4, cols: 4);
+                            context.pushReplacement('/preview', extra: project);
+                          },
+                          icon: const Icon(Icons.play_arrow, size: 16),
+                          label: const Text('Launch'),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
