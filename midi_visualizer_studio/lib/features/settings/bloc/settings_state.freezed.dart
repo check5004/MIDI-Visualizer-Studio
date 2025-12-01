@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingsState {
 
- ThemeMode get themeMode; int get defaultChromaKeyColor;// Default to Green
+ ThemeMode get themeMode; int get defaultChromaKeyColor; int get editorBackgroundColor;// Default to dark grey
  bool get isWindowless; Map<String, ShortcutConfig> get shortcuts;
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
@@ -26,16 +26,16 @@ $SettingsStateCopyWith<SettingsState> get copyWith => _$SettingsStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.defaultChromaKeyColor, defaultChromaKeyColor) || other.defaultChromaKeyColor == defaultChromaKeyColor)&&(identical(other.isWindowless, isWindowless) || other.isWindowless == isWindowless)&&const DeepCollectionEquality().equals(other.shortcuts, shortcuts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.defaultChromaKeyColor, defaultChromaKeyColor) || other.defaultChromaKeyColor == defaultChromaKeyColor)&&(identical(other.editorBackgroundColor, editorBackgroundColor) || other.editorBackgroundColor == editorBackgroundColor)&&(identical(other.isWindowless, isWindowless) || other.isWindowless == isWindowless)&&const DeepCollectionEquality().equals(other.shortcuts, shortcuts));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,themeMode,defaultChromaKeyColor,isWindowless,const DeepCollectionEquality().hash(shortcuts));
+int get hashCode => Object.hash(runtimeType,themeMode,defaultChromaKeyColor,editorBackgroundColor,isWindowless,const DeepCollectionEquality().hash(shortcuts));
 
 @override
 String toString() {
-  return 'SettingsState(themeMode: $themeMode, defaultChromaKeyColor: $defaultChromaKeyColor, isWindowless: $isWindowless, shortcuts: $shortcuts)';
+  return 'SettingsState(themeMode: $themeMode, defaultChromaKeyColor: $defaultChromaKeyColor, editorBackgroundColor: $editorBackgroundColor, isWindowless: $isWindowless, shortcuts: $shortcuts)';
 }
 
 
@@ -46,7 +46,7 @@ abstract mixin class $SettingsStateCopyWith<$Res>  {
   factory $SettingsStateCopyWith(SettingsState value, $Res Function(SettingsState) _then) = _$SettingsStateCopyWithImpl;
 @useResult
 $Res call({
- ThemeMode themeMode, int defaultChromaKeyColor, bool isWindowless, Map<String, ShortcutConfig> shortcuts
+ ThemeMode themeMode, int defaultChromaKeyColor, int editorBackgroundColor, bool isWindowless, Map<String, ShortcutConfig> shortcuts
 });
 
 
@@ -63,10 +63,11 @@ class _$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,Object? defaultChromaKeyColor = null,Object? isWindowless = null,Object? shortcuts = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,Object? defaultChromaKeyColor = null,Object? editorBackgroundColor = null,Object? isWindowless = null,Object? shortcuts = null,}) {
   return _then(_self.copyWith(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
 as ThemeMode,defaultChromaKeyColor: null == defaultChromaKeyColor ? _self.defaultChromaKeyColor : defaultChromaKeyColor // ignore: cast_nullable_to_non_nullable
+as int,editorBackgroundColor: null == editorBackgroundColor ? _self.editorBackgroundColor : editorBackgroundColor // ignore: cast_nullable_to_non_nullable
 as int,isWindowless: null == isWindowless ? _self.isWindowless : isWindowless // ignore: cast_nullable_to_non_nullable
 as bool,shortcuts: null == shortcuts ? _self.shortcuts : shortcuts // ignore: cast_nullable_to_non_nullable
 as Map<String, ShortcutConfig>,
@@ -154,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ThemeMode themeMode,  int defaultChromaKeyColor,  bool isWindowless,  Map<String, ShortcutConfig> shortcuts)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ThemeMode themeMode,  int defaultChromaKeyColor,  int editorBackgroundColor,  bool isWindowless,  Map<String, ShortcutConfig> shortcuts)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.isWindowless,_that.shortcuts);case _:
+return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.editorBackgroundColor,_that.isWindowless,_that.shortcuts);case _:
   return orElse();
 
 }
@@ -175,10 +176,10 @@ return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.isWindowless,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ThemeMode themeMode,  int defaultChromaKeyColor,  bool isWindowless,  Map<String, ShortcutConfig> shortcuts)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ThemeMode themeMode,  int defaultChromaKeyColor,  int editorBackgroundColor,  bool isWindowless,  Map<String, ShortcutConfig> shortcuts)  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState():
-return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.isWindowless,_that.shortcuts);case _:
+return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.editorBackgroundColor,_that.isWindowless,_that.shortcuts);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +196,10 @@ return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.isWindowless,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ThemeMode themeMode,  int defaultChromaKeyColor,  bool isWindowless,  Map<String, ShortcutConfig> shortcuts)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ThemeMode themeMode,  int defaultChromaKeyColor,  int editorBackgroundColor,  bool isWindowless,  Map<String, ShortcutConfig> shortcuts)?  $default,) {final _that = this;
 switch (_that) {
 case _SettingsState() when $default != null:
-return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.isWindowless,_that.shortcuts);case _:
+return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.editorBackgroundColor,_that.isWindowless,_that.shortcuts);case _:
   return null;
 
 }
@@ -210,12 +211,13 @@ return $default(_that.themeMode,_that.defaultChromaKeyColor,_that.isWindowless,_
 
 
 class _SettingsState implements SettingsState {
-  const _SettingsState({this.themeMode = ThemeMode.light, this.defaultChromaKeyColor = 0xFF00FF00, this.isWindowless = false, final  Map<String, ShortcutConfig> shortcuts = const {}}): _shortcuts = shortcuts;
+  const _SettingsState({this.themeMode = ThemeMode.system, this.defaultChromaKeyColor = 0xFF00FF00, this.editorBackgroundColor = 0xFF1E1E1E, this.isWindowless = false, final  Map<String, ShortcutConfig> shortcuts = const {}}): _shortcuts = shortcuts;
   
 
 @override@JsonKey() final  ThemeMode themeMode;
 @override@JsonKey() final  int defaultChromaKeyColor;
-// Default to Green
+@override@JsonKey() final  int editorBackgroundColor;
+// Default to dark grey
 @override@JsonKey() final  bool isWindowless;
  final  Map<String, ShortcutConfig> _shortcuts;
 @override@JsonKey() Map<String, ShortcutConfig> get shortcuts {
@@ -235,16 +237,16 @@ _$SettingsStateCopyWith<_SettingsState> get copyWith => __$SettingsStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.defaultChromaKeyColor, defaultChromaKeyColor) || other.defaultChromaKeyColor == defaultChromaKeyColor)&&(identical(other.isWindowless, isWindowless) || other.isWindowless == isWindowless)&&const DeepCollectionEquality().equals(other._shortcuts, _shortcuts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsState&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.defaultChromaKeyColor, defaultChromaKeyColor) || other.defaultChromaKeyColor == defaultChromaKeyColor)&&(identical(other.editorBackgroundColor, editorBackgroundColor) || other.editorBackgroundColor == editorBackgroundColor)&&(identical(other.isWindowless, isWindowless) || other.isWindowless == isWindowless)&&const DeepCollectionEquality().equals(other._shortcuts, _shortcuts));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,themeMode,defaultChromaKeyColor,isWindowless,const DeepCollectionEquality().hash(_shortcuts));
+int get hashCode => Object.hash(runtimeType,themeMode,defaultChromaKeyColor,editorBackgroundColor,isWindowless,const DeepCollectionEquality().hash(_shortcuts));
 
 @override
 String toString() {
-  return 'SettingsState(themeMode: $themeMode, defaultChromaKeyColor: $defaultChromaKeyColor, isWindowless: $isWindowless, shortcuts: $shortcuts)';
+  return 'SettingsState(themeMode: $themeMode, defaultChromaKeyColor: $defaultChromaKeyColor, editorBackgroundColor: $editorBackgroundColor, isWindowless: $isWindowless, shortcuts: $shortcuts)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$SettingsStateCopyWith<$Res> implements $SettingsStateCopy
   factory _$SettingsStateCopyWith(_SettingsState value, $Res Function(_SettingsState) _then) = __$SettingsStateCopyWithImpl;
 @override @useResult
 $Res call({
- ThemeMode themeMode, int defaultChromaKeyColor, bool isWindowless, Map<String, ShortcutConfig> shortcuts
+ ThemeMode themeMode, int defaultChromaKeyColor, int editorBackgroundColor, bool isWindowless, Map<String, ShortcutConfig> shortcuts
 });
 
 
@@ -272,10 +274,11 @@ class __$SettingsStateCopyWithImpl<$Res>
 
 /// Create a copy of SettingsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? themeMode = null,Object? defaultChromaKeyColor = null,Object? isWindowless = null,Object? shortcuts = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? themeMode = null,Object? defaultChromaKeyColor = null,Object? editorBackgroundColor = null,Object? isWindowless = null,Object? shortcuts = null,}) {
   return _then(_SettingsState(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
 as ThemeMode,defaultChromaKeyColor: null == defaultChromaKeyColor ? _self.defaultChromaKeyColor : defaultChromaKeyColor // ignore: cast_nullable_to_non_nullable
+as int,editorBackgroundColor: null == editorBackgroundColor ? _self.editorBackgroundColor : editorBackgroundColor // ignore: cast_nullable_to_non_nullable
 as int,isWindowless: null == isWindowless ? _self.isWindowless : isWindowless // ignore: cast_nullable_to_non_nullable
 as bool,shortcuts: null == shortcuts ? _self._shortcuts : shortcuts // ignore: cast_nullable_to_non_nullable
 as Map<String, ShortcutConfig>,

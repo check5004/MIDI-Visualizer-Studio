@@ -11,6 +11,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SharedPreferences _prefs;
   static const String _themeKey = 'theme_mode';
   static const String _chromaKeyColorKey = 'default_chroma_key_color';
+  static const String _editorBackgroundColorKey = 'editor_background_color';
   static const String _windowlessKey = 'is_windowless';
   static const String _shortcutsKey = 'shortcuts_config';
 
@@ -18,6 +19,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<LoadSettings>(_onLoadSettings);
     on<ToggleTheme>(_onToggleTheme);
     on<UpdateChromaKeyColor>(_onUpdateChromaKeyColor);
+    on<UpdateEditorBackgroundColor>(_onUpdateEditorBackgroundColor);
     on<ToggleWindowless>(_onToggleWindowless);
     on<UpdateShortcut>(_onUpdateShortcut);
     on<ResetShortcuts>(_onResetShortcuts);
@@ -28,6 +30,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   void _onLoadSettings(LoadSettings event, Emitter<SettingsState> emit) {
     final themeIndex = _prefs.getInt(_themeKey);
     final chromaKeyColor = _prefs.getInt(_chromaKeyColorKey);
+    final editorBackgroundColor = _prefs.getInt(_editorBackgroundColorKey);
     final isWindowless = _prefs.getBool(_windowlessKey);
     final shortcutsJson = _prefs.getString(_shortcutsKey);
 
@@ -37,6 +40,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
     if (chromaKeyColor != null) {
       newState = newState.copyWith(defaultChromaKeyColor: chromaKeyColor);
+    }
+    if (editorBackgroundColor != null) {
+      newState = newState.copyWith(editorBackgroundColor: editorBackgroundColor);
     }
     if (isWindowless != null) {
       newState = newState.copyWith(isWindowless: isWindowless);
@@ -69,6 +75,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   void _onUpdateChromaKeyColor(UpdateChromaKeyColor event, Emitter<SettingsState> emit) async {
     await _prefs.setInt(_chromaKeyColorKey, event.color);
     emit(state.copyWith(defaultChromaKeyColor: event.color));
+  }
+
+  void _onUpdateEditorBackgroundColor(UpdateEditorBackgroundColor event, Emitter<SettingsState> emit) async {
+    await _prefs.setInt(_editorBackgroundColorKey, event.color);
+    emit(state.copyWith(editorBackgroundColor: event.color));
   }
 
   void _onToggleWindowless(ToggleWindowless event, Emitter<SettingsState> emit) async {

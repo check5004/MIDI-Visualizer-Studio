@@ -10,6 +10,8 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/ruler_widget.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/selection_overlay.dart';
+import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
+import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 
 class CanvasView extends StatefulWidget {
   const CanvasView({super.key});
@@ -26,6 +28,19 @@ class _CanvasViewState extends State<CanvasView> {
   Offset? _lastMousePos;
   Offset _selectionDragDelta = Offset.zero;
 
+  static const double kCanvasSize = 10000.0;
+  static const double kCanvasOrigin = kCanvasSize / 2;
+
+  @override
+  void initState() {
+    super.initState();
+    // Center the view initially
+    final matrix = Matrix4.identity()
+      ..translate(-kCanvasOrigin + 400, -kCanvasOrigin + 300) // Approximate center of viewport
+      ..scale(1.0);
+    _transformationController.value = matrix;
+  }
+
   @override
   void dispose() {
     _transformationController.dispose();
@@ -38,7 +53,13 @@ class _CanvasViewState extends State<CanvasView> {
       listenWhen: (previous, current) => previous.zoomLevel != current.zoomLevel,
       listener: (context, state) {
         if (_transformationController.value.getMaxScaleOnAxis() != state.zoomLevel) {
-          final matrix = Matrix4.identity()..scale(state.zoomLevel);
+          // Maintain center when zooming programmatically?
+          // For now just scale, but we might need to be smarter about pivot.
+          final currentMatrix = _transformationController.value;
+          final currentScale = currentMatrix.getMaxScaleOnAxis();
+          final scaleChange = state.zoomLevel / currentScale;
+
+          final matrix = currentMatrix.clone()..scale(scaleChange);
           _transformationController.value = matrix;
         }
       },
@@ -58,7 +79,12 @@ class _CanvasViewState extends State<CanvasView> {
                 children: [
                   const SizedBox(width: 20, child: Placeholder(color: Colors.black)), // Corner
                   Expanded(
-                    child: RulerWidget(axis: Axis.horizontal, controller: _transformationController, size: 20),
+                    child: RulerWidget(
+                      axis: Axis.horizontal,
+                      controller: _transformationController,
+                      size: 20,
+                      originOffset: kCanvasOrigin,
+                    ),
                   ),
                 ],
               ),
@@ -70,7 +96,12 @@ class _CanvasViewState extends State<CanvasView> {
                   // Left Ruler
                   SizedBox(
                     width: 20,
-                    child: RulerWidget(axis: Axis.vertical, controller: _transformationController, size: 20),
+                    child: RulerWidget(
+                      axis: Axis.vertical,
+                      controller: _transformationController,
+                      size: 20,
+                      originOffset: kCanvasOrigin,
+                    ),
                   ),
                   // Canvas
                   Expanded(
@@ -89,12 +120,6 @@ class _CanvasViewState extends State<CanvasView> {
                             _lastMousePos = event.position;
 
                             final matrix = _transformationController.value.clone();
-                            // Pan is inverted relative to drag for "moving the viewport", but standard for "moving the canvas"
-                            // InteractiveViewer moves content with drag.
-                            // We want to move content with drag.
-                            // Translation should be scaled by zoom level?
-                            // InteractiveViewer's matrix translation is in viewport pixels?
-                            // Let's try direct translation first.
                             final scale = matrix.getMaxScaleOnAxis();
                             matrix.translate(delta.dx / scale, delta.dy / scale);
                             _transformationController.value = matrix;
@@ -135,6 +160,7 @@ class _CanvasViewState extends State<CanvasView> {
                           boundaryMargin: const EdgeInsets.all(double.infinity),
                           minScale: 0.1,
                           maxScale: 5.0,
+                          constrained: false,
                           panEnabled: false, // Disable default pan (Left Click Drag)
                           scaleEnabled: false, // Disable default scale (Pinch/Scroll Zoom) - we handle it manually
                           onInteractionEnd: (details) {
@@ -142,127 +168,145 @@ class _CanvasViewState extends State<CanvasView> {
                               EditorEvent.setZoom(_transformationController.value.getMaxScaleOnAxis()),
                             );
                           },
-                          child: Center(
-                            child: GestureDetector(
-                              onTapUp: (details) {
-                                if (state.currentTool == EditorTool.path) {
-                                  context.read<EditorBloc>().add(EditorEvent.addPathPoint(details.localPosition));
-                                } else {
-                                  context.read<EditorBloc>().add(
-                                    const EditorEvent.selectComponent('', multiSelect: false),
-                                  );
-                                }
-                              },
-                              onDoubleTap: () {
-                                if (state.currentTool == EditorTool.path) {
-                                  context.read<EditorBloc>().add(const EditorEvent.finishPath());
-                                }
-                              },
-                              onSecondaryTapUp: (details) {
-                                _showContextMenu(context, details.globalPosition);
-                              },
-                              child: Container(
-                                width: project.canvasWidth,
-                                height: project.canvasHeight,
-                                color: _parseColor(project.backgroundColor), // Actual canvas background
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    // Grid (only in Edit mode)
-                                    if (state.mode == EditorMode.edit && state.showGrid)
-                                      Positioned.fill(
-                                        child: CustomPaint(painter: GridPainter(gridSize: state.gridSize)),
-                                      ),
-                                    // Path Preview
-                                    if (state.currentTool == EditorTool.path && state.currentPathPoints.isNotEmpty)
-                                      Positioned.fill(
-                                        child: CustomPaint(
-                                          painter: PathPreviewPainter(points: state.currentPathPoints),
+                          child: GestureDetector(
+                            onTapUp: (details) {
+                              // Convert local position to data coordinates
+                              final dataPos = details.localPosition - const Offset(kCanvasOrigin, kCanvasOrigin);
+
+                              if (state.currentTool == EditorTool.path) {
+                                context.read<EditorBloc>().add(EditorEvent.addPathPoint(dataPos));
+                              } else {
+                                context.read<EditorBloc>().add(
+                                  const EditorEvent.selectComponent('', multiSelect: false),
+                                );
+                              }
+                            },
+                            onDoubleTap: () {
+                              if (state.currentTool == EditorTool.path) {
+                                context.read<EditorBloc>().add(const EditorEvent.finishPath());
+                              }
+                            },
+                            onSecondaryTapUp: (details) {
+                              _showContextMenu(context, details.globalPosition);
+                            },
+                            child: BlocBuilder<SettingsBloc, SettingsState>(
+                              builder: (context, settingsState) {
+                                return Container(
+                                  // Large virtual canvas size
+                                  width: kCanvasSize,
+                                  height: kCanvasSize,
+                                  color: Color(settingsState.editorBackgroundColor),
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      // Grid (only in Edit mode)
+                                      if (state.mode == EditorMode.edit && state.showGrid)
+                                        Positioned.fill(
+                                          child: CustomPaint(
+                                            painter: GridPainter(
+                                              gridSize: state.gridSize,
+                                              origin: const Offset(kCanvasOrigin, kCanvasOrigin),
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      // Path Preview
+                                      if (state.currentTool == EditorTool.path && state.currentPathPoints.isNotEmpty)
+                                        Positioned.fill(
+                                          child: CustomPaint(
+                                            painter: PathPreviewPainter(
+                                              points: state.currentPathPoints,
+                                              origin: const Offset(kCanvasOrigin, kCanvasOrigin),
+                                            ),
+                                          ),
+                                        ),
 
-                                    // Layers
-                                    ...project.layers.map((component) {
-                                      if (!component.isVisible) return const SizedBox();
+                                      // Layers
+                                      ...project.layers.map((component) {
+                                        if (!component.isVisible) return const SizedBox();
 
-                                      final isSelected = state.selectedComponentIds.contains(component.id);
-                                      final isActive = state.activeComponentIds.contains(component.id);
-                                      final padding = isSelected ? CanvasView.kHandlePadding : 0.0;
+                                        final isSelected = state.selectedComponentIds.contains(component.id);
+                                        final isActive = state.activeComponentIds.contains(component.id);
+                                        final padding = isSelected ? CanvasView.kHandlePadding : 0.0;
 
-                                      return Positioned(
-                                        left: component.x - padding,
-                                        top: component.y - padding,
-                                        child: _ComponentWrapper(
-                                          component: component,
-                                          isSelected: isSelected,
-                                          isActive: isActive,
-                                          gridSize: state.gridSize,
-                                          snapToGrid: state.snapToGrid,
-                                          padding: padding,
-                                          dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
-                                          onDragStart: (details) {
-                                            if (!isSelected) return;
-                                            setState(() {
-                                              _selectionDragDelta = Offset.zero;
-                                            });
-                                          },
-                                          onDragUpdate: (details) {
-                                            if (!isSelected) return;
-                                            setState(() {
-                                              _selectionDragDelta += details.delta;
-                                            });
-                                          },
-                                          onSecondaryTapUp: (details) {
-                                            if (!isSelected) {
-                                              context.read<EditorBloc>().add(
-                                                EditorEvent.selectComponent(component.id, multiSelect: false),
-                                              );
-                                            }
-                                            _showContextMenu(context, details.globalPosition);
-                                          },
-                                          onDragEnd: (details) {
-                                            if (!isSelected) return;
+                                        // Translate data coordinates to visual coordinates
+                                        final visualX = component.x + kCanvasOrigin;
+                                        final visualY = component.y + kCanvasOrigin;
 
-                                            final selectedIds = state.selectedComponentIds;
-                                            final project = state.project;
-                                            if (project == null) return;
+                                        return Positioned(
+                                          left: visualX - padding,
+                                          top: visualY - padding,
+                                          child: _ComponentWrapper(
+                                            component: component,
+                                            isSelected: isSelected,
+                                            isActive: isActive,
+                                            gridSize: state.gridSize,
+                                            snapToGrid: state.snapToGrid,
+                                            padding: padding,
+                                            dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
+                                            onDragStart: (details) {
+                                              if (!isSelected) return;
+                                              setState(() {
+                                                _selectionDragDelta = Offset.zero;
+                                              });
+                                            },
+                                            onDragUpdate: (details) {
+                                              if (!isSelected) return;
+                                              setState(() {
+                                                _selectionDragDelta += details.delta;
+                                              });
+                                            },
+                                            onSecondaryTapUp: (details) {
+                                              if (!isSelected) {
+                                                context.read<EditorBloc>().add(
+                                                  EditorEvent.selectComponent(component.id, multiSelect: false),
+                                                );
+                                              }
+                                              _showContextMenu(context, details.globalPosition);
+                                            },
+                                            onDragEnd: (details) {
+                                              if (!isSelected) return;
 
-                                            final updates = <Component>[];
+                                              final selectedIds = state.selectedComponentIds;
+                                              final project = state.project;
+                                              if (project == null) return;
 
-                                            for (final id in selectedIds) {
-                                              final comp = project.layers.firstWhere(
-                                                (c) => c.id == id,
-                                                orElse: () => throw Exception('Component not found'),
-                                              );
+                                              final updates = <Component>[];
 
-                                              double newX = comp.x + _selectionDragDelta.dx;
-                                              double newY = comp.y + _selectionDragDelta.dy;
+                                              for (final id in selectedIds) {
+                                                final comp = project.layers.firstWhere(
+                                                  (c) => c.id == id,
+                                                  orElse: () => throw Exception('Component not found'),
+                                                );
 
-                                              if (state.snapToGrid) {
-                                                newX = (newX / state.gridSize).round() * state.gridSize;
-                                                newY = (newY / state.gridSize).round() * state.gridSize;
+                                                double newX = comp.x + _selectionDragDelta.dx;
+                                                double newY = comp.y + _selectionDragDelta.dy;
+
+                                                if (state.snapToGrid) {
+                                                  newX = (newX / state.gridSize).round() * state.gridSize;
+                                                  newY = (newY / state.gridSize).round() * state.gridSize;
+                                                }
+
+                                                final updated = comp.map(
+                                                  pad: (c) => c.copyWith(x: newX, y: newY),
+                                                  knob: (c) => c.copyWith(x: newX, y: newY),
+                                                  staticImage: (c) => c.copyWith(x: newX, y: newY),
+                                                );
+                                                updates.add(updated);
                                               }
 
-                                              final updated = comp.map(
-                                                pad: (c) => c.copyWith(x: newX, y: newY),
-                                                knob: (c) => c.copyWith(x: newX, y: newY),
-                                                staticImage: (c) => c.copyWith(x: newX, y: newY),
-                                              );
-                                              updates.add(updated);
-                                            }
+                                              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
 
-                                            context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
-
-                                            setState(() {
-                                              _selectionDragDelta = Offset.zero;
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    }),
-                                  ],
-                                ),
-                              ),
+                                              setState(() {
+                                                _selectionDragDelta = Offset.zero;
+                                              });
+                                            },
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -276,17 +320,6 @@ class _CanvasViewState extends State<CanvasView> {
         );
       },
     );
-  }
-
-  Color _parseColor(String hexString) {
-    try {
-      final buffer = StringBuffer();
-      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-      buffer.write(hexString.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (e) {
-      return Colors.white;
-    }
   }
 
   void _showContextMenu(BuildContext context, Offset position) {
@@ -343,8 +376,9 @@ class _CanvasViewState extends State<CanvasView> {
 
 class GridPainter extends CustomPainter {
   final double gridSize;
+  final Offset origin;
 
-  GridPainter({required this.gridSize});
+  GridPainter({required this.gridSize, this.origin = Offset.zero});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -353,23 +387,42 @@ class GridPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
-    for (double x = 0; x <= size.width; x += gridSize) {
+    // Adjust start point to align with origin
+    final startX = origin.dx % gridSize;
+    final startY = origin.dy % gridSize;
+
+    for (double x = startX; x <= size.width; x += gridSize) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
 
-    for (double y = 0; y <= size.height; y += gridSize) {
+    for (double y = startY; y <= size.height; y += gridSize) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+
+    // Draw axes
+    final axisPaint = Paint()
+      ..color = Colors.grey.withValues(alpha: 0.5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    if (origin.dx >= 0 && origin.dx <= size.width) {
+      canvas.drawLine(Offset(origin.dx, 0), Offset(origin.dx, size.height), axisPaint);
+    }
+    if (origin.dy >= 0 && origin.dy <= size.height) {
+      canvas.drawLine(Offset(0, origin.dy), Offset(size.width, origin.dy), axisPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant GridPainter oldDelegate) => oldDelegate.gridSize != gridSize;
+  bool shouldRepaint(covariant GridPainter oldDelegate) =>
+      oldDelegate.gridSize != gridSize || oldDelegate.origin != origin;
 }
 
 class PathPreviewPainter extends CustomPainter {
   final List<Offset> points;
+  final Offset origin;
 
-  PathPreviewPainter({required this.points});
+  PathPreviewPainter({required this.points, this.origin = Offset.zero});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -384,27 +437,30 @@ class PathPreviewPainter extends CustomPainter {
       ..color = Colors.red
       ..style = PaintingStyle.fill;
 
-    for (int i = 0; i < points.length; i++) {
-      canvas.drawCircle(points[i], 4, pointPaint);
+    // Translate points by origin
+    final visualPoints = points.map((p) => p + origin).toList();
+
+    for (int i = 0; i < visualPoints.length; i++) {
+      canvas.drawCircle(visualPoints[i], 4, pointPaint);
       if (i > 0) {
-        canvas.drawLine(points[i - 1], points[i], paint);
+        canvas.drawLine(visualPoints[i - 1], visualPoints[i], paint);
       }
     }
 
     // Close the loop preview if more than 2 points
-    if (points.length > 2) {
+    if (visualPoints.length > 2) {
       final closePaint = Paint()
         ..color = Colors.blue.withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1;
 
-      canvas.drawLine(points.last, points.first, closePaint);
+      canvas.drawLine(visualPoints.last, visualPoints.first, closePaint);
     }
   }
 
   @override
   bool shouldRepaint(covariant PathPreviewPainter oldDelegate) {
-    return oldDelegate.points != points;
+    return oldDelegate.points != points || oldDelegate.origin != origin;
   }
 }
 

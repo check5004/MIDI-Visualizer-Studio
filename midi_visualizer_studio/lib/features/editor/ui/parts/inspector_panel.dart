@@ -113,68 +113,15 @@ class _InspectorPanelState extends State<InspectorPanel> {
   }
 
   Widget _buildProjectSettings(BuildContext context, Project project) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text('Project Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        const SizedBox(height: 16),
-        _PropertyField(
-          label: 'Name',
-          value: project.name,
-          onChanged: (value) {
-            context.read<EditorBloc>().add(EditorEvent.updateProjectSettings(project.copyWith(name: value)));
-          },
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text(
+          'Select a component to edit its properties.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey),
         ),
-        const SizedBox(height: 16),
-        const Text('Canvas Size', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: NumberInput(
-                label: 'Width',
-                value: project.canvasWidth,
-                step: 10,
-                onChanged: (value) {
-                  context.read<EditorBloc>().add(
-                    EditorEvent.updateProjectSettings(project.copyWith(canvasWidth: value)),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: NumberInput(
-                label: 'Height',
-                value: project.canvasHeight,
-                step: 10,
-                onChanged: (value) {
-                  context.read<EditorBloc>().add(
-                    EditorEvent.updateProjectSettings(project.copyWith(canvasHeight: value)),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const Text('Background', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        ListTile(
-          title: const Text('Color'),
-          subtitle: Text(project.backgroundColor),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: _parseColor(project.backgroundColor),
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          onTap: () => _showColorPicker(context, project),
-        ),
-      ],
+      ),
     );
   }
 
@@ -508,81 +455,6 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ],
       ),
     ];
-  }
-
-  void _showColorPicker(BuildContext context, Project project) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Select Background Color'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Transparent'),
-              leading: const Icon(Icons.grid_on),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#00000000')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              title: const Text('Green Screen'),
-              leading: const Icon(Icons.circle, color: Colors.green),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#00FF00')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              title: const Text('Blue Screen'),
-              leading: const Icon(Icons.circle, color: Colors.blue),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#0000FF')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              title: const Text('Black'),
-              leading: const Icon(Icons.circle, color: Colors.black),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#000000')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-            ListTile(
-              title: const Text('White'),
-              leading: const Icon(Icons.circle, color: Colors.white),
-              onTap: () {
-                context.read<EditorBloc>().add(
-                  EditorEvent.updateProjectSettings(project.copyWith(backgroundColor: '#FFFFFF')),
-                );
-                Navigator.pop(dialogContext);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _parseColor(String hexString) {
-    try {
-      final buffer = StringBuffer();
-      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-      buffer.write(hexString.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (e) {
-      return Colors.white;
-    }
   }
 }
 

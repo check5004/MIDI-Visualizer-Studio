@@ -86,6 +86,43 @@ class _GeneralSettingsSection extends StatelessWidget {
           },
         ),
         const Divider(),
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            final colors = [
+              0xFF1E1E1E, // Dark Grey
+              0xFF000000, // Black
+              0xFFFFFFFF, // White
+              0xFF00FF00, // Green Screen
+              0xFF0000FF, // Blue Screen
+            ];
+            return ListTile(
+              title: const Text('Editor Background'),
+              subtitle: Wrap(
+                spacing: 8,
+                children: colors.map((color) {
+                  final isSelected = state.editorBackgroundColor == color;
+                  return GestureDetector(
+                    onTap: () {
+                      context.read<SettingsBloc>().add(SettingsEvent.updateEditorBackgroundColor(color));
+                    },
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Color(color),
+                        border: isSelected
+                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
+                            : Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            );
+          },
+        ),
+        const Divider(),
         const ListTile(leading: Icon(Icons.info), title: Text('Version'), trailing: Text('1.0.0')),
         ListTile(
           leading: const Icon(Icons.description),

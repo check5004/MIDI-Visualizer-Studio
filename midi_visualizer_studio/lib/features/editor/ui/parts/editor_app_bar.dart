@@ -31,7 +31,14 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
               }
             },
           ),
-          title: Text(project?.name ?? 'Untitled Project'),
+          title: _EditableProjectTitle(
+            initialName: project?.name ?? 'Untitled Project',
+            onChanged: (newName) {
+              if (project != null) {
+                context.read<EditorBloc>().add(EditorEvent.updateProjectSettings(project.copyWith(name: newName)));
+              }
+            },
+          ),
           centerTitle: false,
           actions: [
             // File Operations
@@ -263,5 +270,95 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final component = Component.pad(id: id, name: 'Pad $id', x: 100, y: 100, width: 100, height: 100, shape: shape);
     context.read<EditorBloc>().add(EditorEvent.addComponent(component));
+  }
+}
+
+class _EditableProjectTitle extends StatefulWidget {
+  final String initialName;
+  final ValueChanged<String> onChanged;
+
+  const _EditableProjectTitle({required this.initialName, required this.onChanged});
+
+  @override
+  State<_EditableProjectTitle> createState() => _EditableProjectTitleState();
+}
+
+class _EditableProjectTitleState extends State<_EditableProjectTitle> {
+  late TextEditingController _controller;
+  bool _isEditing = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialName);
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus && _isEditing) {
+        _submit();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _EditableProjectTitle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialName != oldWidget.initialName && !_isEditing) {
+      _controller.text = widget.initialName;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    setState(() {
+      _isEditing = false;
+    });
+    if (_controller.text.trim().isNotEmpty) {
+      widget.onChanged(_controller.text.trim());
+    } else {
+      _controller.text = widget.initialName;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isEditing) {
+      return SizedBox(
+        width: 200,
+        child: TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          autofocus: true,
+          decoration: const InputDecoration(
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (_) => _submit(),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(widget.initialName),
+        const SizedBox(width: 8),
+        IconButton(
+          icon: const Icon(Icons.edit, size: 16),
+          tooltip: 'Rename Project',
+          onPressed: () {
+            setState(() {
+              _isEditing = true;
+            });
+          },
+        ),
+      ],
+    );
   }
 }

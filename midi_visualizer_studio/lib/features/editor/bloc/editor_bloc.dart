@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:ui';
-import 'dart:typed_data';
+
 import 'package:image/image.dart' as img;
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -121,8 +121,24 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (project == null) return;
 
     try {
-      await _projectRepository.saveProject(project, event.path);
-      // Optionally show success message via side effect
+      // Calculate canvas size based on components
+      double maxX = 800;
+      double maxY = 600;
+
+      for (final layer in project.layers) {
+        final right = layer.x + layer.width;
+        final bottom = layer.y + layer.height;
+        if (right > maxX) maxX = right;
+        if (bottom > maxY) maxY = bottom;
+      }
+
+      // Add some padding
+      maxX += 100;
+      maxY += 100;
+
+      final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY);
+
+      await _projectRepository.saveProject(projectToSave, event.path);
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to save project: $e'));
     }

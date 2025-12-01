@@ -9,6 +9,8 @@ class RulerWidget extends StatefulWidget {
   final Color tickColor;
   final TextStyle textStyle;
 
+  final double originOffset;
+
   const RulerWidget({
     super.key,
     required this.axis,
@@ -17,6 +19,7 @@ class RulerWidget extends StatefulWidget {
     this.backgroundColor = const Color(0xFF2D2D2D),
     this.tickColor = const Color(0xFF808080),
     this.textStyle = const TextStyle(color: Color(0xFF808080), fontSize: 10),
+    this.originOffset = 0.0,
   });
 
   @override
@@ -53,6 +56,7 @@ class _RulerWidgetState extends State<RulerWidget> {
             transform: widget.controller.value,
             tickColor: widget.tickColor,
             textStyle: widget.textStyle,
+            originOffset: widget.originOffset,
           ),
         ),
       ),
@@ -65,8 +69,15 @@ class _RulerPainter extends CustomPainter {
   final Matrix4 transform;
   final Color tickColor;
   final TextStyle textStyle;
+  final double originOffset;
 
-  _RulerPainter({required this.axis, required this.transform, required this.tickColor, required this.textStyle});
+  _RulerPainter({
+    required this.axis,
+    required this.transform,
+    required this.tickColor,
+    required this.textStyle,
+    required this.originOffset,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -102,7 +113,7 @@ class _RulerPainter extends CustomPainter {
         canvas.drawLine(Offset(pos, 0), Offset(pos, size.height), paint);
 
         // Label
-        textPainter.text = TextSpan(text: i.toInt().toString(), style: textStyle);
+        textPainter.text = TextSpan(text: (i - originOffset).toInt().toString(), style: textStyle);
         textPainter.layout();
         textPainter.paint(canvas, Offset(pos + 2, 0));
       } else {
@@ -110,7 +121,7 @@ class _RulerPainter extends CustomPainter {
         canvas.drawLine(Offset(0, pos), Offset(size.width, pos), paint);
 
         // Label
-        textPainter.text = TextSpan(text: i.toInt().toString(), style: textStyle);
+        textPainter.text = TextSpan(text: (i - originOffset).toInt().toString(), style: textStyle);
         textPainter.layout();
         // Rotate text for vertical ruler? Or just draw it horizontally
         // Drawing horizontally is easier to read
@@ -144,6 +155,7 @@ class _RulerPainter extends CustomPainter {
     return oldDelegate.transform != transform ||
         oldDelegate.axis != axis ||
         oldDelegate.tickColor != tickColor ||
-        oldDelegate.textStyle != textStyle;
+        oldDelegate.textStyle != textStyle ||
+        oldDelegate.originOffset != originOffset;
   }
 }

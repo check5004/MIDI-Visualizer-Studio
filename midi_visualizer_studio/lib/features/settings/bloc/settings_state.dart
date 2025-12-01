@@ -7,8 +7,9 @@ part 'settings_state.freezed.dart';
 @freezed
 abstract class SettingsState with _$SettingsState {
   const factory SettingsState({
-    @Default(ThemeMode.light) ThemeMode themeMode,
-    @Default(0xFF00FF00) int defaultChromaKeyColor, // Default to Green
+    @Default(ThemeMode.system) ThemeMode themeMode,
+    @Default(0xFF00FF00) int defaultChromaKeyColor,
+    @Default(0xFF1E1E1E) int editorBackgroundColor, // Default to dark grey
     @Default(false) bool isWindowless,
     @Default({}) Map<String, ShortcutConfig> shortcuts,
   }) = _SettingsState;
