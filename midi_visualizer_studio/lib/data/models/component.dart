@@ -33,6 +33,7 @@ abstract class Component with _$Component {
     @Default('#333333') String offColor,
     int? midiChannel,
     int? midiNote,
+    @Default(false) bool maintainAspectRatio,
   }) = ComponentPad;
 
   const factory Component.knob({
@@ -55,6 +56,7 @@ abstract class Component with _$Component {
     String? pointerImage,
     int? midiChannel,
     int? midiCc,
+    @Default(false) bool maintainAspectRatio,
   }) = ComponentKnob;
 
   const factory Component.staticImage({
@@ -69,6 +71,7 @@ abstract class Component with _$Component {
     @Default(false) bool isLocked,
     @Default(true) bool isVisible,
     required String imagePath,
+    @Default(true) bool maintainAspectRatio,
   }) = ComponentStaticImage;
 
   factory Component.fromJson(Map<String, dynamic> json) => _$ComponentFromJson(json);

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
@@ -205,54 +206,132 @@ class _ComponentSelectionOverlayState extends State<ComponentSelectionOverlay> {
     // Resizing
     double dW = 0;
     double dH = 0;
-    double dCenterX = 0; // Local X shift of center
-    double dCenterY = 0; // Local Y shift of center
 
     if (_currentHandle == _DragHandle.topLeft) {
       dW = -dx;
       dH = -dy;
-      dCenterX = dx / 2;
-      dCenterY = dy / 2;
     } else if (_currentHandle == _DragHandle.topCenter) {
       dH = -dy;
-      dCenterY = dy / 2;
     } else if (_currentHandle == _DragHandle.topRight) {
       dW = dx;
       dH = -dy;
-      dCenterX = dx / 2;
-      dCenterY = dy / 2;
     } else if (_currentHandle == _DragHandle.centerLeft) {
       dW = -dx;
-      dCenterX = dx / 2;
     } else if (_currentHandle == _DragHandle.centerRight) {
       dW = dx;
-      dCenterX = dx / 2;
     } else if (_currentHandle == _DragHandle.bottomLeft) {
       dW = -dx;
       dH = dy;
-      dCenterX = dx / 2;
-      dCenterY = dy / 2;
     } else if (_currentHandle == _DragHandle.bottomCenter) {
       dH = dy;
-      dCenterY = dy / 2;
     } else if (_currentHandle == _DragHandle.bottomRight) {
       dW = dx;
       dH = dy;
-      dCenterX = dx / 2;
-      dCenterY = dy / 2;
     }
 
-    newWidth += dW;
-    newHeight += dH;
+    // Aspect Ratio Logic
+    final keys = HardwareKeyboard.instance.logicalKeysPressed;
+    final isShift = keys.contains(LogicalKeyboardKey.shiftLeft) || keys.contains(LogicalKeyboardKey.shiftRight);
+    final isCtrl =
+        keys.contains(LogicalKeyboardKey.controlLeft) ||
+        keys.contains(LogicalKeyboardKey.controlRight) ||
+        keys.contains(LogicalKeyboardKey.metaLeft) ||
+        keys.contains(LogicalKeyboardKey.metaRight); // Command on Mac
+    final isAlt = keys.contains(LogicalKeyboardKey.altLeft) || keys.contains(LogicalKeyboardKey.altRight);
+
+    if (isAlt) {
+      dW *= 2;
+      dH *= 2;
+    }
+
+    double candidateWidth = _startWidth + dW;
+    double candidateHeight = _startHeight + dH;
+
+    final shouldMaintainRatio = widget.component.maintainAspectRatio || isShift;
+    final forceSquare = isCtrl;
+
+    if (forceSquare) {
+      // Force 1:1
+      if (_currentHandle == _DragHandle.topCenter || _currentHandle == _DragHandle.bottomCenter) {
+        candidateWidth = candidateHeight;
+      } else if (_currentHandle == _DragHandle.centerLeft || _currentHandle == _DragHandle.centerRight) {
+        candidateHeight = candidateWidth;
+      } else {
+        // Corner: take the larger dimension or average? Let's take width.
+        candidateHeight = candidateWidth;
+      }
+    } else if (shouldMaintainRatio && _startWidth > 0 && _startHeight > 0) {
+      final ratio = _startWidth / _startHeight;
+      if (_currentHandle == _DragHandle.topCenter || _currentHandle == _DragHandle.bottomCenter) {
+        candidateWidth = candidateHeight * ratio;
+      } else if (_currentHandle == _DragHandle.centerLeft || _currentHandle == _DragHandle.centerRight) {
+        candidateHeight = candidateWidth / ratio;
+      } else {
+        // Corner: Use the dimension with larger change relative to size?
+        // Simple approach: Use width to drive height
+        candidateHeight = candidateWidth / ratio;
+      }
+    }
+
+    // Recalculate deltas
+    dW = candidateWidth - _startWidth;
+    dH = candidateHeight - _startHeight;
+
+    newWidth = _startWidth + dW;
+    newHeight = _startHeight + dH;
 
     // Minimum size
     if (newWidth < 10) {
-      // Adjust center shift if we clamp?
-      // Ignore for now.
       newWidth = 10;
+      dW = newWidth - _startWidth;
+      // Re-adjust height if locked?
+      if (forceSquare) {
+        newHeight = 10;
+        dH = newHeight - _startHeight;
+      } else if (shouldMaintainRatio && _startWidth > 0) {
+        newHeight = newWidth / (_startWidth / _startHeight);
+        dH = newHeight - _startHeight;
+      }
     }
     if (newHeight < 10) {
       newHeight = 10;
+      dH = newHeight - _startHeight;
+      // Re-adjust width if locked?
+      if (forceSquare) {
+        newWidth = 10;
+        dW = newWidth - _startWidth;
+      } else if (shouldMaintainRatio && _startHeight > 0) {
+        newWidth = newHeight * (_startWidth / _startHeight);
+        dW = newWidth - _startWidth;
+      }
+    }
+
+    // Calculate center shift based on final dW/dH and handle
+    double dCenterX = 0;
+    double dCenterY = 0;
+
+    if (!isAlt) {
+      if (_currentHandle == _DragHandle.topLeft) {
+        dCenterX = -dW / 2;
+        dCenterY = -dH / 2;
+      } else if (_currentHandle == _DragHandle.topCenter) {
+        dCenterY = -dH / 2;
+      } else if (_currentHandle == _DragHandle.topRight) {
+        dCenterX = dW / 2;
+        dCenterY = -dH / 2;
+      } else if (_currentHandle == _DragHandle.centerLeft) {
+        dCenterX = -dW / 2;
+      } else if (_currentHandle == _DragHandle.centerRight) {
+        dCenterX = dW / 2;
+      } else if (_currentHandle == _DragHandle.bottomLeft) {
+        dCenterX = -dW / 2;
+        dCenterY = dH / 2;
+      } else if (_currentHandle == _DragHandle.bottomCenter) {
+        dCenterY = dH / 2;
+      } else if (_currentHandle == _DragHandle.bottomRight) {
+        dCenterX = dW / 2;
+        dCenterY = dH / 2;
+      }
     }
 
     // Calculate global center shift

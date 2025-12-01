@@ -41,6 +41,10 @@ ComponentPad _$ComponentPadFromJson(
     offColor: $checkedConvert('offColor', (v) => v as String? ?? '#333333'),
     midiChannel: $checkedConvert('midiChannel', (v) => (v as num?)?.toInt()),
     midiNote: $checkedConvert('midiNote', (v) => (v as num?)?.toInt()),
+    maintainAspectRatio: $checkedConvert(
+      'maintainAspectRatio',
+      (v) => v as bool? ?? false,
+    ),
     $type: $checkedConvert('type', (v) => v as String?),
   );
   return val;
@@ -67,6 +71,7 @@ Map<String, dynamic> _$ComponentPadToJson(ComponentPad instance) =>
       'offColor': instance.offColor,
       'midiChannel': instance.midiChannel,
       'midiNote': instance.midiNote,
+      'maintainAspectRatio': instance.maintainAspectRatio,
       'type': instance.$type,
     };
 
@@ -113,6 +118,10 @@ ComponentKnob _$ComponentKnobFromJson(
     pointerImage: $checkedConvert('pointerImage', (v) => v as String?),
     midiChannel: $checkedConvert('midiChannel', (v) => (v as num?)?.toInt()),
     midiCc: $checkedConvert('midiCc', (v) => (v as num?)?.toInt()),
+    maintainAspectRatio: $checkedConvert(
+      'maintainAspectRatio',
+      (v) => v as bool? ?? false,
+    ),
     $type: $checkedConvert('type', (v) => v as String?),
   );
   return val;
@@ -139,6 +148,7 @@ Map<String, dynamic> _$ComponentKnobToJson(ComponentKnob instance) =>
       'pointerImage': instance.pointerImage,
       'midiChannel': instance.midiChannel,
       'midiCc': instance.midiCc,
+      'maintainAspectRatio': instance.maintainAspectRatio,
       'type': instance.$type,
     };
 
@@ -169,6 +179,10 @@ ComponentStaticImage _$ComponentStaticImageFromJson(
     isLocked: $checkedConvert('isLocked', (v) => v as bool? ?? false),
     isVisible: $checkedConvert('isVisible', (v) => v as bool? ?? true),
     imagePath: $checkedConvert('imagePath', (v) => v as String),
+    maintainAspectRatio: $checkedConvert(
+      'maintainAspectRatio',
+      (v) => v as bool? ?? true,
+    ),
     $type: $checkedConvert('type', (v) => v as String?),
   );
   return val;
@@ -188,5 +202,6 @@ Map<String, dynamic> _$ComponentStaticImageToJson(
   'isLocked': instance.isLocked,
   'isVisible': instance.isVisible,
   'imagePath': instance.imagePath,
+  'maintainAspectRatio': instance.maintainAspectRatio,
   'type': instance.$type,
 };

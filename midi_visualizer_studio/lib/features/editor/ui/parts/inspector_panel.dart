@@ -236,6 +236,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           ],
         ),
         const SizedBox(height: 8),
+
         Row(
           children: [
             Expanded(
@@ -244,11 +245,22 @@ class _InspectorPanelState extends State<InspectorPanel> {
                 value: component.width,
                 enabled: !component.isLocked,
                 onChanged: (value) {
-                  final updated = component.map(
+                  var updated = component.map(
                     pad: (c) => c.copyWith(width: value),
                     knob: (c) => c.copyWith(width: value),
                     staticImage: (c) => c.copyWith(width: value),
                   );
+
+                  if (component.maintainAspectRatio && component.width > 0) {
+                    final ratio = component.height / component.width;
+                    final newHeight = value * ratio;
+                    updated = updated.map(
+                      pad: (c) => c.copyWith(height: newHeight),
+                      knob: (c) => c.copyWith(height: newHeight),
+                      staticImage: (c) => c.copyWith(height: newHeight),
+                    );
+                  }
+
                   context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
                 },
               ),
@@ -260,19 +272,53 @@ class _InspectorPanelState extends State<InspectorPanel> {
                 value: component.height,
                 enabled: !component.isLocked,
                 onChanged: (value) {
-                  final updated = component.map(
+                  var updated = component.map(
                     pad: (c) => c.copyWith(height: value),
                     knob: (c) => c.copyWith(height: value),
                     staticImage: (c) => c.copyWith(height: value),
                   );
+
+                  if (component.maintainAspectRatio && component.height > 0) {
+                    final ratio = component.width / component.height;
+                    final newWidth = value * ratio;
+                    updated = updated.map(
+                      pad: (c) => c.copyWith(width: newWidth),
+                      knob: (c) => c.copyWith(width: newWidth),
+                      staticImage: (c) => c.copyWith(width: newWidth),
+                    );
+                  }
+
                   context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
                 },
               ),
             ),
+            const SizedBox(width: 4),
+            Column(
+              children: [
+                Text('', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 4),
+                IconButton(
+                  icon: Icon(
+                    component.maintainAspectRatio ? Icons.link : Icons.link_off,
+                    size: 20,
+                    color: component.maintainAspectRatio ? Theme.of(context).colorScheme.primary : Colors.grey,
+                  ),
+                  tooltip: 'Lock Aspect Ratio',
+                  onPressed: () {
+                    final updated = component.map(
+                      pad: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
+                      knob: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
+                      staticImage: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
+                    );
+                    context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  },
+                ),
+              ],
+            ),
           ],
         ),
         const SizedBox(height: 16),
-        const SizedBox(height: 16),
+
         const Text('Type Specific', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         ...component.map(
