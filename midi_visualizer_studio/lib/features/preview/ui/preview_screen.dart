@@ -6,6 +6,8 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/canvas_view.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
@@ -65,6 +67,10 @@ class _PreviewScreenState extends State<PreviewScreen> {
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     await windowManager.setBackgroundColor(Colors.transparent);
     await windowManager.setAlwaysOnTop(true);
+
+    if (!kIsWeb && Platform.isWindows) {
+      await Window.setEffect(effect: WindowEffect.transparent);
+    }
 
     // Auto-resize
     // We need to ensure the window is at least a certain size and fits the content

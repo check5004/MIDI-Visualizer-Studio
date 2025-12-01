@@ -46,6 +46,7 @@ dependencies:
   file_picker: ^10.3.7
   flutter_midi_command: ^0.5.3
   image: ^4.5.4
+  flutter_acrylic: ^1.1.4
 
 dev_dependencies:
   flutter_test:

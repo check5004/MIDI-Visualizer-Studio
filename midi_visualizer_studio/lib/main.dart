@@ -8,11 +8,17 @@ import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dar
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:window_manager/window_manager.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+  if (!kIsWeb && Platform.isWindows) {
+    await Window.initialize();
+  }
 
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1280, 720),

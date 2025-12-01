@@ -6,7 +6,7 @@ import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_event.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
-import 'package:midi_visualizer_studio/features/settings/ui/parts/settings_card.dart';
+
 import 'package:midi_visualizer_studio/features/settings/ui/settings_screen.dart';
 
 class FakeSettingsBloc extends Bloc<SettingsEvent, SettingsState> implements SettingsBloc {
