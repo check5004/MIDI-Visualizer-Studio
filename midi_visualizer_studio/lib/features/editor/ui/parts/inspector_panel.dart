@@ -58,15 +58,20 @@ class _InspectorPanelState extends State<InspectorPanel> {
         color: Theme.of(context).colorScheme.surface,
         child: BlocBuilder<EditorBloc, EditorState>(
           builder: (context, state) {
-            final selectedIds = state.selectedComponentIds;
             final project = state.project;
+            if (project == null) {
+              return const Center(child: Text('No Project Selected'));
+            }
+
+            // Filter selectedIds to only include components that actually exist in the project
+            // This prevents crashes when undoing a "Paste" or "Add" operation where the component is removed
+            // but remains in the selection state.
+            final selectedIds = state.selectedComponentIds
+                .where((id) => project.layers.any((layer) => layer.id == id))
+                .toSet();
 
             if (state.status == EditorStatus.loading) {
               return const Center(child: CircularProgressIndicator());
-            }
-
-            if (project == null) {
-              return const Center(child: Text('No Project Selected'));
             }
 
             if (selectedIds.isEmpty) {

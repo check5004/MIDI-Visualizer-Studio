@@ -55,14 +55,16 @@ extension SettingsEventPatterns on SettingsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult Function( ToggleWindowless value)?  toggleWindowless,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult Function( ToggleWindowless value)?  toggleWindowless,TResult Function( UpdateShortcut value)?  updateShortcut,TResult Function( ResetShortcuts value)?  resetShortcuts,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that);case _:
+return toggleWindowless(_that);case UpdateShortcut() when updateShortcut != null:
+return updateShortcut(_that);case ResetShortcuts() when resetShortcuts != null:
+return resetShortcuts(_that);case _:
   return orElse();
 
 }
@@ -80,14 +82,16 @@ return toggleWindowless(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,required TResult Function( ToggleWindowless value)  toggleWindowless,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,required TResult Function( ToggleWindowless value)  toggleWindowless,required TResult Function( UpdateShortcut value)  updateShortcut,required TResult Function( ResetShortcuts value)  resetShortcuts,}){
 final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings(_that);case ToggleTheme():
 return toggleTheme(_that);case UpdateChromaKeyColor():
 return updateChromaKeyColor(_that);case ToggleWindowless():
-return toggleWindowless(_that);case _:
+return toggleWindowless(_that);case UpdateShortcut():
+return updateShortcut(_that);case ResetShortcuts():
+return resetShortcuts(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -104,14 +108,16 @@ return toggleWindowless(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult? Function( ToggleWindowless value)?  toggleWindowless,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult? Function( ToggleWindowless value)?  toggleWindowless,TResult? Function( UpdateShortcut value)?  updateShortcut,TResult? Function( ResetShortcuts value)?  resetShortcuts,}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that);case _:
+return toggleWindowless(_that);case UpdateShortcut() when updateShortcut != null:
+return updateShortcut(_that);case ResetShortcuts() when resetShortcuts != null:
+return resetShortcuts(_that);case _:
   return null;
 
 }
@@ -128,13 +134,15 @@ return toggleWindowless(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,TResult Function( bool isWindowless)?  toggleWindowless,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,TResult Function( bool isWindowless)?  toggleWindowless,TResult Function( String actionId,  ShortcutConfig config)?  updateShortcut,TResult Function()?  resetShortcuts,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that.color);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that.isWindowless);case _:
+return toggleWindowless(_that.isWindowless);case UpdateShortcut() when updateShortcut != null:
+return updateShortcut(_that.actionId,_that.config);case ResetShortcuts() when resetShortcuts != null:
+return resetShortcuts();case _:
   return orElse();
 
 }
@@ -152,13 +160,15 @@ return toggleWindowless(_that.isWindowless);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,required TResult Function( bool isWindowless)  toggleWindowless,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,required TResult Function( bool isWindowless)  toggleWindowless,required TResult Function( String actionId,  ShortcutConfig config)  updateShortcut,required TResult Function()  resetShortcuts,}) {final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings();case ToggleTheme():
 return toggleTheme(_that.mode);case UpdateChromaKeyColor():
 return updateChromaKeyColor(_that.color);case ToggleWindowless():
-return toggleWindowless(_that.isWindowless);case _:
+return toggleWindowless(_that.isWindowless);case UpdateShortcut():
+return updateShortcut(_that.actionId,_that.config);case ResetShortcuts():
+return resetShortcuts();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -175,13 +185,15 @@ return toggleWindowless(_that.isWindowless);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,TResult? Function( bool isWindowless)?  toggleWindowless,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,TResult? Function( bool isWindowless)?  toggleWindowless,TResult? Function( String actionId,  ShortcutConfig config)?  updateShortcut,TResult? Function()?  resetShortcuts,}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that.color);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that.isWindowless);case _:
+return toggleWindowless(_that.isWindowless);case UpdateShortcut() when updateShortcut != null:
+return updateShortcut(_that.actionId,_that.config);case ResetShortcuts() when resetShortcuts != null:
+return resetShortcuts();case _:
   return null;
 
 }
@@ -418,5 +430,114 @@ as bool,
 
 
 }
+
+/// @nodoc
+
+
+class UpdateShortcut implements SettingsEvent {
+  const UpdateShortcut(this.actionId, this.config);
+  
+
+ final  String actionId;
+ final  ShortcutConfig config;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdateShortcutCopyWith<UpdateShortcut> get copyWith => _$UpdateShortcutCopyWithImpl<UpdateShortcut>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateShortcut&&(identical(other.actionId, actionId) || other.actionId == actionId)&&(identical(other.config, config) || other.config == config));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,actionId,config);
+
+@override
+String toString() {
+  return 'SettingsEvent.updateShortcut(actionId: $actionId, config: $config)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $UpdateShortcutCopyWith<$Res> implements $SettingsEventCopyWith<$Res> {
+  factory $UpdateShortcutCopyWith(UpdateShortcut value, $Res Function(UpdateShortcut) _then) = _$UpdateShortcutCopyWithImpl;
+@useResult
+$Res call({
+ String actionId, ShortcutConfig config
+});
+
+
+$ShortcutConfigCopyWith<$Res> get config;
+
+}
+/// @nodoc
+class _$UpdateShortcutCopyWithImpl<$Res>
+    implements $UpdateShortcutCopyWith<$Res> {
+  _$UpdateShortcutCopyWithImpl(this._self, this._then);
+
+  final UpdateShortcut _self;
+  final $Res Function(UpdateShortcut) _then;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? actionId = null,Object? config = null,}) {
+  return _then(UpdateShortcut(
+null == actionId ? _self.actionId : actionId // ignore: cast_nullable_to_non_nullable
+as String,null == config ? _self.config : config // ignore: cast_nullable_to_non_nullable
+as ShortcutConfig,
+  ));
+}
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ShortcutConfigCopyWith<$Res> get config {
+  
+  return $ShortcutConfigCopyWith<$Res>(_self.config, (value) {
+    return _then(_self.copyWith(config: value));
+  });
+}
+}
+
+/// @nodoc
+
+
+class ResetShortcuts implements SettingsEvent {
+  const ResetShortcuts();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ResetShortcuts);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'SettingsEvent.resetShortcuts()';
+}
+
+
+}
+
+
+
 
 // dart format on

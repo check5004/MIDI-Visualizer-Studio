@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:midi_visualizer_studio/data/models/shortcut_config.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_event.dart';
@@ -12,7 +14,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -21,10 +23,13 @@ class SettingsScreen extends StatelessWidget {
               Tab(text: 'General', icon: Icon(Icons.settings)),
               Tab(text: 'MIDI', icon: Icon(Icons.piano)),
               Tab(text: 'Streaming', icon: Icon(Icons.videocam)),
+              Tab(text: 'Shortcuts', icon: Icon(Icons.keyboard)),
             ],
           ),
         ),
-        body: const TabBarView(children: [_GeneralSettingsTab(), _MidiSettingsTab(), _StreamingSettingsTab()]),
+        body: const TabBarView(
+          children: [_GeneralSettingsTab(), _MidiSettingsTab(), _StreamingSettingsTab(), _ShortcutsSettingsTab()],
+        ),
       ),
     );
   }
@@ -175,6 +180,133 @@ class _StreamingSettingsTab extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _ShortcutsSettingsTab extends StatelessWidget {
+  const _ShortcutsSettingsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, state) {
+        final shortcuts = state.shortcuts;
+        final sortedKeys = shortcuts.keys.toList()..sort();
+
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            ListTile(
+              title: const Text('Reset to Defaults'),
+              leading: const Icon(Icons.restore),
+              onTap: () {
+                context.read<SettingsBloc>().add(const SettingsEvent.resetShortcuts());
+              },
+            ),
+            const Divider(),
+            ...sortedKeys.map((actionId) {
+              final config = shortcuts[actionId]!;
+              return ListTile(
+                title: Text(actionId.toUpperCase()),
+                trailing: _ShortcutRecorder(
+                  config: config,
+                  onChanged: (newConfig) {
+                    context.read<SettingsBloc>().add(SettingsEvent.updateShortcut(actionId, newConfig));
+                  },
+                ),
+              );
+            }),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ShortcutRecorder extends StatefulWidget {
+  final ShortcutConfig config;
+  final ValueChanged<ShortcutConfig> onChanged;
+
+  const _ShortcutRecorder({required this.config, required this.onChanged});
+
+  @override
+  State<_ShortcutRecorder> createState() => _ShortcutRecorderState();
+}
+
+class _ShortcutRecorderState extends State<_ShortcutRecorder> {
+  bool _isRecording = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: (node, event) {
+        if (!_isRecording) return KeyEventResult.ignored;
+        if (event is! KeyDownEvent) return KeyEventResult.handled;
+
+        final key = event.logicalKey;
+        if (key == LogicalKeyboardKey.escape) {
+          setState(() => _isRecording = false);
+          return KeyEventResult.handled;
+        }
+
+        // Ignore modifier-only presses for final config, but consume them
+        if (key == LogicalKeyboardKey.controlLeft ||
+            key == LogicalKeyboardKey.controlRight ||
+            key == LogicalKeyboardKey.metaLeft ||
+            key == LogicalKeyboardKey.metaRight ||
+            key == LogicalKeyboardKey.altLeft ||
+            key == LogicalKeyboardKey.altRight ||
+            key == LogicalKeyboardKey.shiftLeft ||
+            key == LogicalKeyboardKey.shiftRight) {
+          return KeyEventResult.handled;
+        }
+
+        final newConfig = ShortcutConfig(
+          keyId: key.keyId,
+          isControl: HardwareKeyboard.instance.isControlPressed,
+          isMeta: HardwareKeyboard.instance.isMetaPressed,
+          isAlt: HardwareKeyboard.instance.isAltPressed,
+          isShift: HardwareKeyboard.instance.isShiftPressed,
+        );
+
+        widget.onChanged(newConfig);
+        setState(() => _isRecording = false);
+        return KeyEventResult.handled;
+      },
+      child: GestureDetector(
+        onTap: () {
+          setState(() => _isRecording = true);
+          _focusNode.requestFocus();
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: _isRecording
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+            border: _isRecording ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2) : null,
+          ),
+          child: Text(
+            _isRecording ? 'Press keys...' : widget.config.label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: _isRecording
+                  ? Theme.of(context).colorScheme.onPrimaryContainer
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

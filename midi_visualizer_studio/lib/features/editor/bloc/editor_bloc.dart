@@ -220,7 +220,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     final previousProject = _historyCubit.undo(project);
     if (previousProject != null) {
-      emit(state.copyWith(project: previousProject));
+      final validSelection = state.selectedComponentIds
+          .where((id) => previousProject.layers.any((l) => l.id == id))
+          .toSet();
+      emit(state.copyWith(project: previousProject, selectedComponentIds: validSelection));
     }
   }
 
@@ -230,7 +233,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     final nextProject = _historyCubit.redo(project);
     if (nextProject != null) {
-      emit(state.copyWith(project: nextProject));
+      final validSelection = state.selectedComponentIds
+          .where((id) => nextProject.layers.any((l) => l.id == id))
+          .toSet();
+      emit(state.copyWith(project: nextProject, selectedComponentIds: validSelection));
     }
   }
 
