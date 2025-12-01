@@ -7,41 +7,68 @@ import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_event.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
+import 'package:midi_visualizer_studio/features/settings/ui/parts/settings_card.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Settings'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'General', icon: Icon(Icons.settings)),
-              Tab(text: 'MIDI', icon: Icon(Icons.piano)),
-              Tab(text: 'Streaming', icon: Icon(Icons.videocam)),
-              Tab(text: 'Shortcuts', icon: Icon(Icons.keyboard)),
-            ],
-          ),
-        ),
-        body: const TabBarView(
-          children: [_GeneralSettingsTab(), _MidiSettingsTab(), _StreamingSettingsTab(), _ShortcutsSettingsTab()],
-        ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          int crossAxisCount;
+          if (width < 600) {
+            crossAxisCount = 1;
+          } else if (width < 1000) {
+            crossAxisCount = 2;
+          } else {
+            crossAxisCount = 3;
+          }
+
+          final sections = [
+            const _GeneralSettingsSection(),
+            const _MidiSettingsSection(),
+            const _StreamingSettingsSection(),
+            const _ShortcutsSettingsSection(),
+          ];
+
+          final columns = List.generate(crossAxisCount, (_) => <Widget>[]);
+          for (var i = 0; i < sections.length; i++) {
+            columns[i % crossAxisCount].add(sections[i]);
+          }
+
+          if (crossAxisCount == 1) {
+            return ListView(padding: const EdgeInsets.all(16), children: sections);
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < crossAxisCount; i++) ...[
+                  if (i > 0) const SizedBox(width: 16),
+                  Expanded(child: Column(children: columns[i])),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-class _GeneralSettingsTab extends StatelessWidget {
-  const _GeneralSettingsTab();
+class _GeneralSettingsSection extends StatelessWidget {
+  const _GeneralSettingsSection();
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return SettingsCard(
+      title: 'General',
       children: [
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
@@ -70,156 +97,177 @@ class _GeneralSettingsTab extends StatelessWidget {
   }
 }
 
-class _MidiSettingsTab extends StatelessWidget {
-  const _MidiSettingsTab();
+class _MidiSettingsSection extends StatelessWidget {
+  const _MidiSettingsSection();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MidiBloc, MidiState>(
-      builder: (context, state) {
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            ListTile(
-              title: const Text('MIDI Devices'),
-              trailing: IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  context.read<MidiBloc>().add(const MidiEvent.scanDevices());
-                },
-              ),
-            ),
-            if (state.status == MidiStatus.scanning)
-              const Center(child: LinearProgressIndicator())
-            else if (state.devices.isEmpty)
-              const Center(child: Text('No MIDI devices found'))
-            else
-              ...state.devices.map((device) {
-                final isConnected = state.connectedDevice?.id == device.id;
-                return ListTile(
-                  leading: const Icon(Icons.usb),
-                  title: Text(device.name),
-                  subtitle: Text(device.type),
-                  trailing: ElevatedButton(
+    return SettingsCard(
+      title: 'MIDI',
+      children: [
+        BlocBuilder<MidiBloc, MidiState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                ListTile(
+                  title: const Text('MIDI Devices'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.refresh),
                     onPressed: () {
-                      if (isConnected) {
-                        context.read<MidiBloc>().add(MidiEvent.disconnectDevice(device));
-                      } else {
-                        context.read<MidiBloc>().add(MidiEvent.connectDevice(device));
-                      }
+                      context.read<MidiBloc>().add(const MidiEvent.scanDevices());
                     },
-                    child: Text(isConnected ? 'Disconnect' : 'Connect'),
                   ),
-                );
-              }),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _StreamingSettingsTab extends StatelessWidget {
-  const _StreamingSettingsTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsState>(
-      builder: (context, state) {
-        final colors = [
-          0xFF00FF00, // Green
-          0xFF0000FF, // Blue
-          0xFFFF00FF, // Magenta
-          0xFF000000, // Black
-          0xFFFFFFFF, // White
-        ];
-
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const ListTile(
-              title: Text('Chroma Key Defaults'),
-              subtitle: Text('Set the default background color for new projects.'),
-            ),
-            ListTile(
-              title: const Text('Default Color'),
-              subtitle: Wrap(
-                spacing: 8,
-                children: colors.map((color) {
-                  final isSelected = state.defaultChromaKeyColor == color;
-                  return GestureDetector(
-                    onTap: () {
-                      context.read<SettingsBloc>().add(SettingsEvent.updateChromaKeyColor(color));
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Color(color),
-                        border: isSelected
-                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-                            : Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(20),
+                ),
+                if (state.status == MidiStatus.scanning)
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: LinearProgressIndicator()),
+                  )
+                else if (state.devices.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: Text('No MIDI devices found')),
+                  )
+                else
+                  ...state.devices.map((device) {
+                    final isConnected = state.connectedDevice?.id == device.id;
+                    return ListTile(
+                      leading: const Icon(Icons.usb),
+                      title: Text(device.name),
+                      subtitle: Text(device.type),
+                      trailing: ElevatedButton(
+                        onPressed: () {
+                          if (isConnected) {
+                            context.read<MidiBloc>().add(MidiEvent.disconnectDevice(device));
+                          } else {
+                            context.read<MidiBloc>().add(MidiEvent.connectDevice(device));
+                          }
+                        },
+                        child: Text(isConnected ? 'Disconnect' : 'Connect'),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            const Divider(),
-            ListTile(
-              title: const Text('Windowless Mode'),
-              subtitle: const Text('Hide window title bar and frame (for OBS capturing).'),
-              trailing: Switch(
-                value: state.isWindowless,
-                onChanged: (value) {
-                  context.read<SettingsBloc>().add(SettingsEvent.toggleWindowless(value));
-                },
-              ),
-            ),
-          ],
-        );
-      },
+                    );
+                  }),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }
 
-class _ShortcutsSettingsTab extends StatelessWidget {
-  const _ShortcutsSettingsTab();
+class _StreamingSettingsSection extends StatelessWidget {
+  const _StreamingSettingsSection();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsState>(
-      builder: (context, state) {
-        final shortcuts = state.shortcuts;
-        final sortedKeys = shortcuts.keys.toList()..sort();
+    return SettingsCard(
+      title: 'Streaming',
+      children: [
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            final colors = [
+              0xFF00FF00, // Green
+              0xFF0000FF, // Blue
+              0xFFFF00FF, // Magenta
+              0xFF000000, // Black
+              0xFFFFFFFF, // White
+            ];
 
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            ListTile(
-              title: const Text('Reset to Defaults'),
-              leading: const Icon(Icons.restore),
-              onTap: () {
-                context.read<SettingsBloc>().add(const SettingsEvent.resetShortcuts());
-              },
-            ),
-            const Divider(),
-            ...sortedKeys.map((actionId) {
-              final config = shortcuts[actionId]!;
-              return ListTile(
-                title: Text(actionId.toUpperCase()),
-                trailing: _ShortcutRecorder(
-                  config: config,
-                  onChanged: (newConfig) {
-                    context.read<SettingsBloc>().add(SettingsEvent.updateShortcut(actionId, newConfig));
+            return Column(
+              children: [
+                const ListTile(
+                  title: Text('Chroma Key Defaults'),
+                  subtitle: Text('Set the default background color for new projects.'),
+                ),
+                ListTile(
+                  title: const Text('Default Color'),
+                  subtitle: Wrap(
+                    spacing: 8,
+                    children: colors.map((color) {
+                      final isSelected = state.defaultChromaKeyColor == color;
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<SettingsBloc>().add(SettingsEvent.updateChromaKeyColor(color));
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Color(color),
+                            border: isSelected
+                                ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
+                                : Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const Divider(),
+                ListTile(
+                  title: const Text('Windowless Mode'),
+                  subtitle: const Text('Hide window title bar and frame (for OBS capturing).'),
+                  trailing: Switch(
+                    value: state.isWindowless,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(SettingsEvent.toggleWindowless(value));
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ShortcutsSettingsSection extends StatelessWidget {
+  const _ShortcutsSettingsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return SettingsCard(
+      title: 'Shortcuts',
+      children: [
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            final shortcuts = state.shortcuts;
+            final sortedKeys = shortcuts.keys.toList()..sort();
+
+            return Column(
+              children: [
+                ListTile(
+                  title: const Text('Reset to Defaults'),
+                  leading: const Icon(Icons.restore),
+                  onTap: () {
+                    context.read<SettingsBloc>().add(const SettingsEvent.resetShortcuts());
                   },
                 ),
-              );
-            }),
-          ],
-        );
-      },
+                const Divider(),
+                if (sortedKeys.isEmpty)
+                  const Padding(padding: EdgeInsets.all(16.0), child: Text('No shortcuts configured'))
+                else
+                  ...sortedKeys.map((actionId) {
+                    final config = shortcuts[actionId]!;
+                    return ListTile(
+                      title: Text(actionId.toUpperCase()),
+                      trailing: _ShortcutRecorder(
+                        config: config,
+                        onChanged: (newConfig) {
+                          context.read<SettingsBloc>().add(SettingsEvent.updateShortcut(actionId, newConfig));
+                        },
+                      ),
+                    );
+                  }),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }
