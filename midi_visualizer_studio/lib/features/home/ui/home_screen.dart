@@ -6,130 +6,159 @@ import 'package:midi_visualizer_studio/data/repositories/project_repository.dart
 import 'package:midi_visualizer_studio/features/home/bloc/home_bloc.dart';
 import 'package:midi_visualizer_studio/features/home/bloc/home_event.dart';
 import 'package:midi_visualizer_studio/features/home/bloc/home_state.dart';
-import 'package:midi_visualizer_studio/features/settings/ui/settings_screen.dart';
+
 import 'package:file_picker/file_picker.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => HomeBloc(projectRepository: context.read<ProjectRepository>())..add(const LoadProjects()),
       child: Scaffold(
-        body: Row(
-          children: [
-            // Sidebar
-            NavigationRail(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (int index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              labelType: NavigationRailLabelType.all,
-              destinations: const [
-                NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Projects')),
-                NavigationRailDestination(icon: Icon(Icons.settings), label: Text('Settings')),
-              ],
-              trailing: Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: IconButton(
-                  icon: const Icon(Icons.help_outline),
-                  onPressed: () => context.push('/tutorial'),
-                  tooltip: 'Tutorial',
-                ),
-              ),
-            ),
-            const VerticalDivider(thickness: 1, width: 1),
+        body: BlocBuilder<HomeBloc, HomeState>(
+          builder: (context, state) {
+            if (state.status == HomeStatus.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-            // Main Content
-            Expanded(child: _buildMainContent()),
-          ],
+            if (state.status == HomeStatus.failure) {
+              return Center(child: Text('Error: ${state.errorMessage}'));
+            }
+
+            final projects = state.projects;
+
+            return CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Dashboard',
+                                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Manage your MIDI visualizer projects',
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                _HeaderActionButton(
+                                  icon: Icons.help_outline,
+                                  label: 'Tutorial',
+                                  onTap: () => context.push('/tutorial'),
+                                ),
+                                const SizedBox(width: 16),
+                                _HeaderActionButton(
+                                  icon: Icons.settings_outlined,
+                                  label: 'Settings',
+                                  onTap: () => context.push('/settings'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Recent Projects',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.refresh),
+                              onPressed: () {
+                                context.read<HomeBloc>().add(const LoadProjects());
+                              },
+                              tooltip: 'Refresh Projects',
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 280,
+                      mainAxisSpacing: 24,
+                      crossAxisSpacing: 24,
+                      childAspectRatio: 0.8,
+                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index == 0) {
+                        return _NewProjectCard();
+                      }
+                      return _ProjectCard(project: projects[index - 1]);
+                    }, childCount: projects.length + 1),
+                  ),
+                ),
+                const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+              ],
+            );
+          },
         ),
       ),
     );
   }
+}
 
-  Widget _buildRecentProjects() {
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        if (state.status == HomeStatus.loading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+class _HeaderActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
-        if (state.status == HomeStatus.failure) {
-          return Center(child: Text('Error: ${state.errorMessage}'));
-        }
+  const _HeaderActionButton({required this.icon, required this.label, required this.onTap});
 
-        final projects = state.projects;
-
-        return CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.all(32.0),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Projects', style: Theme.of(context).textTheme.headlineMedium),
-                        IconButton(
-                          icon: const Icon(Icons.refresh),
-                          onPressed: () {
-                            context.read<HomeBloc>().add(const LoadProjects());
-                          },
-                          tooltip: 'Refresh Projects',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text('Manage your MIDI visualizer projects.', style: Theme.of(context).textTheme.bodyLarge),
-                  ],
-                ),
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.primary),
               ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 250,
-                  mainAxisSpacing: 24,
-                  crossAxisSpacing: 24,
-                  childAspectRatio: 0.7,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index == 0) {
-                    return _NewProjectCard();
-                  }
-                  return _ProjectCard(project: projects[index - 1]);
-                }, childCount: projects.length + 1),
-              ),
-            ),
-          ],
-        );
-      },
+            ],
+          ),
+        ),
+      ),
     );
-  }
-
-  Widget _buildMainContent() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildRecentProjects();
-      case 1:
-        return const SettingsScreen();
-      default:
-        return _buildRecentProjects();
-    }
   }
 }
 
