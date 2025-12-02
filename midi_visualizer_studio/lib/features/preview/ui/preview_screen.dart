@@ -78,7 +78,9 @@ class _PreviewScreenState extends State<PreviewScreen> {
     // The content will be scaled to fit this window size by FittedBox.
     // But ideally, we want the window to match the content size 1:1 initially if possible.
     // Let's try to set the window size to the content size.
-    await windowManager.setSize(Size(_contentBounds.width, _contentBounds.height));
+    // Wait for transition to complete
+    await Future.delayed(const Duration(milliseconds: 100));
+    await windowManager.setSize(Size(_contentBounds.width, _contentBounds.height), animate: false);
     // Optionally center? Or keep position?
     // User didn't specify, but centering is safe.
     // await windowManager.center();
@@ -91,9 +93,19 @@ class _PreviewScreenState extends State<PreviewScreen> {
     await windowManager.setHasShadow(true);
     await windowManager.setTitleBarStyle(TitleBarStyle.normal);
     await windowManager.setAlwaysOnTop(false);
-    // Restore default size? Or let the user resize.
-    await windowManager.setSize(const Size(1280, 720));
-    await windowManager.center();
+  }
+
+  Future<void> _handleClose() async {
+    if (!kIsWeb) {
+      // Restore default size first
+      await windowManager.setSize(const Size(1280, 720), animate: false);
+      await windowManager.center();
+      // Wait for resize to complete before navigating
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    if (mounted) {
+      context.go('/home');
+    }
   }
 
   @override
@@ -195,7 +207,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                                 backgroundColor: Colors.red,
                                 child: const Icon(Icons.close, color: Colors.white),
                                 onPressed: () {
-                                  context.go('/home');
+                                  _handleClose();
                                 },
                               ),
                             ],

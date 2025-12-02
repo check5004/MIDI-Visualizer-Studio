@@ -289,71 +289,74 @@ class _CanvasViewState extends State<CanvasView> {
                                         return Positioned(
                                           left: visualX - padding,
                                           top: visualY - padding,
-                                          child: _ComponentWrapper(
-                                            component: component,
-                                            isSelected: isSelected,
-                                            isActive: isActive,
-                                            gridSize: state.gridSize,
-                                            snapToGrid: state.snapToGrid,
-                                            padding: padding,
-                                            dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
-                                            onDragStart: (details) {
-                                              if (!isSelected) return;
-                                              setState(() {
-                                                _selectionDragDelta = Offset.zero;
-                                              });
-                                            },
-                                            onDragUpdate: (details) {
-                                              if (!isSelected) return;
-                                              setState(() {
-                                                _selectionDragDelta += details.delta;
-                                              });
-                                            },
-                                            onSecondaryTapUp: (details) {
-                                              if (!isSelected) {
-                                                context.read<EditorBloc>().add(
-                                                  EditorEvent.selectComponent(component.id, multiSelect: false),
-                                                );
-                                              }
-                                              _showContextMenu(context, details.globalPosition);
-                                            },
-                                            onDragEnd: (details) {
-                                              if (!isSelected) return;
+                                          child: RepaintBoundary(
+                                            child: _ComponentWrapper(
+                                              key: ValueKey(component.id),
+                                              component: component,
+                                              isSelected: isSelected,
+                                              isActive: isActive,
+                                              gridSize: state.gridSize,
+                                              snapToGrid: state.snapToGrid,
+                                              padding: padding,
+                                              dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
+                                              onDragStart: (details) {
+                                                if (!isSelected) return;
+                                                setState(() {
+                                                  _selectionDragDelta = Offset.zero;
+                                                });
+                                              },
+                                              onDragUpdate: (details) {
+                                                if (!isSelected) return;
+                                                setState(() {
+                                                  _selectionDragDelta += details.delta;
+                                                });
+                                              },
+                                              onSecondaryTapUp: (details) {
+                                                if (!isSelected) {
+                                                  context.read<EditorBloc>().add(
+                                                    EditorEvent.selectComponent(component.id, multiSelect: false),
+                                                  );
+                                                }
+                                                _showContextMenu(context, details.globalPosition);
+                                              },
+                                              onDragEnd: (details) {
+                                                if (!isSelected) return;
 
-                                              final selectedIds = state.selectedComponentIds;
-                                              final project = state.project;
-                                              if (project == null) return;
+                                                final selectedIds = state.selectedComponentIds;
+                                                final project = state.project;
+                                                if (project == null) return;
 
-                                              final updates = <Component>[];
+                                                final updates = <Component>[];
 
-                                              for (final id in selectedIds) {
-                                                final comp = project.layers.firstWhere(
-                                                  (c) => c.id == id,
-                                                  orElse: () => throw Exception('Component not found'),
-                                                );
+                                                for (final id in selectedIds) {
+                                                  final comp = project.layers.firstWhere(
+                                                    (c) => c.id == id,
+                                                    orElse: () => throw Exception('Component not found'),
+                                                  );
 
-                                                double newX = comp.x + _selectionDragDelta.dx;
-                                                double newY = comp.y + _selectionDragDelta.dy;
+                                                  double newX = comp.x + _selectionDragDelta.dx;
+                                                  double newY = comp.y + _selectionDragDelta.dy;
 
-                                                if (state.snapToGrid) {
-                                                  newX = (newX / state.gridSize).round() * state.gridSize;
-                                                  newY = (newY / state.gridSize).round() * state.gridSize;
+                                                  if (state.snapToGrid) {
+                                                    newX = (newX / state.gridSize).round() * state.gridSize;
+                                                    newY = (newY / state.gridSize).round() * state.gridSize;
+                                                  }
+
+                                                  final updated = comp.map(
+                                                    pad: (c) => c.copyWith(x: newX, y: newY),
+                                                    knob: (c) => c.copyWith(x: newX, y: newY),
+                                                    staticImage: (c) => c.copyWith(x: newX, y: newY),
+                                                  );
+                                                  updates.add(updated);
                                                 }
 
-                                                final updated = comp.map(
-                                                  pad: (c) => c.copyWith(x: newX, y: newY),
-                                                  knob: (c) => c.copyWith(x: newX, y: newY),
-                                                  staticImage: (c) => c.copyWith(x: newX, y: newY),
-                                                );
-                                                updates.add(updated);
-                                              }
+                                                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
 
-                                              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
-
-                                              setState(() {
-                                                _selectionDragDelta = Offset.zero;
-                                              });
-                                            },
+                                                setState(() {
+                                                  _selectionDragDelta = Offset.zero;
+                                                });
+                                              },
+                                            ),
                                           ),
                                         );
                                       }),
@@ -568,6 +571,7 @@ class _ComponentWrapper extends StatefulWidget {
   final ValueChanged<TapUpDetails>? onSecondaryTapUp;
 
   const _ComponentWrapper({
+    super.key,
     required this.component,
     required this.isSelected,
     required this.isActive,

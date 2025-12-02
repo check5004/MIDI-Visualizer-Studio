@@ -28,9 +28,9 @@ final appRouter = GoRouter(
     GoRoute(path: '/poc/midi', builder: (context, state) => const MidiMonitorScreen()),
     GoRoute(
       path: '/preview',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final project = state.extra as Project;
-        return PreviewScreen(project: project);
+        return NoTransitionPage(child: PreviewScreen(project: project));
       },
     ),
   ],
