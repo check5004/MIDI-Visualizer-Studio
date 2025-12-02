@@ -81,6 +81,10 @@ class _PreviewScreenState extends State<PreviewScreen> {
     // Wait for transition to complete
     await Future.delayed(const Duration(milliseconds: 100));
     await windowManager.setSize(Size(_contentBounds.width, _contentBounds.height), animate: false);
+
+    // Re-apply shadow removal after resize as it might have been reset
+    await windowManager.setHasShadow(false);
+
     // Optionally center? Or keep position?
     // User didn't specify, but centering is safe.
     // await windowManager.center();
