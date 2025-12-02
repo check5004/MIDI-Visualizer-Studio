@@ -59,7 +59,13 @@ class _ComponentSelectionOverlayState extends State<ComponentSelectionOverlay> {
         clipBehavior: Clip.none,
         children: [
           // The component content
-          Positioned(left: widget.padding, top: widget.padding, child: widget.child),
+          Positioned(
+            left: widget.padding,
+            top: widget.padding,
+            width: widget.component.width,
+            height: widget.component.height,
+            child: widget.child,
+          ),
 
           // The selection border
           Positioned(
