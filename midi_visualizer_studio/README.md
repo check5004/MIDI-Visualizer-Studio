@@ -1,16 +1,58 @@
-# midi_visualizer_studio
+# MIDI Visualizer Studio
 
-A new Flutter project.
+Flutter製のMIDIビジュアライザー作成・再生アプリケーションです。
+レイヤーベースのエディターでビジュアルを作成し、MIDI入力に反応するアニメーションを構築できます。
 
-## Getting Started
+## 主な機能
 
-This project is a starting point for a Flutter application.
+### エディター (Editor)
+- **レイヤー管理**: コンポーネントをレイヤーとして配置・管理。
+- **編集機能**:
+  - ドラッグ＆ドロップによる移動・リサイズ。
+  - 複数選択、範囲選択。
+  - コピー、ペースト、カット、削除、複製。
+  - アンドゥ (Undo) / リドゥ (Redo)。
+  - アスペクト比固定リサイズ。
+  - グリッド表示・スナップ。
+- **ツール**:
+  - 塗りつぶしツール (Flood Fill)。
+  - パスコンポーネント作成。
 
-A few resources to get you started if this is your first Flutter project:
+### プレビュー (Preview)
+- **ウィンドウ制御**:
+  - 背景透過ウィンドウ (Windows/macOS)。
+  - 常に最前面に表示 (Always on Top)。
+  - ウィンドウ枠・影の非表示 (Frameless/No Shadow)。
+  - コンテンツに合わせた自動リサイズ。
+- **再生**: エディターで作成したプロジェクトのリアルタイムプレビュー。
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### ダッシュボード (Home)
+- プロジェクト管理 (作成、開く、削除)。
+- プロジェクトプレビュー表示。
+- グリッドレイアウトによる一覧表示。
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### MIDI連携
+- MIDIデバイスの接続・入力検知。
+- MIDIイベントに基づくビジュアル制御。
+
+### 設定 (Settings)
+- **テーマ**: ライト/ダークモード切り替え。
+- **ショートカット**: キーボードショートカットのカスタマイズ。
+
+## 技術スタック
+- **フレームワーク**: Flutter
+- **状態管理**: flutter_bloc
+- **ルーティング**: go_router
+- **ウィンドウ制御**: window_manager, flutter_acrylic
+- **MIDI**: flutter_midi_command
+- **その他**: freezed, json_serializable, shared_preferences
+
+## プラットフォーム
+- **Windows**: 透明ウィンドウ対応。
+- **Web**: GitHub Actionsによる自動デプロイ対応。
+- **macOS**: 対応。
+
+## CI/CD
+GitHub Actionsにより以下のワークフローが自動化されています：
+- Web版のビルドとGitHub Pagesへのデプロイ。
+- Windows版のビルドとGitHub Releasesへの公開。
