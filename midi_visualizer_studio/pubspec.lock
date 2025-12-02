@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  device_manager:
+    dependency: transitive
+    description:
+      name: device_manager
+      sha256: a951e3fcade8de301058c22042fa132f721faa5a08b927c411dc91b2d114fcef
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.7"
   equatable:
     dependency: "direct main"
     description:
@@ -303,13 +311,13 @@ packages:
     source: hosted
     version: "0.4.3"
   flutter_midi_command_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: flutter_midi_command_windows
-      sha256: fd85c892d890f462487601e69228de261954e2cd8740f5396f5e3060d23ff097
+      sha256: bae63c4f51fc03f57d46abdea66ea58cb9f21f5e56eea116b47102e1994152a2
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.3.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -327,10 +335,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_web_bluetooth
-      sha256: fcd03e2e5f82edcedcbc940f1b6a0635a50757374183254f447640886c53208e
+      sha256: ad26a1b3fef95b86ea5f63793b9a0cdc1a33490f35d754e4e711046cae3ebbf8
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.4"
+    version: "1.1.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -408,14 +416,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.2"
   json_annotation:
     dependency: "direct main"
     description:
@@ -870,13 +870,13 @@ packages:
     source: hosted
     version: "1.4.0"
   universal_ble:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: universal_ble
-      sha256: "50011255aa793589ccefb086ceead0f2eaddd30609a6f8b10ee4a0a548c3250e"
+      sha256: "6a5c6c1fb295015934a5aef3dc751ae7e00721535275f8478bfe74db77b238c5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.11"
+    version: "0.21.1"
   uuid:
     dependency: "direct main"
     description:

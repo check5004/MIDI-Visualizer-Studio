@@ -49,6 +49,10 @@ dependencies:
   flutter_acrylic: ^1.1.4
   path_provider: ^2.1.5
 
+dependency_overrides:
+  universal_ble: ^0.21.1
+  flutter_midi_command_windows: ^0.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

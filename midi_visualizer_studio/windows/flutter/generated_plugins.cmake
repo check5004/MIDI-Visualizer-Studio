@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  device_manager
   flutter_acrylic
   screen_retriever_windows
   universal_ble
