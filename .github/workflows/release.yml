@@ -11,6 +11,9 @@ permissions:
 jobs:
   build-web:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./midi_visualizer_studio
     steps:
       - uses: actions/checkout@v4
 
@@ -31,10 +34,13 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
+          publish_dir: ./midi_visualizer_studio/build/web
 
   build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ./midi_visualizer_studio
     steps:
       - uses: actions/checkout@v4
 
@@ -60,4 +66,4 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: MyApp-Windows-${{ env.APP_VERSION }}.zip
+          files: midi_visualizer_studio/MyApp-Windows-${{ env.APP_VERSION }}.zip
