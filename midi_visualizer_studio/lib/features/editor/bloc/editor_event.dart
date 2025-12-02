@@ -44,4 +44,6 @@ class EditorEvent with _$EditorEvent {
   const factory EditorEvent.cut() = CutEvent;
   const factory EditorEvent.delete() = DeleteEvent;
   const factory EditorEvent.duplicate() = DuplicateEvent;
+  const factory EditorEvent.interactionStart() = InteractionStart;
+  const factory EditorEvent.interactionEnd() = InteractionEnd;
 }

@@ -438,6 +438,7 @@ class _CanvasViewState extends State<CanvasView> {
                                                   gridSize: state.gridSize,
                                                   snapToGrid: state.showGrid && state.snapToGrid,
                                                   padding: padding,
+                                                  hideBorder: state.isInteractingWithInspector,
                                                   dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
                                                   onDragStart: (details) {
                                                     if (!isSelected) return;
@@ -616,6 +617,7 @@ class _ComponentWrapper extends StatefulWidget {
   final double gridSize;
   final bool snapToGrid;
   final double padding;
+  final bool hideBorder;
   final Offset dragDelta;
   final ValueChanged<DragStartDetails>? onDragStart;
   final ValueChanged<DragUpdateDetails>? onDragUpdate;
@@ -630,6 +632,7 @@ class _ComponentWrapper extends StatefulWidget {
     required this.gridSize,
     required this.snapToGrid,
     this.padding = 0,
+    this.hideBorder = false,
     this.dragDelta = Offset.zero,
     this.onDragStart,
     this.onDragUpdate,
@@ -688,6 +691,7 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
                   gridSize: widget.gridSize,
                   snapToGrid: widget.snapToGrid,
                   padding: widget.padding,
+                  hideBorder: widget.hideBorder,
                   child: _buildComponentContent(),
                 )
               : Padding(padding: EdgeInsets.all(widget.padding), child: _buildComponentContent()),

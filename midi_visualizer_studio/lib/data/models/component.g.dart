@@ -25,6 +25,11 @@ ComponentPad _$ComponentPadFromJson(
       (v) => $enumDecodeNullable(_$PadShapeEnumMap, v) ?? PadShape.rect,
     ),
     pathData: $checkedConvert('pathData', (v) => v as String?),
+    originalPathData: $checkedConvert('originalPathData', (v) => v as String?),
+    smoothingAmount: $checkedConvert(
+      'smoothingAmount',
+      (v) => (v as num?)?.toDouble() ?? 0.0,
+    ),
     cornerRadius: $checkedConvert(
       'cornerRadius',
       (v) => (v as num?)?.toDouble() ?? 0.0,
@@ -64,6 +69,8 @@ Map<String, dynamic> _$ComponentPadToJson(ComponentPad instance) =>
       'isVisible': instance.isVisible,
       'shape': _$PadShapeEnumMap[instance.shape]!,
       'pathData': instance.pathData,
+      'originalPathData': instance.originalPathData,
+      'smoothingAmount': instance.smoothingAmount,
       'cornerRadius': instance.cornerRadius,
       'borderWidth': instance.borderWidth,
       'borderColor': instance.borderColor,

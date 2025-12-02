@@ -399,6 +399,30 @@ class _InspectorPanelState extends State<InspectorPanel> {
           }
         },
       ),
+      if (pad.shape == PadShape.path) ...[
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const Text('Smoothing'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Slider(
+                value: pad.smoothingAmount,
+                min: 0.0,
+                max: 5.0,
+                onChangeStart: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionStart()),
+                onChangeEnd: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionEnd()),
+                onChanged: (value) {
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(pad.id, pad.copyWith(smoothingAmount: value)),
+                  );
+                },
+              ),
+            ),
+            SizedBox(width: 40, child: Text(pad.smoothingAmount.toStringAsFixed(2), textAlign: TextAlign.end)),
+          ],
+        ),
+      ],
       const SizedBox(height: 8),
       _ColorPickerField(
         label: 'On Color',
@@ -664,6 +688,38 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
           ),
         ],
       ),
+      if (components.any((c) => c is ComponentPad && c.shape == PadShape.path)) ...[
+        const SizedBox(height: 16),
+        const Divider(),
+        const SizedBox(height: 8),
+        const Text('Path Smoothing', style: TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            const Text('Amount'),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Slider(
+                value: components
+                    .firstWhere((c) => c is ComponentPad && c.shape == PadShape.path, orElse: () => components.first)
+                    .map(pad: (c) => c.smoothingAmount, knob: (_) => 0.0, staticImage: (_) => 0.0),
+                min: 0.0,
+                max: 5.0,
+                onChangeStart: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionStart()),
+                onChangeEnd: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionEnd()),
+                onChanged: (value) {
+                  final updates = components.map((c) {
+                    if (c is ComponentPad && c.shape == PadShape.path) {
+                      return c.copyWith(smoothingAmount: value);
+                    }
+                    return c;
+                  }).toList();
+                  context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
     ],
   );
 }

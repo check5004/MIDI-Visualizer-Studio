@@ -13,6 +13,7 @@ import 'package:midi_visualizer_studio/data/repositories/project_repository.dart
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
+import 'package:midi_visualizer_studio/core/utils/path_utils.dart';
 
 class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final HistoryCubit? _historyCubit;
@@ -49,6 +50,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<SetGridSize>(_onSetGridSize);
     on<HandleMidiMessage>(_onHandleMidiMessage);
     on<SaveProject>(_onSaveProject);
+    on<ExportProject>(_onExportProject);
     on<FillImageArea>(_onFillImageArea);
     on<SetFloodFillTolerance>(_onSetFloodFillTolerance);
     on<CopyEvent>(_onCopy);
@@ -56,12 +58,11 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<CutEvent>(_onCut);
     on<DeleteEvent>(_onDelete);
     on<DuplicateEvent>(_onDuplicate);
-    on<ExportProject>(_onExportProject);
+    on<InteractionStart>(_onInteractionStart);
+    on<InteractionEnd>(_onInteractionEnd);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
-    emit(state.copyWith(status: EditorStatus.loading));
-
     try {
       Project? project;
       if (event.project != null) {
@@ -165,8 +166,25 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (project == null) return;
 
     _recordHistory();
+
+    var componentToUpdate = event.component;
+
+    // Check for smoothing update
+    final existing = project.layers.firstWhere((c) => c.id == event.id, orElse: () => event.component);
+    if (existing is ComponentPad && componentToUpdate is ComponentPad) {
+      if (componentToUpdate.originalPathData != null &&
+          (componentToUpdate.smoothingAmount != existing.smoothingAmount ||
+              componentToUpdate.originalPathData != existing.originalPathData)) {
+        final originalPoints = PathUtils.parsePath(componentToUpdate.originalPathData!);
+        final smoothedPoints = PathUtils.smoothPath(originalPoints, componentToUpdate.smoothingAmount);
+        final newPathData = PathUtils.generatePath(smoothedPoints);
+
+        componentToUpdate = componentToUpdate.copyWith(pathData: newPathData);
+      }
+    }
+
     final updatedLayers = project.layers.map((c) {
-      return c.id == event.id ? event.component : c;
+      return c.id == event.id ? componentToUpdate : c;
     }).toList();
 
     emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
@@ -180,10 +198,29 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     // Create a map for faster lookup
     final updates = {for (var c in event.components) c.id: c};
+    final updatedLayers = <Component>[];
 
-    final updatedLayers = project.layers.map((c) {
-      return updates.containsKey(c.id) ? updates[c.id]! : c;
-    }).toList();
+    for (final c in project.layers) {
+      if (updates.containsKey(c.id)) {
+        var componentToUpdate = updates[c.id]!;
+        final existing = c;
+
+        if (existing is ComponentPad && componentToUpdate is ComponentPad) {
+          if (componentToUpdate.originalPathData != null &&
+              (componentToUpdate.smoothingAmount != existing.smoothingAmount ||
+                  componentToUpdate.originalPathData != existing.originalPathData)) {
+            final originalPoints = PathUtils.parsePath(componentToUpdate.originalPathData!);
+            final smoothedPoints = PathUtils.smoothPath(originalPoints, componentToUpdate.smoothingAmount);
+            final newPathData = PathUtils.generatePath(smoothedPoints);
+
+            componentToUpdate = componentToUpdate.copyWith(pathData: newPathData);
+          }
+        }
+        updatedLayers.add(componentToUpdate);
+      } else {
+        updatedLayers.add(c);
+      }
+    }
 
     emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
   }
@@ -511,12 +548,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final width = maxX - minX;
     final height = maxY - minY;
 
-    final buffer = StringBuffer();
-    buffer.write('M ${componentPoints[0].dx - minX} ${componentPoints[0].dy - minY}');
-    for (int i = 1; i < componentPoints.length; i++) {
-      buffer.write(' L ${componentPoints[i].dx - minX} ${componentPoints[i].dy - minY}');
-    }
-    buffer.write(' Z');
+    final pathString = PathUtils.generatePath(componentPoints.map((p) => Offset(p.dx - minX, p.dy - minY)).toList());
 
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final newComponent = Component.pad(
@@ -527,7 +559,8 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       width: width,
       height: height,
       shape: PadShape.path,
-      pathData: buffer.toString(),
+      pathData: pathString,
+      originalPathData: pathString,
       onColor: '#${event.color.value.toRadixString(16).padLeft(8, '0').substring(2)}',
       offColor: '#${event.color.value.toRadixString(16).padLeft(8, '0').substring(2)}33', // Semi-transparent off
     );
@@ -865,6 +898,14 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         selectedComponentIds: newIds,
       ),
     );
+  }
+
+  void _onInteractionStart(InteractionStart event, Emitter<EditorState> emit) {
+    emit(state.copyWith(isInteractingWithInspector: true));
+  }
+
+  void _onInteractionEnd(InteractionEnd event, Emitter<EditorState> emit) {
+    emit(state.copyWith(isInteractingWithInspector: false));
   }
 
   // Helper to record history before mutation

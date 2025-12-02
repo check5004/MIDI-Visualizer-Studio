@@ -32,8 +32,11 @@ class ComponentSelectionOverlay extends StatefulWidget {
     required this.gridSize,
     required this.snapToGrid,
     this.padding = 0,
+    this.hideBorder = false,
     required this.child,
   });
+
+  final bool hideBorder;
 
   @override
   State<ComponentSelectionOverlay> createState() => _ComponentSelectionOverlayState();
@@ -68,46 +71,49 @@ class _ComponentSelectionOverlayState extends State<ComponentSelectionOverlay> {
           ),
 
           // The selection border
-          Positioned(
-            left: widget.padding,
-            top: widget.padding,
-            width: widget.component.width,
-            height: widget.component.height,
-            child: CustomPaint(painter: _SelectionPainter(color: Colors.blue)),
-          ),
+          if (!widget.hideBorder)
+            Positioned(
+              left: widget.padding,
+              top: widget.padding,
+              width: widget.component.width,
+              height: widget.component.height,
+              child: CustomPaint(painter: _SelectionPainter(color: Colors.blue)),
+            ),
 
-          // Hit test targets for handles
-          // Corners
-          _buildHandle(_DragHandle.topLeft, widget.padding - 5, widget.padding - 5),
-          _buildHandle(_DragHandle.topCenter, widget.padding + widget.component.width / 2 - 5, widget.padding - 5),
-          _buildHandle(_DragHandle.topRight, widget.padding + widget.component.width - 5, widget.padding - 5),
+          if (!widget.hideBorder) ...[
+            // Hit test targets for handles
+            // Corners
+            _buildHandle(_DragHandle.topLeft, widget.padding - 5, widget.padding - 5),
+            _buildHandle(_DragHandle.topCenter, widget.padding + widget.component.width / 2 - 5, widget.padding - 5),
+            _buildHandle(_DragHandle.topRight, widget.padding + widget.component.width - 5, widget.padding - 5),
 
-          _buildHandle(_DragHandle.centerLeft, widget.padding - 5, widget.padding + widget.component.height / 2 - 5),
-          _buildHandle(
-            _DragHandle.centerRight,
-            widget.padding + widget.component.width - 5,
-            widget.padding + widget.component.height / 2 - 5,
-          ),
+            _buildHandle(_DragHandle.centerLeft, widget.padding - 5, widget.padding + widget.component.height / 2 - 5),
+            _buildHandle(
+              _DragHandle.centerRight,
+              widget.padding + widget.component.width - 5,
+              widget.padding + widget.component.height / 2 - 5,
+            ),
 
-          _buildHandle(_DragHandle.bottomLeft, widget.padding - 5, widget.padding + widget.component.height - 5),
-          _buildHandle(
-            _DragHandle.bottomCenter,
-            widget.padding + widget.component.width / 2 - 5,
-            widget.padding + widget.component.height - 5,
-          ),
-          _buildHandle(
-            _DragHandle.bottomRight,
-            widget.padding + widget.component.width - 5,
-            widget.padding + widget.component.height - 5,
-          ),
+            _buildHandle(_DragHandle.bottomLeft, widget.padding - 5, widget.padding + widget.component.height - 5),
+            _buildHandle(
+              _DragHandle.bottomCenter,
+              widget.padding + widget.component.width / 2 - 5,
+              widget.padding + widget.component.height - 5,
+            ),
+            _buildHandle(
+              _DragHandle.bottomRight,
+              widget.padding + widget.component.width - 5,
+              widget.padding + widget.component.height - 5,
+            ),
 
-          // Rotation handle (top center, slightly above)
-          _buildHandle(
-            _DragHandle.rotate,
-            widget.padding + widget.component.width / 2 - 5,
-            widget.padding - 25,
-            isRotation: true,
-          ),
+            // Rotation handle (top center, slightly above)
+            _buildHandle(
+              _DragHandle.rotate,
+              widget.padding + widget.component.width / 2 - 5,
+              widget.padding - 25,
+              isRotation: true,
+            ),
+          ],
         ],
       ),
     );

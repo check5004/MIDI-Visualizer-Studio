@@ -26,6 +26,8 @@ abstract class Component with _$Component {
     @Default(true) bool isVisible,
     @Default(PadShape.rect) PadShape shape,
     String? pathData,
+    String? originalPathData,
+    @Default(0.0) double smoothingAmount,
     @Default(0.0) double cornerRadius,
     @Default(0.0) double borderWidth,
     @Default('#FFFFFF') String borderColor,

@@ -29,5 +29,6 @@ abstract class EditorState with _$EditorState {
     @Default({}) Set<String> activeComponentIds,
     String? lastSelectedId,
     String? errorMessage,
+    @Default(false) bool isInteractingWithInspector,
   }) = _EditorState;
 }
