@@ -40,25 +40,28 @@ class HomeScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Dashboard',
-                                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Dashboard',
+                                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Manage your MIDI visualizer projects',
-                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Manage your MIDI visualizer projects',
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 16),
                             Row(
                               children: [
                                 _HeaderActionButton(
@@ -236,41 +239,43 @@ class _ProjectCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          project.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Edited ${_formatDate(project.updatedAt ?? project.createdAt)}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+                    Text(
+                      project.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Edited ${_formatDate(project.updatedAt ?? project.createdAt)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const Spacer(),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 20),
-                          tooltip: 'Edit',
-                          onPressed: () {
-                            context.push('/editor/${project.id}', extra: project).then((_) {
-                              if (context.mounted) {
-                                context.read<HomeBloc>().add(const LoadProjects());
-                              }
-                            });
-                          },
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: () {
+                              context.push('/editor/${project.id}', extra: project).then((_) {
+                                if (context.mounted) {
+                                  context.read<HomeBloc>().add(const LoadProjects());
+                                }
+                              });
+                            },
+                            icon: const Icon(Icons.edit, size: 18),
+                            label: const Text('Edit'),
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 4),
                         IconButton(
-                          icon: const Icon(Icons.file_upload, size: 20),
+                          icon: const Icon(Icons.file_upload_outlined, size: 20),
                           tooltip: 'Export',
+                          visualDensity: VisualDensity.compact,
                           onPressed: () async {
                             final path = await FilePicker.platform.saveFile(
                               dialogTitle: 'Export Project',
@@ -297,6 +302,12 @@ class _ProjectCard extends StatelessWidget {
                             }
                           },
                         ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline, size: 20, color: colorScheme.error),
+                          tooltip: 'Delete',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () => _showDeleteConfirmation(context),
+                        ),
                       ],
                     ),
                   ],
@@ -307,6 +318,30 @@ class _ProjectCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Project'),
+          content: Text('Are you sure you want to delete "${project.name}"? This action cannot be undone.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<HomeBloc>().add(DeleteProject(project.id));
+    }
   }
 
   String _formatDate(DateTime? date) {
