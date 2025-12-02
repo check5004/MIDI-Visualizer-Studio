@@ -200,6 +200,49 @@ class _NewProjectCard extends StatelessWidget {
                 'New Project',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colorScheme.primary),
               ),
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: () async {
+                  final result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['mvs', 'zip'],
+                    allowMultiple: true,
+                  );
+
+                  if (result != null && context.mounted) {
+                    int successCount = 0;
+                    int failCount = 0;
+                    final repository = context.read<ProjectRepository>();
+
+                    for (final file in result.files) {
+                      if (file.path != null) {
+                        try {
+                          await repository.importProject(file.path!);
+                          successCount++;
+                        } catch (e) {
+                          debugPrint('Error importing ${file.name}: $e');
+                          failCount++;
+                        }
+                      }
+                    }
+
+                    if (context.mounted) {
+                      context.read<HomeBloc>().add(const LoadProjects());
+
+                      String message;
+                      if (failCount == 0) {
+                        message = 'Imported $successCount project(s) successfully';
+                      } else {
+                        message = 'Imported $successCount project(s), failed to import $failCount';
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                    }
+                  }
+                },
+                icon: const Icon(Icons.file_download_outlined),
+                label: const Text('Import'),
+              ),
             ],
           ),
         ),

@@ -86,6 +86,36 @@ class ProjectRepository {
     await tempProjectDir.delete(recursive: true);
   }
 
+  Future<void> importProject(String sourcePath) async {
+    final file = File(sourcePath);
+    if (!await file.exists()) {
+      throw Exception('Source file does not exist: $sourcePath');
+    }
+
+    // Verify it's a zip/mvs file by trying to read project.json from it
+    final bytes = await file.readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
+    final projectFile = archive.findFile('project.json');
+
+    if (projectFile == null) {
+      throw Exception('Invalid project file: project.json not found');
+    }
+
+    // Read ID from project.json to determine filename
+    final jsonStr = utf8.decode(projectFile.content as List<int>);
+    final jsonMap = jsonDecode(jsonStr) as Map<String, dynamic>;
+    final id = jsonMap['id'] as String?;
+
+    if (id == null) {
+      throw Exception('Invalid project file: ID not found in project.json');
+    }
+
+    // Copy to projects directory
+    final projectsPath = await _localPath;
+    final targetPath = p.join(projectsPath, '$id.mvs');
+    await file.copy(targetPath);
+  }
+
   Future<Project> loadProject(String path) async {
     final bytes = await File(path).readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
