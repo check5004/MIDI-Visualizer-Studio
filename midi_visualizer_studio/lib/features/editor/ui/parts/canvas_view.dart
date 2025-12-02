@@ -31,6 +31,10 @@ class _CanvasViewState extends State<CanvasView> {
   static const double kCanvasSize = 10000.0;
   static const double kCanvasOrigin = kCanvasSize / 2;
 
+  bool _isSelecting = false;
+  Offset? _selectionStart;
+  Offset? _selectionEnd;
+
   @override
   void initState() {
     super.initState();
@@ -189,6 +193,56 @@ class _CanvasViewState extends State<CanvasView> {
                             onSecondaryTapUp: (details) {
                               _showContextMenu(context, details.globalPosition);
                             },
+                            onPanStart: (details) {
+                              if (state.currentTool == EditorTool.select) {
+                                setState(() {
+                                  _isSelecting = true;
+                                  _selectionStart = details.localPosition;
+                                  _selectionEnd = details.localPosition;
+                                });
+                              }
+                            },
+                            onPanUpdate: (details) {
+                              if (_isSelecting) {
+                                setState(() {
+                                  _selectionEnd = details.localPosition;
+                                });
+                              }
+                            },
+                            onPanEnd: (details) {
+                              if (_isSelecting && _selectionStart != null && _selectionEnd != null) {
+                                final selectionRect = Rect.fromPoints(_selectionStart!, _selectionEnd!);
+                                final selectedIds = <String>[];
+
+                                for (final component in project.layers) {
+                                  final componentRect = Rect.fromLTWH(
+                                    component.x + kCanvasOrigin,
+                                    component.y + kCanvasOrigin,
+                                    component.width,
+                                    component.height,
+                                  );
+
+                                  if (selectionRect.overlaps(componentRect)) {
+                                    selectedIds.add(component.id);
+                                  }
+                                }
+
+                                final isMultiSelect =
+                                    HardwareKeyboard.instance.isShiftPressed ||
+                                    HardwareKeyboard.instance.isMetaPressed ||
+                                    HardwareKeyboard.instance.isControlPressed;
+
+                                context.read<EditorBloc>().add(
+                                  EditorEvent.selectComponents(selectedIds, multiSelect: isMultiSelect),
+                                );
+
+                                setState(() {
+                                  _isSelecting = false;
+                                  _selectionStart = null;
+                                  _selectionEnd = null;
+                                });
+                              }
+                            },
                             child: BlocBuilder<SettingsBloc, SettingsState>(
                               builder: (context, settingsState) {
                                 return Container(
@@ -303,6 +357,16 @@ class _CanvasViewState extends State<CanvasView> {
                                           ),
                                         );
                                       }),
+
+                                      // Selection Rectangle
+                                      if (_isSelecting && _selectionStart != null && _selectionEnd != null)
+                                        Positioned.fill(
+                                          child: CustomPaint(
+                                            painter: SelectionRectPainter(
+                                              rect: Rect.fromPoints(_selectionStart!, _selectionEnd!),
+                                            ),
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 );
@@ -371,6 +435,32 @@ class _CanvasViewState extends State<CanvasView> {
         }
       }
     });
+  }
+}
+
+class SelectionRectPainter extends CustomPainter {
+  final Rect rect;
+
+  SelectionRectPainter({required this.rect});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue.withValues(alpha: 0.2)
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    canvas.drawRect(rect, paint);
+    canvas.drawRect(rect, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant SelectionRectPainter oldDelegate) {
+    return oldDelegate.rect != rect;
   }
 }
 

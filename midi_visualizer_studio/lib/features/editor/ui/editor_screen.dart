@@ -38,7 +38,7 @@ class _EditorScreenState extends State<EditorScreen> {
           create: (context) => EditorBloc(
             historyCubit: context.read<HistoryCubit>(),
             projectRepository: context.read<ProjectRepository>(),
-          )..add(EditorEvent.loadProject(widget.projectId, project: widget.project)),
+          )..add(EditorEvent.loadProject(path: widget.projectId, project: widget.project)),
         ),
       ],
       child: BlocBuilder<EditorBloc, EditorState>(

@@ -140,10 +140,25 @@ class LayerPanel extends StatelessWidget {
                           ],
                         ),
                         onTap: () {
+                          if (HardwareKeyboard.instance.isShiftPressed) {
+                            final lastSelectedId = state.lastSelectedId;
+                            if (lastSelectedId != null) {
+                              final lastIndex = layers.indexWhere((c) => c.id == lastSelectedId);
+                              final currentIndex = layers.indexWhere((c) => c.id == component.id);
+
+                              if (lastIndex != -1 && currentIndex != -1) {
+                                final start = lastIndex < currentIndex ? lastIndex : currentIndex;
+                                final end = lastIndex < currentIndex ? currentIndex : lastIndex;
+                                final ids = layers.sublist(start, end + 1).map((c) => c.id).toList();
+
+                                context.read<EditorBloc>().add(EditorEvent.selectComponents(ids, multiSelect: true));
+                                return;
+                              }
+                            }
+                          }
+
                           final isMultiSelect =
-                              HardwareKeyboard.instance.isShiftPressed ||
-                              HardwareKeyboard.instance.isMetaPressed ||
-                              HardwareKeyboard.instance.isControlPressed;
+                              HardwareKeyboard.instance.isMetaPressed || HardwareKeyboard.instance.isControlPressed;
                           context.read<EditorBloc>().add(
                             EditorEvent.selectComponent(component.id, multiSelect: isMultiSelect),
                           );

@@ -101,7 +101,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
     return BlocProvider(
       create: (context) =>
           EditorBloc(historyCubit: null, projectRepository: null)
-            ..add(EditorEvent.loadProject(widget.project.id, project: widget.project)),
+            ..add(EditorEvent.loadProject(path: widget.project.id, project: widget.project)),
       child: BlocListener<MidiBloc, MidiState>(
         listener: (context, midiState) {
           if (midiState.lastPacket != null) {

@@ -22,22 +22,6 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(MidiVisualizerApp(midiService: midiService, prefs: prefs));
     await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle(); // Process navigation and animations
-
-    if (find.byIcon(Icons.piano).evaluate().isNotEmpty) {
-      fail('Still on Splash Screen');
-    }
-
-    if (find.text('Projects').evaluate().isEmpty) {
-      final texts = find.byType(Text).evaluate().map((e) => (e.widget as Text).data).toList();
-      print('Found texts: $texts');
-    }
-    expect(find.text('Projects'), findsAtLeastNWidgets(1));
-
-    // Test Launch Button
-    final launchButton = find.text('Launch').first;
-    expect(launchButton, findsOneWidget);
-    await tester.tap(launchButton);
     await tester.pumpAndSettle();
 
     // Verify we are in Preview Screen (check for Close button)

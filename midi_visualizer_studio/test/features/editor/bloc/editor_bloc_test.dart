@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +20,7 @@ class FakeHistoryCubit extends HistoryCubit {
 
 class FakeProjectRepository extends ProjectRepository {
   @override
-  Future<void> saveProject(Project project, String path) async {}
+  Future<void> saveProjectInternal(Project project) async {}
   @override
   Future<Project> loadProject(String path) async {
     return Project(id: 'test', name: 'Test Project', version: '1.0.0', layers: []);
@@ -197,6 +196,82 @@ void main() {
       expect(newComponent.x, 20.0); // Offset by 20
       expect(newComponent.y, 20.0);
       expect(state.selectedComponentIds, {newComponent.id});
+    });
+  });
+  group('EditorBloc Selection', () {
+    late HistoryCubit historyCubit;
+    late ProjectRepository projectRepository;
+    late EditorBloc editorBloc;
+
+    final testProject = Project(
+      id: 'test',
+      name: 'Test Project',
+      version: '1.0.0',
+      layers: [
+        const Component.pad(id: 'pad1', name: 'Pad 1', x: 0, y: 0, width: 100, height: 100),
+        const Component.pad(id: 'pad2', name: 'Pad 2', x: 100, y: 0, width: 100, height: 100),
+        const Component.pad(id: 'pad3', name: 'Pad 3', x: 200, y: 0, width: 100, height: 100),
+      ],
+    );
+
+    setUp(() {
+      historyCubit = FakeHistoryCubit();
+      projectRepository = FakeProjectRepository();
+      editorBloc = EditorBloc(historyCubit: historyCubit, projectRepository: projectRepository);
+      editorBloc.emit(EditorState(project: testProject, status: EditorStatus.ready));
+    });
+
+    tearDown(() {
+      editorBloc.close();
+    });
+
+    test('updates lastSelectedId on single selection', () async {
+      editorBloc.add(const EditorEvent.selectComponent('pad1', multiSelect: false));
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(
+          isA<EditorState>()
+              .having((s) => s.selectedComponentIds, 'selected', {'pad1'})
+              .having((s) => s.lastSelectedId, 'lastSelectedId', 'pad1'),
+        ),
+      );
+    });
+
+    test('SelectComponents replaces selection when multiSelect is false', () async {
+      // Initial selection
+      editorBloc.add(const EditorEvent.selectComponent('pad1', multiSelect: false));
+      await Future.delayed(Duration.zero);
+
+      // Select multiple (replace)
+      editorBloc.add(const EditorEvent.selectComponents(['pad2', 'pad3'], multiSelect: false));
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(
+          isA<EditorState>()
+              .having((s) => s.selectedComponentIds, 'selected', {'pad2', 'pad3'})
+              .having((s) => s.lastSelectedId, 'lastSelectedId', 'pad3'),
+        ),
+      );
+    });
+
+    test('SelectComponents adds to selection when multiSelect is true', () async {
+      // Initial selection
+      editorBloc.add(const EditorEvent.selectComponent('pad1', multiSelect: false));
+      await Future.delayed(Duration.zero);
+
+      // Add to selection
+      editorBloc.add(const EditorEvent.selectComponents(['pad2'], multiSelect: true));
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(
+          isA<EditorState>()
+              .having((s) => s.selectedComponentIds, 'selected', {'pad1', 'pad2'})
+              .having((s) => s.lastSelectedId, 'lastSelectedId', 'pad2'),
+        ),
+      );
     });
   });
 }

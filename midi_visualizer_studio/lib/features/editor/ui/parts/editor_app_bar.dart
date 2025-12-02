@@ -53,7 +53,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                 if (result != null && result.files.single.path != null) {
                   if (context.mounted) {
-                    context.read<EditorBloc>().add(EditorEvent.loadProject(result.files.single.path!));
+                    context.read<EditorBloc>().add(EditorEvent.loadProject(path: result.files.single.path!));
                   }
                 }
               },

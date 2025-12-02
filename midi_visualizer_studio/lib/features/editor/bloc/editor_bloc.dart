@@ -27,6 +27,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<UpdateComponent>(_onUpdateComponent);
     on<UpdateComponents>(_onUpdateComponents);
     on<SelectComponent>(_onSelectComponent);
+    on<SelectComponents>(_onSelectComponents);
     on<ReorderComponent>(_onReorderComponent);
     on<UpdateProjectSettings>(_onUpdateProjectSettings);
     on<ToggleMode>(_onToggleMode);
@@ -174,7 +175,29 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       currentSelected.add(event.id);
     }
 
-    emit(state.copyWith(selectedComponentIds: currentSelected));
+    emit(state.copyWith(selectedComponentIds: currentSelected, lastSelectedId: event.id));
+  }
+
+  void _onSelectComponents(SelectComponents event, Emitter<EditorState> emit) {
+    if (event.ids.isEmpty) {
+      if (!event.multiSelect) {
+        emit(state.copyWith(selectedComponentIds: {}, lastSelectedId: null));
+      }
+      return;
+    }
+
+    final currentSelected = Set<String>.from(state.selectedComponentIds);
+    if (event.multiSelect) {
+      currentSelected.addAll(event.ids);
+    } else {
+      currentSelected.clear();
+      currentSelected.addAll(event.ids);
+    }
+
+    // Update lastSelectedId to the last item in the list if available
+    final lastId = event.ids.isNotEmpty ? event.ids.last : state.lastSelectedId;
+
+    emit(state.copyWith(selectedComponentIds: currentSelected, lastSelectedId: lastId));
   }
 
   void _onReorderComponent(ReorderComponent event, Emitter<EditorState> emit) {

@@ -8,23 +8,24 @@ enum EditorStatus { initial, loading, ready, error }
 
 enum EditorMode { edit, play, overlay }
 
-enum EditorTool { select, rectangle, circle, path, bucketFill }
+enum EditorTool { select, path, bucketFill, rectangle }
 
 @freezed
 abstract class EditorState with _$EditorState {
   const factory EditorState({
     @Default(EditorStatus.initial) EditorStatus status,
     Project? project,
-    @Default({}) Set<String> selectedComponentIds,
     @Default(EditorMode.edit) EditorMode mode,
-    @Default(1.0) double zoomLevel,
     @Default(EditorTool.select) EditorTool currentTool,
+    @Default(1.0) double zoomLevel,
     @Default([]) List<Offset> currentPathPoints,
-    @Default(true) bool showGrid,
-    @Default(false) bool snapToGrid,
+    @Default(false) bool showGrid,
+    @Default(true) bool snapToGrid,
     @Default(20.0) double gridSize,
     @Default(10) int floodFillTolerance,
+    @Default({}) Set<String> selectedComponentIds,
     @Default({}) Set<String> activeComponentIds,
+    String? lastSelectedId,
     String? errorMessage,
   }) = _EditorState;
 }
