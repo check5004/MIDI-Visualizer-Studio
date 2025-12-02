@@ -9,6 +9,8 @@ import 'package:midi_visualizer_studio/features/home/bloc/home_state.dart';
 
 import 'package:file_picker/file_picker.dart';
 
+import 'package:midi_visualizer_studio/features/home/ui/widgets/project_preview.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -230,7 +232,7 @@ class _ProjectCard extends StatelessWidget {
               flex: 3,
               child: Container(
                 color: colorScheme.surfaceContainerHighest,
-                child: Center(child: Icon(Icons.grid_view, size: 48, color: colorScheme.onSurfaceVariant)),
+                child: ProjectPreview(project: project),
               ),
             ),
             Expanded(

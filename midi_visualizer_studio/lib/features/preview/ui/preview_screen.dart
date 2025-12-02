@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
-import 'package:midi_visualizer_studio/features/editor/ui/parts/canvas_view.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/painters/component_painter.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'dart:io';

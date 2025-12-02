@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +8,9 @@ import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/painters/component_painter.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/painters/grid_painter.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/painters/path_preview_painter.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/ruler_widget.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/selection_overlay.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
@@ -467,96 +470,6 @@ class SelectionRectPainter extends CustomPainter {
   }
 }
 
-class GridPainter extends CustomPainter {
-  final double gridSize;
-  final Offset origin;
-
-  GridPainter({required this.gridSize, this.origin = Offset.zero});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.withValues(alpha: 0.2)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    // Adjust start point to align with origin
-    final startX = origin.dx % gridSize;
-    final startY = origin.dy % gridSize;
-
-    for (double x = startX; x <= size.width; x += gridSize) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-
-    for (double y = startY; y <= size.height; y += gridSize) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-
-    // Draw axes
-    final axisPaint = Paint()
-      ..color = Colors.grey.withValues(alpha: 0.5)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    if (origin.dx >= 0 && origin.dx <= size.width) {
-      canvas.drawLine(Offset(origin.dx, 0), Offset(origin.dx, size.height), axisPaint);
-    }
-    if (origin.dy >= 0 && origin.dy <= size.height) {
-      canvas.drawLine(Offset(0, origin.dy), Offset(size.width, origin.dy), axisPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant GridPainter oldDelegate) =>
-      oldDelegate.gridSize != gridSize || oldDelegate.origin != origin;
-}
-
-class PathPreviewPainter extends CustomPainter {
-  final List<Offset> points;
-  final Offset origin;
-
-  PathPreviewPainter({required this.points, this.origin = Offset.zero});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (points.isEmpty) return;
-
-    final paint = Paint()
-      ..color = Colors.blue
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    final pointPaint = Paint()
-      ..color = Colors.red
-      ..style = PaintingStyle.fill;
-
-    // Translate points by origin
-    final visualPoints = points.map((p) => p + origin).toList();
-
-    for (int i = 0; i < visualPoints.length; i++) {
-      canvas.drawCircle(visualPoints[i], 4, pointPaint);
-      if (i > 0) {
-        canvas.drawLine(visualPoints[i - 1], visualPoints[i], paint);
-      }
-    }
-
-    // Close the loop preview if more than 2 points
-    if (visualPoints.length > 2) {
-      final closePaint = Paint()
-        ..color = Colors.blue.withValues(alpha: 0.5)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1;
-
-      canvas.drawLine(visualPoints.last, visualPoints.first, closePaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant PathPreviewPainter oldDelegate) {
-    return oldDelegate.points != points || oldDelegate.origin != origin;
-  }
-}
-
 class _ComponentWrapper extends StatefulWidget {
   final Component component;
   final bool isSelected;
@@ -679,136 +592,5 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
         ),
       ),
     );
-  }
-}
-
-class ComponentPainter extends CustomPainter {
-  final Component component;
-  final bool isSelected;
-  final bool isActive;
-
-  ComponentPainter({required this.component, required this.isSelected, required this.isActive});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    if (component is ComponentPad) {
-      final pad = component as ComponentPad;
-      paint.color = _parseColor(isActive ? pad.onColor : pad.offColor);
-
-      if (pad.shape == PadShape.rect) {
-        canvas.drawRect(Offset.zero & size, paint);
-      } else if (pad.shape == PadShape.circle) {
-        canvas.drawOval(Offset.zero & size, paint);
-      } else if (pad.shape == PadShape.path && pad.pathData != null) {
-        final path = _parseSvgPath(pad.pathData!);
-        // Scale path to fit size if needed, but pathData is absolute/relative to 0,0 of component
-        // Since we created path relative to minX, minY, it should fit in width/height (size)
-        canvas.drawPath(path, paint);
-      }
-      // unless we want a background or something.
-    } else if (component is ComponentKnob) {
-      _drawKnob(canvas, size, component as ComponentKnob, paint);
-    } else {
-      paint.color = Colors.orange;
-      canvas.drawRect(Offset.zero & size, paint);
-    }
-  }
-
-  void _drawKnob(Canvas canvas, Size size, ComponentKnob knob, Paint paint) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width, size.height) / 2;
-
-    // Tint Effect
-    Color knobColor = Colors.grey[800]!;
-    if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.tint && isActive) {
-      knobColor = Colors.redAccent;
-    }
-
-    paint.color = knobColor;
-    paint.style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, paint);
-
-    // Draw Vector Arc (Background)
-    if (knob.style == KnobStyle.vectorArc) {
-      final arcPaint = Paint()
-        ..color = Colors.grey[600]!
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4;
-
-      // Draw full circle background for arc
-      canvas.drawCircle(center, radius - 4, arcPaint);
-    }
-
-    // Draw Pointer / Marker
-    final pointerPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    // Rotation
-    // For absolute knobs, rotation should map value to angle.
-    // For relative knobs (spin), rotation is updated by state.
-    // Currently ComponentKnob has 'rotation' property which is usually for the component itself (orientation).
-    // But for Spin effect, we are using it as the current angle.
-    // For normal knobs, we might need a 'value' property which maps to angle.
-    // But `ComponentKnob` doesn't have a 'value' property in the model yet (it's stateless mostly).
-    // However, for visualization, we might want to show the last received value?
-    // The spec says "Visual feedback".
-    // For now, let's use `rotation` as the indicator angle.
-
-    final angle = knob.rotation; // This is in radians
-
-    final pointerEnd = Offset(center.dx + (radius * 0.7) * cos(angle), center.dy + (radius * 0.7) * sin(angle));
-
-    canvas.drawLine(center, pointerEnd, pointerPaint);
-
-    // Draw a dot at the end
-    final dotPaint = Paint()..color = Colors.white;
-    canvas.drawCircle(pointerEnd, 4, dotPaint);
-  }
-
-  Path _parseSvgPath(String pathData) {
-    // Simple parser for M and L commands
-    final path = Path();
-    final parts = pathData.split(' ');
-
-    if (parts.isEmpty) return path;
-
-    for (int i = 0; i < parts.length; i++) {
-      final cmd = parts[i];
-      if (cmd == 'M') {
-        final x = double.parse(parts[++i]);
-        final y = double.parse(parts[++i]);
-        path.moveTo(x, y);
-      } else if (cmd == 'L') {
-        final x = double.parse(parts[++i]);
-        final y = double.parse(parts[++i]);
-        path.lineTo(x, y);
-      } else if (cmd == 'Z') {
-        path.close();
-      }
-    }
-    return path;
-  }
-
-  Color _parseColor(String hexString) {
-    try {
-      final buffer = StringBuffer();
-      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-      buffer.write(hexString.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (e) {
-      return Colors.white;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant ComponentPainter oldDelegate) {
-    return oldDelegate.component != component ||
-        oldDelegate.isSelected != isSelected ||
-        oldDelegate.isActive != isActive;
   }
 }
