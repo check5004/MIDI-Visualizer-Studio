@@ -143,29 +143,25 @@ class _PreviewScreenState extends State<PreviewScreen> {
 
                             return Stack(
                               children: [
-                                // Translate content so that top-left is at (0,0) of the SizedBox
-                                Transform.translate(
-                                  offset: Offset(-_contentBounds.left, -_contentBounds.top),
-                                  child: Stack(
-                                    children: project.layers.map((component) {
-                                      if (!component.isVisible) return const SizedBox();
+                                Stack(
+                                  children: project.layers.map((component) {
+                                    if (!component.isVisible) return const SizedBox();
 
-                                      final isActive = state.activeComponentIds.contains(component.id);
+                                    final isActive = state.activeComponentIds.contains(component.id);
 
-                                      return Positioned(
-                                        left: component.x,
-                                        top: component.y,
-                                        child: CustomPaint(
-                                          painter: ComponentPainter(
-                                            component: component,
-                                            isSelected: false,
-                                            isActive: isActive,
-                                          ),
-                                          size: Size(component.width, component.height),
+                                    return Positioned(
+                                      left: component.x - _contentBounds.left,
+                                      top: component.y - _contentBounds.top,
+                                      child: CustomPaint(
+                                        painter: ComponentPainter(
+                                          component: component,
+                                          isSelected: false,
+                                          isActive: isActive,
                                         ),
-                                      );
-                                    }).toList(),
-                                  ),
+                                        size: Size(component.width, component.height),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
                               ],
                             );

@@ -43,27 +43,23 @@ class ProjectPreview extends StatelessWidget {
               height: contentBounds.height,
               child: Stack(
                 children: [
-                  // Translate content so that top-left is at (0,0) of the SizedBox
-                  Transform.translate(
-                    offset: Offset(-contentBounds.left, -contentBounds.top),
-                    child: Stack(
-                      children: project.layers.map((component) {
-                        if (!component.isVisible) return const SizedBox();
+                  Stack(
+                    children: project.layers.map((component) {
+                      if (!component.isVisible) return const SizedBox();
 
-                        return Positioned(
-                          left: component.x,
-                          top: component.y,
-                          child: CustomPaint(
-                            painter: ComponentPainter(
-                              component: component,
-                              isSelected: false,
-                              isActive: false, // Preview is static
-                            ),
-                            size: Size(component.width, component.height),
+                      return Positioned(
+                        left: component.x - contentBounds.left,
+                        top: component.y - contentBounds.top,
+                        child: CustomPaint(
+                          painter: ComponentPainter(
+                            component: component,
+                            isSelected: false,
+                            isActive: false, // Preview is static
                           ),
-                        );
-                      }).toList(),
-                    ),
+                          size: Size(component.width, component.height),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
