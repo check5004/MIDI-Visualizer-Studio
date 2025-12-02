@@ -18,6 +18,8 @@ abstract class EditorState with _$EditorState {
     @Default(EditorMode.edit) EditorMode mode,
     @Default(EditorTool.select) EditorTool currentTool,
     @Default(1.0) double zoomLevel,
+    @Default(Offset.zero) Offset viewOffset,
+    @Default(Size.zero) Size viewportSize,
     @Default([]) List<Offset> currentPathPoints,
     @Default(false) bool showGrid,
     @Default(true) bool snapToGrid,

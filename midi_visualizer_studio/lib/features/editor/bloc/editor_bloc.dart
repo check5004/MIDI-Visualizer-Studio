@@ -23,6 +23,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       _projectRepository = projectRepository,
       super(const EditorState()) {
     on<LoadProject>(_onLoadProject);
+    on<UpdateViewTransform>(_onUpdateViewTransform);
+    on<UpdateViewportSize>(_onUpdateViewportSize);
+    on<CenterOnContent>(_onCenterOnContent);
     on<AddComponent>(_onAddComponent);
     on<UpdateComponent>(_onUpdateComponent);
     on<UpdateComponents>(_onUpdateComponents);
@@ -78,7 +81,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     }
   }
 
-  // ... (previous handlers)
+  Future<void> _onUpdateViewTransform(UpdateViewTransform event, Emitter<EditorState> emit) async {
+    emit(state.copyWith(zoomLevel: event.zoom, viewOffset: event.offset));
+  }
+
+  void _onUpdateViewportSize(UpdateViewportSize event, Emitter<EditorState> emit) {
+    emit(state.copyWith(viewportSize: event.size));
+  }
+
+  void _onCenterOnContent(CenterOnContent event, Emitter<EditorState> emit) {
+    // Logic handled by CanvasView usually, but if needed here:
+    // We would need to calculate transform and emit UpdateViewTransform
+  }
 
   Future<void> _onSaveProject(SaveProject event, Emitter<EditorState> emit) async {
     final project = state.project;
@@ -125,7 +139,24 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (project == null) return;
 
     _recordHistory();
-    final updatedLayers = [...project.layers, event.component];
+
+    // Calculate center
+    final scale = state.zoomLevel;
+    final viewportW = state.viewportSize.width > 0 ? state.viewportSize.width : 800.0;
+    final viewportH = state.viewportSize.height > 0 ? state.viewportSize.height : 600.0;
+    final t = state.viewOffset;
+    final pScreen = Offset(viewportW / 2, viewportH / 2);
+    final kCanvasOrigin = 5000.0;
+
+    final pDataX = ((pScreen.dx - t.dx) / scale) - kCanvasOrigin;
+    final pDataY = ((pScreen.dy - t.dy) / scale) - kCanvasOrigin;
+
+    final component = event.component.copyWith(
+      x: pDataX - event.component.width / 2,
+      y: pDataY - event.component.height / 2,
+    );
+
+    final updatedLayers = [...project.layers, component];
     emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
   }
 
@@ -734,11 +765,31 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         final component = Component.fromJson(item as Map<String, dynamic>);
         final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
 
-        // Offset position slightly to make it visible
+        // Calculate center position based on viewOffset and viewportSize
+        final scale = state.zoomLevel;
+        final viewportW = state.viewportSize.width > 0 ? state.viewportSize.width : 800.0;
+        final viewportH = state.viewportSize.height > 0 ? state.viewportSize.height : 600.0;
+
+        // Center of viewport in screen coordinates is (viewportW/2, viewportH/2)
+        // P_screen = s * (P_data + kCanvasOrigin) + t
+        // P_screen - t = s * (P_data + kCanvasOrigin)
+        // (P_screen - t) / s = P_data + kCanvasOrigin
+        // P_data = ((P_screen - t) / s) - kCanvasOrigin
+
+        final t = state.viewOffset;
+        final pScreen = Offset(viewportW / 2, viewportH / 2);
+        final kCanvasOrigin = 5000.0; // Hardcoded to match CanvasView
+
+        final pDataX = ((pScreen.dx - t.dx) / scale) - kCanvasOrigin;
+        final pDataY = ((pScreen.dy - t.dy) / scale) - kCanvasOrigin;
+
+        final centerX = pDataX;
+        final centerY = pDataY;
+
         final newComponent = component.copyWith(
           id: newId,
-          x: component.x + 20,
-          y: component.y + 20,
+          x: centerX + (newComponents.length * 20),
+          y: centerY + (newComponents.length * 20),
           name: '${component.name} (Copy)',
         );
 

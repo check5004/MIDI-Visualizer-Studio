@@ -57,6 +57,15 @@ class MockProjectRepository extends _i1.Mock implements _i3.ProjectRepository {
           as _i4.Future<void>);
 
   @override
+  _i4.Future<void> importProject(String? sourcePath) =>
+      (super.noSuchMethod(
+            Invocation.method(#importProject, [sourcePath]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
   _i4.Future<_i2.Project> loadProject(String? path) =>
       (super.noSuchMethod(
             Invocation.method(#loadProject, [path]),

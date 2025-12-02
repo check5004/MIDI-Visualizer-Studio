@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math'; // Added for min/max functions
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,8 @@ class _CanvasViewState extends State<CanvasView> {
   bool _isMiddleClicking = false;
   Offset? _lastMousePos;
   Offset _selectionDragDelta = Offset.zero;
+  bool _hasCentered = false;
+  String? _lastProjectId;
 
   static const double kCanvasSize = 10000.0;
   static const double kCanvasOrigin = kCanvasSize / 2;
@@ -42,6 +45,8 @@ class _CanvasViewState extends State<CanvasView> {
   void initState() {
     super.initState();
     // Center the view initially
+    // The initial centering logic is now handled by LayoutBuilder and _hasCentered flag.
+    // This initial matrix will be overwritten.
     final matrix = Matrix4.identity()
       ..translate(-kCanvasOrigin + 400, -kCanvasOrigin + 300) // Approximate center of viewport
       ..scale(1.0);
@@ -57,17 +62,29 @@ class _CanvasViewState extends State<CanvasView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<EditorBloc, EditorState>(
-      listenWhen: (previous, current) => previous.zoomLevel != current.zoomLevel,
+      listenWhen: (previous, current) =>
+          previous.zoomLevel != current.zoomLevel ||
+          previous.viewOffset != current.viewOffset ||
+          previous.project != current.project, // Keep this for project change detection
       listener: (context, state) {
-        if (_transformationController.value.getMaxScaleOnAxis() != state.zoomLevel) {
-          // Maintain center when zooming programmatically?
-          // For now just scale, but we might need to be smarter about pivot.
-          final currentMatrix = _transformationController.value;
-          final currentScale = currentMatrix.getMaxScaleOnAxis();
-          final scaleChange = state.zoomLevel / currentScale;
+        // Reset _hasCentered flag if the project changes
+        if (state.project?.id != _lastProjectId) {
+          _hasCentered = false;
+          _lastProjectId = state.project?.id;
+        }
 
-          final matrix = currentMatrix.clone()..scale(scaleChange);
-          _transformationController.value = matrix;
+        final currentMatrix = _transformationController.value;
+        final currentScale = currentMatrix.getMaxScaleOnAxis();
+        final currentTranslation = currentMatrix.getTranslation();
+
+        final scaleDiff = (currentScale - state.zoomLevel).abs();
+        final transDiff = (Offset(currentTranslation.x, currentTranslation.y) - state.viewOffset).distance;
+
+        if (scaleDiff > 0.001 || transDiff > 1.0) {
+          final newMatrix = Matrix4.identity()
+            ..translate(state.viewOffset.dx, state.viewOffset.dy)
+            ..scale(state.zoomLevel);
+          _transformationController.value = newMatrix;
         }
       },
       builder: (context, state) {
@@ -113,273 +130,395 @@ class _CanvasViewState extends State<CanvasView> {
                   // Canvas
                   Expanded(
                     child: Container(
-                      color: Colors.grey[900], // Dark background for canvas area
-                      child: Listener(
-                        onPointerDown: (event) {
-                          if (event.buttons == kMiddleMouseButton) {
-                            _isMiddleClicking = true;
-                            _lastMousePos = event.position;
+                      color: Colors.grey[900],
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Update viewport size in Bloc
+                          if (state.viewportSize.width != constraints.maxWidth ||
+                              state.viewportSize.height != constraints.maxHeight) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              context.read<EditorBloc>().add(
+                                EditorEvent.updateViewportSize(Size(constraints.maxWidth, constraints.maxHeight)),
+                              );
+                            });
                           }
-                        },
-                        onPointerMove: (event) {
-                          if (_isMiddleClicking && _lastMousePos != null) {
-                            final delta = event.position - _lastMousePos!;
-                            _lastMousePos = event.position;
 
-                            final matrix = _transformationController.value.clone();
-                            final scale = matrix.getMaxScaleOnAxis();
-                            matrix.translate(delta.dx / scale, delta.dy / scale);
-                            _transformationController.value = matrix;
-                          }
-                        },
-                        onPointerUp: (event) {
-                          if (_isMiddleClicking) {
-                            _isMiddleClicking = false;
-                            _lastMousePos = null;
-                          }
-                        },
-                        onPointerSignal: (event) {
-                          if (event is PointerScrollEvent) {
-                            final matrix = _transformationController.value.clone();
-                            final scale = matrix.getMaxScaleOnAxis();
+                          if (!_hasCentered && project.layers.isNotEmpty) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (!mounted) return;
 
-                            if (event.scrollDelta.dy != 0) {
-                              if (HardwareKeyboard.instance.isControlPressed ||
-                                  HardwareKeyboard.instance.isMetaPressed) {
-                                // Zoom
-                                final zoomFactor = event.scrollDelta.dy > 0 ? 0.9 : 1.1;
-                                final newScale = (scale * zoomFactor).clamp(0.1, 5.0);
-                                context.read<EditorBloc>().add(EditorEvent.setZoom(newScale));
-                              } else if (HardwareKeyboard.instance.isShiftPressed) {
-                                // Pan X
-                                matrix.translate(-event.scrollDelta.dy / scale, 0.0);
-                                _transformationController.value = matrix;
-                              } else {
-                                // Pan Y
-                                matrix.translate(0.0, -event.scrollDelta.dy / scale);
+                              // Calculate bounding box of all layers
+                              double minX = double.infinity;
+                              double minY = double.infinity;
+                              double maxX = double.negativeInfinity;
+                              double maxY = double.negativeInfinity;
+
+                              for (final layer in project.layers) {
+                                minX = min(minX, layer.x);
+                                minY = min(minY, layer.y);
+                                maxX = max(maxX, (layer.x + layer.width));
+                                maxY = max(maxY, (layer.y + layer.height));
+                              }
+
+                              // Add padding
+                              const padding = 50.0;
+                              final contentWidth = maxX - minX + padding * 2;
+                              final contentHeight = maxY - minY + padding * 2;
+
+                              // Calculate scale to fit
+                              final scaleX = constraints.maxWidth / contentWidth;
+                              final scaleY = constraints.maxHeight / contentHeight;
+                              final scale = (scaleX < scaleY ? scaleX : scaleY).clamp(0.1, 2.0); // Clamp scale
+
+                              // Calculate center of content in data coordinates
+                              final contentCenterX = minX + (maxX - minX) / 2;
+                              final contentCenterY = minY + (maxY - minY) / 2;
+
+                              // We want contentCenter to be at viewport center
+                              // P_screen = s * (P_data + kCanvasOrigin) + t
+                              // viewportCenter = s * (contentCenter + kCanvasOrigin) + t
+                              // t = viewportCenter - s * (contentCenter + kCanvasOrigin)
+
+                              final viewportCenter = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+                              final contentCenter = Offset(contentCenterX, contentCenterY);
+
+                              final t = viewportCenter - (contentCenter + Offset(kCanvasOrigin, kCanvasOrigin)) * scale;
+
+                              final newMatrix = Matrix4.identity()
+                                ..translate(t.dx, t.dy)
+                                ..scale(scale);
+
+                              _transformationController.value = newMatrix;
+
+                              context.read<EditorBloc>().add(EditorEvent.updateViewTransform(scale, t));
+
+                              setState(() {
+                                _hasCentered = true;
+                              });
+                            });
+                          } else if (!_hasCentered && project.layers.isEmpty) {
+                            // Center on origin (0,0)
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (!mounted) return;
+                              final scale = 1.0;
+                              final viewportCenter = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+                              final t = viewportCenter - Offset(kCanvasOrigin, kCanvasOrigin) * scale;
+
+                              final newMatrix = Matrix4.identity()
+                                ..translate(t.dx, t.dy)
+                                ..scale(scale);
+
+                              _transformationController.value = newMatrix;
+
+                              context.read<EditorBloc>().add(EditorEvent.updateViewTransform(scale, t));
+
+                              setState(() {
+                                _hasCentered = true;
+                              });
+                            });
+                          }
+
+                          return Listener(
+                            onPointerDown: (event) {
+                              if (event.buttons == kMiddleMouseButton) {
+                                _isMiddleClicking = true;
+                                _lastMousePos = event.position;
+                              }
+                            },
+                            onPointerMove: (event) {
+                              if (_isMiddleClicking && _lastMousePos != null) {
+                                final delta = event.position - _lastMousePos!;
+                                _lastMousePos = event.position;
+
+                                final matrix = _transformationController.value.clone();
+                                final scale = matrix.getMaxScaleOnAxis();
+                                matrix.translate(delta.dx / scale, delta.dy / scale);
                                 _transformationController.value = matrix;
                               }
-                            }
-                          }
-                        },
-                        child: InteractiveViewer(
-                          transformationController: _transformationController,
-                          boundaryMargin: const EdgeInsets.all(double.infinity),
-                          minScale: 0.1,
-                          maxScale: 5.0,
-                          constrained: false,
-                          panEnabled: false, // Disable default pan (Left Click Drag)
-                          scaleEnabled: false, // Disable default scale (Pinch/Scroll Zoom) - we handle it manually
-                          onInteractionEnd: (details) {
-                            context.read<EditorBloc>().add(
-                              EditorEvent.setZoom(_transformationController.value.getMaxScaleOnAxis()),
-                            );
-                          },
-                          child: GestureDetector(
-                            onTapUp: (details) {
-                              // Convert local position to data coordinates
-                              final dataPos = details.localPosition - const Offset(kCanvasOrigin, kCanvasOrigin);
+                            },
+                            onPointerUp: (event) {
+                              if (_isMiddleClicking) {
+                                _isMiddleClicking = false;
+                                _lastMousePos = null;
 
-                              if (state.currentTool == EditorTool.path) {
-                                context.read<EditorBloc>().add(EditorEvent.addPathPoint(dataPos));
-                              } else {
+                                final matrix = _transformationController.value;
+                                final scale = matrix.getMaxScaleOnAxis();
+                                final translation = matrix.getTranslation();
                                 context.read<EditorBloc>().add(
-                                  const EditorEvent.selectComponent('', multiSelect: false),
+                                  EditorEvent.updateViewTransform(scale, Offset(translation.x, translation.y)),
                                 );
                               }
                             },
-                            onDoubleTap: () {
-                              if (state.currentTool == EditorTool.path) {
-                                context.read<EditorBloc>().add(const EditorEvent.finishPath());
-                              }
-                            },
-                            onSecondaryTapUp: (details) {
-                              _showContextMenu(context, details.globalPosition);
-                            },
-                            onPanStart: (details) {
-                              if (state.currentTool == EditorTool.select) {
-                                setState(() {
-                                  _isSelecting = true;
-                                  _selectionStart = details.localPosition;
-                                  _selectionEnd = details.localPosition;
-                                });
-                              }
-                            },
-                            onPanUpdate: (details) {
-                              if (_isSelecting) {
-                                setState(() {
-                                  _selectionEnd = details.localPosition;
-                                });
-                              }
-                            },
-                            onPanEnd: (details) {
-                              if (_isSelecting && _selectionStart != null && _selectionEnd != null) {
-                                final selectionRect = Rect.fromPoints(_selectionStart!, _selectionEnd!);
-                                final selectedIds = <String>[];
+                            onPointerSignal: (event) {
+                              if (event is PointerScrollEvent) {
+                                if (event.scrollDelta.dy != 0) {
+                                  if (HardwareKeyboard.instance.isControlPressed ||
+                                      HardwareKeyboard.instance.isMetaPressed) {
+                                    // Mouse-centric Zoom
+                                    final zoomFactor = event.scrollDelta.dy > 0 ? 0.9 : 1.1;
+                                    final currentMatrix = _transformationController.value;
+                                    final currentScale = currentMatrix.getMaxScaleOnAxis();
+                                    final newScale = (currentScale * zoomFactor).clamp(0.1, 5.0);
 
-                                for (final component in project.layers) {
-                                  final componentRect = Rect.fromLTWH(
-                                    component.x + kCanvasOrigin,
-                                    component.y + kCanvasOrigin,
-                                    component.width,
-                                    component.height,
-                                  );
+                                    final mousePos = event.localPosition;
+                                    final translation = currentMatrix.getTranslation();
+                                    final tOffset = Offset(translation.x, translation.y);
 
-                                  if (selectionRect.overlaps(componentRect)) {
-                                    selectedIds.add(component.id);
+                                    final pScene = (mousePos - tOffset) / currentScale;
+                                    final newTOffset = mousePos - pScene * newScale;
+
+                                    final newMatrix = Matrix4.identity()
+                                      ..translate(newTOffset.dx, newTOffset.dy)
+                                      ..scale(newScale);
+
+                                    _transformationController.value = newMatrix;
+
+                                    context.read<EditorBloc>().add(
+                                      EditorEvent.updateViewTransform(newScale, newTOffset),
+                                    );
+                                  } else if (HardwareKeyboard.instance.isShiftPressed) {
+                                    // Pan X
+                                    final matrix = _transformationController.value.clone();
+                                    final scale = matrix.getMaxScaleOnAxis();
+                                    matrix.translate(-event.scrollDelta.dy / scale, 0.0);
+                                    _transformationController.value = matrix;
+
+                                    final translation = matrix.getTranslation();
+                                    context.read<EditorBloc>().add(
+                                      EditorEvent.updateViewTransform(scale, Offset(translation.x, translation.y)),
+                                    );
+                                  } else {
+                                    // Pan Y
+                                    final matrix = _transformationController.value.clone();
+                                    final scale = matrix.getMaxScaleOnAxis();
+                                    matrix.translate(0.0, -event.scrollDelta.dy / scale);
+                                    _transformationController.value = matrix;
+
+                                    final translation = matrix.getTranslation();
+                                    context.read<EditorBloc>().add(
+                                      EditorEvent.updateViewTransform(scale, Offset(translation.x, translation.y)),
+                                    );
                                   }
                                 }
-
-                                final isMultiSelect =
-                                    HardwareKeyboard.instance.isShiftPressed ||
-                                    HardwareKeyboard.instance.isMetaPressed ||
-                                    HardwareKeyboard.instance.isControlPressed;
-
-                                context.read<EditorBloc>().add(
-                                  EditorEvent.selectComponents(selectedIds, multiSelect: isMultiSelect),
-                                );
-
-                                setState(() {
-                                  _isSelecting = false;
-                                  _selectionStart = null;
-                                  _selectionEnd = null;
-                                });
                               }
                             },
-                            child: BlocBuilder<SettingsBloc, SettingsState>(
-                              builder: (context, settingsState) {
-                                return Container(
-                                  // Large virtual canvas size
-                                  width: kCanvasSize,
-                                  height: kCanvasSize,
-                                  color: Color(settingsState.editorBackgroundColor),
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      // Grid (only in Edit mode)
-                                      if (state.mode == EditorMode.edit && state.showGrid)
-                                        Positioned.fill(
-                                          child: CustomPaint(
-                                            painter: GridPainter(
-                                              gridSize: state.gridSize,
-                                              origin: const Offset(kCanvasOrigin, kCanvasOrigin),
-                                            ),
-                                          ),
-                                        ),
-                                      // Path Preview
-                                      if (state.currentTool == EditorTool.path && state.currentPathPoints.isNotEmpty)
-                                        Positioned.fill(
-                                          child: CustomPaint(
-                                            painter: PathPreviewPainter(
-                                              points: state.currentPathPoints,
-                                              origin: const Offset(kCanvasOrigin, kCanvasOrigin),
-                                            ),
-                                          ),
-                                        ),
-
-                                      // Layers
-                                      ...project.layers.map((component) {
-                                        if (!component.isVisible) return const SizedBox();
-
-                                        final isSelected = state.selectedComponentIds.contains(component.id);
-                                        final isActive = state.activeComponentIds.contains(component.id);
-                                        final padding = isSelected ? CanvasView.kHandlePadding : 0.0;
-
-                                        // Translate data coordinates to visual coordinates
-                                        final visualX = component.x + kCanvasOrigin;
-                                        final visualY = component.y + kCanvasOrigin;
-
-                                        return Positioned(
-                                          left: visualX - padding,
-                                          top: visualY - padding,
-                                          child: RepaintBoundary(
-                                            child: _ComponentWrapper(
-                                              key: ValueKey(component.id),
-                                              component: component,
-                                              isSelected: isSelected,
-                                              isActive: isActive,
-                                              gridSize: state.gridSize,
-                                              snapToGrid: state.snapToGrid,
-                                              padding: padding,
-                                              dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
-                                              onDragStart: (details) {
-                                                if (!isSelected) return;
-                                                setState(() {
-                                                  _selectionDragDelta = Offset.zero;
-                                                });
-                                              },
-                                              onDragUpdate: (details) {
-                                                if (!isSelected) return;
-                                                setState(() {
-                                                  _selectionDragDelta += details.delta;
-                                                });
-                                              },
-                                              onSecondaryTapUp: (details) {
-                                                if (!isSelected) {
-                                                  context.read<EditorBloc>().add(
-                                                    EditorEvent.selectComponent(component.id, multiSelect: false),
-                                                  );
-                                                }
-                                                _showContextMenu(context, details.globalPosition);
-                                              },
-                                              onDragEnd: (details) {
-                                                if (!isSelected) return;
-
-                                                final selectedIds = state.selectedComponentIds;
-                                                final project = state.project;
-                                                if (project == null) return;
-
-                                                final updates = <Component>[];
-
-                                                for (final id in selectedIds) {
-                                                  final comp = project.layers.firstWhere(
-                                                    (c) => c.id == id,
-                                                    orElse: () => throw Exception('Component not found'),
-                                                  );
-
-                                                  double newX = comp.x + _selectionDragDelta.dx;
-                                                  double newY = comp.y + _selectionDragDelta.dy;
-
-                                                  if (state.snapToGrid) {
-                                                    newX = (newX / state.gridSize).round() * state.gridSize;
-                                                    newY = (newY / state.gridSize).round() * state.gridSize;
-                                                  }
-
-                                                  final updated = comp.map(
-                                                    pad: (c) => c.copyWith(x: newX, y: newY),
-                                                    knob: (c) => c.copyWith(x: newX, y: newY),
-                                                    staticImage: (c) => c.copyWith(x: newX, y: newY),
-                                                  );
-                                                  updates.add(updated);
-                                                }
-
-                                                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
-
-                                                setState(() {
-                                                  _selectionDragDelta = Offset.zero;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      }),
-
-                                      // Selection Rectangle
-                                      if (_isSelecting && _selectionStart != null && _selectionEnd != null)
-                                        Positioned.fill(
-                                          child: CustomPaint(
-                                            painter: SelectionRectPainter(
-                                              rect: Rect.fromPoints(_selectionStart!, _selectionEnd!),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                            child: InteractiveViewer(
+                              transformationController: _transformationController,
+                              boundaryMargin: const EdgeInsets.all(double.infinity),
+                              minScale: 0.1,
+                              maxScale: 5.0,
+                              constrained: false,
+                              panEnabled: false,
+                              scaleEnabled: false,
+                              onInteractionEnd: (details) {
+                                final matrix = _transformationController.value;
+                                final scale = matrix.getMaxScaleOnAxis();
+                                final translation = matrix.getTranslation();
+                                context.read<EditorBloc>().add(
+                                  EditorEvent.updateViewTransform(scale, Offset(translation.x, translation.y)),
                                 );
                               },
+                              child: GestureDetector(
+                                onTapUp: (details) {
+                                  final dataPos = details.localPosition - const Offset(kCanvasOrigin, kCanvasOrigin);
+
+                                  if (state.currentTool == EditorTool.path) {
+                                    context.read<EditorBloc>().add(EditorEvent.addPathPoint(dataPos));
+                                  } else {
+                                    context.read<EditorBloc>().add(
+                                      const EditorEvent.selectComponent('', multiSelect: false),
+                                    );
+                                  }
+                                },
+                                onDoubleTap: () {
+                                  if (state.currentTool == EditorTool.path) {
+                                    context.read<EditorBloc>().add(const EditorEvent.finishPath());
+                                  }
+                                },
+                                onSecondaryTapUp: (details) {
+                                  _showContextMenu(context, details.globalPosition);
+                                },
+                                onPanStart: (details) {
+                                  if (state.currentTool == EditorTool.select) {
+                                    setState(() {
+                                      _isSelecting = true;
+                                      _selectionStart = details.localPosition;
+                                      _selectionEnd = details.localPosition;
+                                    });
+                                  }
+                                },
+                                onPanUpdate: (details) {
+                                  if (_isSelecting) {
+                                    setState(() {
+                                      _selectionEnd = details.localPosition;
+                                    });
+                                  }
+                                },
+                                onPanEnd: (details) {
+                                  if (_isSelecting && _selectionStart != null && _selectionEnd != null) {
+                                    final selectionRect = Rect.fromPoints(_selectionStart!, _selectionEnd!);
+                                    final selectedIds = <String>[];
+
+                                    for (final component in project.layers) {
+                                      final componentRect = Rect.fromLTWH(
+                                        component.x + kCanvasOrigin,
+                                        component.y + kCanvasOrigin,
+                                        component.width,
+                                        component.height,
+                                      );
+
+                                      if (selectionRect.overlaps(componentRect)) {
+                                        selectedIds.add(component.id);
+                                      }
+                                    }
+
+                                    final isMultiSelect =
+                                        HardwareKeyboard.instance.isShiftPressed ||
+                                        HardwareKeyboard.instance.isMetaPressed ||
+                                        HardwareKeyboard.instance.isControlPressed;
+
+                                    context.read<EditorBloc>().add(
+                                      EditorEvent.selectComponents(selectedIds, multiSelect: isMultiSelect),
+                                    );
+
+                                    setState(() {
+                                      _isSelecting = false;
+                                      _selectionStart = null;
+                                      _selectionEnd = null;
+                                    });
+                                  }
+                                },
+                                child: BlocBuilder<SettingsBloc, SettingsState>(
+                                  builder: (context, settingsState) {
+                                    return Container(
+                                      width: kCanvasSize,
+                                      height: kCanvasSize,
+                                      color: Color(settingsState.editorBackgroundColor),
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          if (state.mode == EditorMode.edit && state.showGrid)
+                                            Positioned.fill(
+                                              child: CustomPaint(
+                                                painter: GridPainter(
+                                                  gridSize: state.gridSize,
+                                                  origin: const Offset(kCanvasOrigin, kCanvasOrigin),
+                                                ),
+                                              ),
+                                            ),
+                                          if (state.currentTool == EditorTool.path &&
+                                              state.currentPathPoints.isNotEmpty)
+                                            Positioned.fill(
+                                              child: CustomPaint(
+                                                painter: PathPreviewPainter(
+                                                  points: state.currentPathPoints,
+                                                  origin: const Offset(kCanvasOrigin, kCanvasOrigin),
+                                                ),
+                                              ),
+                                            ),
+                                          ...project.layers.map((component) {
+                                            if (!component.isVisible) return const SizedBox();
+
+                                            final isSelected = state.selectedComponentIds.contains(component.id);
+                                            final isActive = state.activeComponentIds.contains(component.id);
+                                            final padding = isSelected ? CanvasView.kHandlePadding : 0.0;
+
+                                            final visualX = component.x + kCanvasOrigin;
+                                            final visualY = component.y + kCanvasOrigin;
+
+                                            return Positioned(
+                                              left: visualX - padding,
+                                              top: visualY - padding,
+                                              child: RepaintBoundary(
+                                                child: _ComponentWrapper(
+                                                  key: ValueKey(component.id),
+                                                  component: component,
+                                                  isSelected: isSelected,
+                                                  isActive: isActive,
+                                                  gridSize: state.gridSize,
+                                                  snapToGrid: state.snapToGrid,
+                                                  padding: padding,
+                                                  dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
+                                                  onDragStart: (details) {
+                                                    if (!isSelected) return;
+                                                    setState(() {
+                                                      _selectionDragDelta = Offset.zero;
+                                                    });
+                                                  },
+                                                  onDragUpdate: (details) {
+                                                    if (!isSelected) return;
+                                                    setState(() {
+                                                      _selectionDragDelta += details.delta;
+                                                    });
+                                                  },
+                                                  onSecondaryTapUp: (details) {
+                                                    if (!isSelected) {
+                                                      context.read<EditorBloc>().add(
+                                                        EditorEvent.selectComponent(component.id, multiSelect: false),
+                                                      );
+                                                    }
+                                                    _showContextMenu(context, details.globalPosition);
+                                                  },
+                                                  onDragEnd: (details) {
+                                                    if (!isSelected) return;
+
+                                                    final selectedIds = state.selectedComponentIds;
+                                                    final project = state.project;
+                                                    if (project == null) return;
+
+                                                    final updates = <Component>[];
+
+                                                    for (final id in selectedIds) {
+                                                      final comp = project.layers.firstWhere(
+                                                        (c) => c.id == id,
+                                                        orElse: () => throw Exception('Component not found'),
+                                                      );
+
+                                                      double newX = comp.x + _selectionDragDelta.dx;
+                                                      double newY = comp.y + _selectionDragDelta.dy;
+
+                                                      if (state.snapToGrid) {
+                                                        newX = (newX / state.gridSize).round() * state.gridSize;
+                                                        newY = (newY / state.gridSize).round() * state.gridSize;
+                                                      }
+
+                                                      final updated = comp.map(
+                                                        pad: (c) => c.copyWith(x: newX, y: newY),
+                                                        knob: (c) => c.copyWith(x: newX, y: newY),
+                                                        staticImage: (c) => c.copyWith(x: newX, y: newY),
+                                                      );
+                                                      updates.add(updated);
+                                                    }
+
+                                                    context.read<EditorBloc>().add(
+                                                      EditorEvent.updateComponents(updates),
+                                                    );
+
+                                                    setState(() {
+                                                      _selectionDragDelta = Offset.zero;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                          if (_isSelecting && _selectionStart != null && _selectionEnd != null)
+                                            Positioned.fill(
+                                              child: CustomPaint(
+                                                painter: SelectionRectPainter(
+                                                  rect: Rect.fromPoints(_selectionStart!, _selectionEnd!),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -452,7 +591,7 @@ class SelectionRectPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blue.withValues(alpha: 0.2)
+      ..color = Colors.blue.withOpacity(0.2)
       ..style = PaintingStyle.fill;
 
     final borderPaint = Paint()

@@ -10,6 +10,9 @@ part 'editor_event.freezed.dart';
 @freezed
 class EditorEvent with _$EditorEvent {
   const factory EditorEvent.loadProject({Project? project, @Default('') String path}) = LoadProject;
+  const factory EditorEvent.updateViewTransform(double zoom, Offset offset) = UpdateViewTransform;
+  const factory EditorEvent.updateViewportSize(Size size) = UpdateViewportSize;
+  const factory EditorEvent.centerOnContent() = CenterOnContent;
   const factory EditorEvent.addComponent(Component component) = AddComponent;
   const factory EditorEvent.updateComponent(String id, Component component) = UpdateComponent;
   const factory EditorEvent.updateComponents(List<Component> components) = UpdateComponents;
