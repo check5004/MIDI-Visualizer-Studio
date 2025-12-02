@@ -62,7 +62,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<InteractionEnd>(_onInteractionEnd);
   }
 
-  Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
+  Future<void> _onLoadProject(
+    LoadProject event,
+    Emitter<EditorState> emit,
+  ) async {
     try {
       Project? project;
       if (event.project != null) {
@@ -72,21 +75,43 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       }
 
       if (project != null) {
-        emit(state.copyWith(status: EditorStatus.ready, project: project, errorMessage: null));
+        emit(
+          state.copyWith(
+            status: EditorStatus.ready,
+            project: project,
+            errorMessage: null,
+          ),
+        );
         _recordHistory();
       } else {
-        emit(state.copyWith(status: EditorStatus.error, errorMessage: 'Failed to load project: Project not found'));
+        emit(
+          state.copyWith(
+            status: EditorStatus.error,
+            errorMessage: 'Failed to load project: Project not found',
+          ),
+        );
       }
     } catch (e) {
-      emit(state.copyWith(status: EditorStatus.error, errorMessage: 'Failed to load project: $e'));
+      emit(
+        state.copyWith(
+          status: EditorStatus.error,
+          errorMessage: 'Failed to load project: $e',
+        ),
+      );
     }
   }
 
-  Future<void> _onUpdateViewTransform(UpdateViewTransform event, Emitter<EditorState> emit) async {
+  Future<void> _onUpdateViewTransform(
+    UpdateViewTransform event,
+    Emitter<EditorState> emit,
+  ) async {
     emit(state.copyWith(zoomLevel: event.zoom, viewOffset: event.offset));
   }
 
-  void _onUpdateViewportSize(UpdateViewportSize event, Emitter<EditorState> emit) {
+  void _onUpdateViewportSize(
+    UpdateViewportSize event,
+    Emitter<EditorState> emit,
+  ) {
     emit(state.copyWith(viewportSize: event.size));
   }
 
@@ -95,7 +120,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     // We would need to calculate transform and emit UpdateViewTransform
   }
 
-  Future<void> _onSaveProject(SaveProject event, Emitter<EditorState> emit) async {
+  Future<void> _onSaveProject(
+    SaveProject event,
+    Emitter<EditorState> emit,
+  ) async {
     final project = state.project;
     if (project == null) return;
 
@@ -115,16 +143,25 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       maxX += 100;
       maxY += 100;
 
-      final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY, updatedAt: DateTime.now());
+      final projectToSave = project.copyWith(
+        canvasWidth: maxX,
+        canvasHeight: maxY,
+        updatedAt: DateTime.now(),
+      );
 
       await _projectRepository?.saveProjectInternal(projectToSave);
-      emit(state.copyWith(project: projectToSave, errorMessage: null)); // Update state with new timestamp
+      emit(
+        state.copyWith(project: projectToSave, errorMessage: null),
+      ); // Update state with new timestamp
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to save project: $e'));
     }
   }
 
-  Future<void> _onExportProject(ExportProject event, Emitter<EditorState> emit) async {
+  Future<void> _onExportProject(
+    ExportProject event,
+    Emitter<EditorState> emit,
+  ) async {
     final project = state.project;
     if (project == null) return;
 
@@ -143,8 +180,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     // Calculate center
     final scale = state.zoomLevel;
-    final viewportW = state.viewportSize.width > 0 ? state.viewportSize.width : 800.0;
-    final viewportH = state.viewportSize.height > 0 ? state.viewportSize.height : 600.0;
+    final viewportW = state.viewportSize.width > 0
+        ? state.viewportSize.width
+        : 800.0;
+    final viewportH = state.viewportSize.height > 0
+        ? state.viewportSize.height
+        : 600.0;
     final t = state.viewOffset;
     final pScreen = Offset(viewportW / 2, viewportH / 2);
     final kCanvasOrigin = 5000.0;
@@ -170,13 +211,22 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     var componentToUpdate = event.component;
 
     // Check for smoothing update
-    final existing = project.layers.firstWhere((c) => c.id == event.id, orElse: () => event.component);
+    final existing = project.layers.firstWhere(
+      (c) => c.id == event.id,
+      orElse: () => event.component,
+    );
     if (existing is ComponentPad && componentToUpdate is ComponentPad) {
       if (componentToUpdate.originalPathData != null &&
           (componentToUpdate.smoothingAmount != existing.smoothingAmount ||
-              componentToUpdate.originalPathData != existing.originalPathData)) {
-        final originalPoints = PathUtils.parsePath(componentToUpdate.originalPathData!);
-        final smoothedPoints = PathUtils.smoothPath(originalPoints, componentToUpdate.smoothingAmount);
+              componentToUpdate.originalPathData !=
+                  existing.originalPathData)) {
+        final originalPoints = PathUtils.parsePath(
+          componentToUpdate.originalPathData!,
+        );
+        final smoothedPoints = PathUtils.smoothPath(
+          originalPoints,
+          componentToUpdate.smoothingAmount,
+        );
         final newPathData = PathUtils.generatePath(smoothedPoints);
 
         componentToUpdate = componentToUpdate.copyWith(pathData: newPathData);
@@ -208,12 +258,20 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         if (existing is ComponentPad && componentToUpdate is ComponentPad) {
           if (componentToUpdate.originalPathData != null &&
               (componentToUpdate.smoothingAmount != existing.smoothingAmount ||
-                  componentToUpdate.originalPathData != existing.originalPathData)) {
-            final originalPoints = PathUtils.parsePath(componentToUpdate.originalPathData!);
-            final smoothedPoints = PathUtils.smoothPath(originalPoints, componentToUpdate.smoothingAmount);
+                  componentToUpdate.originalPathData !=
+                      existing.originalPathData)) {
+            final originalPoints = PathUtils.parsePath(
+              componentToUpdate.originalPathData!,
+            );
+            final smoothedPoints = PathUtils.smoothPath(
+              originalPoints,
+              componentToUpdate.smoothingAmount,
+            );
             final newPathData = PathUtils.generatePath(smoothedPoints);
 
-            componentToUpdate = componentToUpdate.copyWith(pathData: newPathData);
+            componentToUpdate = componentToUpdate.copyWith(
+              pathData: newPathData,
+            );
           }
         }
         updatedLayers.add(componentToUpdate);
@@ -243,7 +301,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       currentSelected.add(event.id);
     }
 
-    emit(state.copyWith(selectedComponentIds: currentSelected, lastSelectedId: event.id));
+    emit(
+      state.copyWith(
+        selectedComponentIds: currentSelected,
+        lastSelectedId: event.id,
+      ),
+    );
   }
 
   void _onSelectComponents(SelectComponents event, Emitter<EditorState> emit) {
@@ -265,7 +328,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     // Update lastSelectedId to the last item in the list if available
     final lastId = event.ids.isNotEmpty ? event.ids.last : state.lastSelectedId;
 
-    emit(state.copyWith(selectedComponentIds: currentSelected, lastSelectedId: lastId));
+    emit(
+      state.copyWith(
+        selectedComponentIds: currentSelected,
+        lastSelectedId: lastId,
+      ),
+    );
   }
 
   void _onReorderComponent(ReorderComponent event, Emitter<EditorState> emit) {
@@ -283,7 +351,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     emit(state.copyWith(project: project.copyWith(layers: layers)));
   }
 
-  void _onUpdateProjectSettings(UpdateProjectSettings event, Emitter<EditorState> emit) {
+  void _onUpdateProjectSettings(
+    UpdateProjectSettings event,
+    Emitter<EditorState> emit,
+  ) {
     _recordHistory();
     emit(state.copyWith(project: event.project));
   }
@@ -305,7 +376,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       final validSelection = state.selectedComponentIds
           .where((id) => previousProject.layers.any((l) => l.id == id))
           .toSet();
-      emit(state.copyWith(project: previousProject, selectedComponentIds: validSelection));
+      emit(
+        state.copyWith(
+          project: previousProject,
+          selectedComponentIds: validSelection,
+        ),
+      );
     }
   }
 
@@ -318,7 +394,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       final validSelection = state.selectedComponentIds
           .where((id) => nextProject.layers.any((l) => l.id == id))
           .toSet();
-      emit(state.copyWith(project: nextProject, selectedComponentIds: validSelection));
+      emit(
+        state.copyWith(
+          project: nextProject,
+          selectedComponentIds: validSelection,
+        ),
+      );
     }
   }
 
@@ -425,7 +506,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     emit(state.copyWith(gridSize: event.size.clamp(5.0, 100.0)));
   }
 
-  void _onHandleMidiMessage(HandleMidiMessage event, Emitter<EditorState> emit) {
+  void _onHandleMidiMessage(
+    HandleMidiMessage event,
+    Emitter<EditorState> emit,
+  ) {
     final project = state.project;
     if (project == null) return;
 
@@ -451,7 +535,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         pad: (pad) {
           if (pad.midiChannel == channel && pad.midiNote == data1) {
             if (isNoteOn) {
-              if (activeIds.add(pad.id)) changed = true;
+              if (data2 >= pad.velocityThreshold) {
+                if (activeIds.add(pad.id)) changed = true;
+              }
             } else if (isNoteOff) {
               if (activeIds.remove(pad.id)) changed = true;
             }
@@ -459,11 +545,14 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         },
         knob: (knob) {
           if (knob.midiChannel == channel && knob.midiCc == data1) {
-            if (activeIds.add(knob.id)) changed = true;
+            if (data2 >= knob.velocityThreshold) {
+              if (activeIds.add(knob.id)) changed = true;
 
-            if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.spin) {
-              final newRotation = (knob.rotation + 0.2) % (2 * 3.14159);
-              updates[knob.id] = knob.copyWith(rotation: newRotation);
+              if (knob.isRelative &&
+                  knob.relativeEffect == KnobRelativeEffect.spin) {
+                final newRotation = (knob.rotation + 0.2) % (2 * 3.14159);
+                updates[knob.id] = knob.copyWith(rotation: newRotation);
+              }
             }
           }
         },
@@ -474,14 +563,19 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (changed || updates.isNotEmpty) {
       var newProject = project;
       if (updates.isNotEmpty) {
-        final newLayers = project.layers.map((c) => updates[c.id] ?? c).toList();
+        final newLayers = project.layers
+            .map((c) => updates[c.id] ?? c)
+            .toList();
         newProject = project.copyWith(layers: newLayers);
       }
       emit(state.copyWith(activeComponentIds: activeIds, project: newProject));
     }
   }
 
-  Future<void> _onFillImageArea(FillImageArea event, Emitter<EditorState> emit) async {
+  Future<void> _onFillImageArea(
+    FillImageArea event,
+    Emitter<EditorState> emit,
+  ) async {
     final project = state.project;
     if (project == null) return;
 
@@ -509,10 +603,19 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final startX = (event.position.dx * scaleX).toInt();
     final startY = (event.position.dy * scaleY).toInt();
 
-    if (startX < 0 || startX >= image.width || startY < 0 || startY >= image.height) return;
+    if (startX < 0 ||
+        startX >= image.width ||
+        startY < 0 ||
+        startY >= image.height)
+      return;
 
     // Perform Flood Fill to get mask
-    final mask = _performFloodFill(image, startX, startY, tolerance: state.floodFillTolerance);
+    final mask = _performFloodFill(
+      image,
+      startX,
+      startY,
+      tolerance: state.floodFillTolerance,
+    );
     if (mask.isEmpty) return;
 
     // Trace boundary
@@ -548,7 +651,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final width = maxX - minX;
     final height = maxY - minY;
 
-    final pathString = PathUtils.generatePath(componentPoints.map((p) => Offset(p.dx - minX, p.dy - minY)).toList());
+    final pathString = PathUtils.generatePath(
+      componentPoints.map((p) => Offset(p.dx - minX, p.dy - minY)).toList(),
+    );
 
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final newComponent = Component.pad(
@@ -561,8 +666,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       shape: PadShape.path,
       pathData: pathString,
       originalPathData: pathString,
-      onColor: '#${event.color.value.toRadixString(16).padLeft(8, '0').substring(2)}',
-      offColor: '#${event.color.value.toRadixString(16).padLeft(8, '0').substring(2)}33', // Semi-transparent off
+      onColor:
+          '#${event.color.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+      offColor:
+          '#${event.color.value.toRadixString(16).padLeft(8, '0').substring(2)}33', // Semi-transparent off
     );
 
     final updatedLayers = [...project.layers, newComponent];
@@ -574,11 +681,19 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     );
   }
 
-  void _onSetFloodFillTolerance(SetFloodFillTolerance event, Emitter<EditorState> emit) {
+  void _onSetFloodFillTolerance(
+    SetFloodFillTolerance event,
+    Emitter<EditorState> emit,
+  ) {
     emit(state.copyWith(floodFillTolerance: event.tolerance.clamp(0, 100)));
   }
 
-  Set<img.Point> _performFloodFill(img.Image image, int startX, int startY, {int tolerance = 10}) {
+  Set<img.Point> _performFloodFill(
+    img.Image image,
+    int startX,
+    int startY, {
+    int tolerance = 10,
+  }) {
     final width = image.width;
     final height = image.height;
     final visited = <img.Point>{};
@@ -596,7 +711,11 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     bool colorsMatch(img.Pixel p) {
       if (p.a == 0 && targetA == 0) return true;
-      final diff = (p.r - targetR).abs() + (p.g - targetG).abs() + (p.b - targetB).abs() + (p.a - targetA).abs();
+      final diff =
+          (p.r - targetR).abs() +
+          (p.g - targetG).abs() +
+          (p.b - targetB).abs() +
+          (p.a - targetA).abs();
       return diff <= (1020 * tolerance / 100);
     }
 
@@ -605,7 +724,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       final x = point.x.toInt();
       final y = point.y.toInt();
 
-      final neighbors = [img.Point(x + 1, y), img.Point(x - 1, y), img.Point(x, y + 1), img.Point(x, y - 1)];
+      final neighbors = [
+        img.Point(x + 1, y),
+        img.Point(x - 1, y),
+        img.Point(x, y + 1),
+        img.Point(x, y - 1),
+      ];
 
       for (final n in neighbors) {
         if (n.x >= 0 && n.x < width && n.y >= 0 && n.y < height) {
@@ -773,7 +897,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null || state.selectedComponentIds.isEmpty) return;
 
-    final selectedComponents = project.layers.where((c) => state.selectedComponentIds.contains(c.id)).toList();
+    final selectedComponents = project.layers
+        .where((c) => state.selectedComponentIds.contains(c.id))
+        .toList();
     if (selectedComponents.isEmpty) return;
 
     final jsonList = selectedComponents.map((c) => c.toJson()).toList();
@@ -796,12 +922,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
       for (final item in jsonList) {
         final component = Component.fromJson(item as Map<String, dynamic>);
-        final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
+        final newId =
+            DateTime.now().millisecondsSinceEpoch.toString() +
+            newComponents.length.toString();
 
         // Calculate center position based on viewOffset and viewportSize
         final scale = state.zoomLevel;
-        final viewportW = state.viewportSize.width > 0 ? state.viewportSize.width : 800.0;
-        final viewportH = state.viewportSize.height > 0 ? state.viewportSize.height : 600.0;
+        final viewportW = state.viewportSize.width > 0
+            ? state.viewportSize.width
+            : 800.0;
+        final viewportH = state.viewportSize.height > 0
+            ? state.viewportSize.height
+            : 600.0;
 
         // Center of viewport in screen coordinates is (viewportW/2, viewportH/2)
         // P_screen = s * (P_data + kCanvasOrigin) + t
@@ -857,7 +989,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     if (project == null || state.selectedComponentIds.isEmpty) return;
 
     _recordHistory();
-    final updatedLayers = project.layers.where((c) => !state.selectedComponentIds.contains(c.id)).toList();
+    final updatedLayers = project.layers
+        .where((c) => !state.selectedComponentIds.contains(c.id))
+        .toList();
 
     emit(
       state.copyWith(
@@ -871,7 +1005,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final project = state.project;
     if (project == null || state.selectedComponentIds.isEmpty) return;
 
-    final selectedComponents = project.layers.where((c) => state.selectedComponentIds.contains(c.id)).toList();
+    final selectedComponents = project.layers
+        .where((c) => state.selectedComponentIds.contains(c.id))
+        .toList();
     if (selectedComponents.isEmpty) return;
 
     _recordHistory();
@@ -879,7 +1015,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final newIds = <String>{};
 
     for (final component in selectedComponents) {
-      final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
+      final newId =
+          DateTime.now().millisecondsSinceEpoch.toString() +
+          newComponents.length.toString();
       final newComponent = component.copyWith(
         id: newId,
         x: component.x + 20,

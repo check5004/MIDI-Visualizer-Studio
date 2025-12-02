@@ -196,11 +196,11 @@ return staticImage(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  PadShape shape,  String? pathData,  String? originalPathData,  double smoothingAmount,  double cornerRadius,  double borderWidth,  String borderColor,  String onColor,  String offColor,  int? midiChannel,  int? midiNote,  bool maintainAspectRatio)?  pad,TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  KnobStyle style,  double minAngle,  double maxAngle,  bool isRelative,  KnobRelativeEffect relativeEffect,  String? knobImage,  String? pointerImage,  int? midiChannel,  int? midiCc,  bool maintainAspectRatio)?  knob,TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  String imagePath,  bool maintainAspectRatio)?  staticImage,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  PadShape shape,  String? pathData,  String? originalPathData,  double smoothingAmount,  double cornerRadius,  double borderWidth,  String borderColor,  String onColor,  String offColor,  int? midiChannel,  int? midiNote,  int velocityThreshold,  bool maintainAspectRatio)?  pad,TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  KnobStyle style,  double minAngle,  double maxAngle,  bool isRelative,  KnobRelativeEffect relativeEffect,  String? knobImage,  String? pointerImage,  int? midiChannel,  int? midiCc,  int velocityThreshold,  bool maintainAspectRatio)?  knob,TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  String imagePath,  bool maintainAspectRatio)?  staticImage,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ComponentPad() when pad != null:
-return pad(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.shape,_that.pathData,_that.originalPathData,_that.smoothingAmount,_that.cornerRadius,_that.borderWidth,_that.borderColor,_that.onColor,_that.offColor,_that.midiChannel,_that.midiNote,_that.maintainAspectRatio);case ComponentKnob() when knob != null:
-return knob(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.style,_that.minAngle,_that.maxAngle,_that.isRelative,_that.relativeEffect,_that.knobImage,_that.pointerImage,_that.midiChannel,_that.midiCc,_that.maintainAspectRatio);case ComponentStaticImage() when staticImage != null:
+return pad(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.shape,_that.pathData,_that.originalPathData,_that.smoothingAmount,_that.cornerRadius,_that.borderWidth,_that.borderColor,_that.onColor,_that.offColor,_that.midiChannel,_that.midiNote,_that.velocityThreshold,_that.maintainAspectRatio);case ComponentKnob() when knob != null:
+return knob(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.style,_that.minAngle,_that.maxAngle,_that.isRelative,_that.relativeEffect,_that.knobImage,_that.pointerImage,_that.midiChannel,_that.midiCc,_that.velocityThreshold,_that.maintainAspectRatio);case ComponentStaticImage() when staticImage != null:
 return staticImage(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.imagePath,_that.maintainAspectRatio);case _:
   return orElse();
 
@@ -219,11 +219,11 @@ return staticImage(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  PadShape shape,  String? pathData,  String? originalPathData,  double smoothingAmount,  double cornerRadius,  double borderWidth,  String borderColor,  String onColor,  String offColor,  int? midiChannel,  int? midiNote,  bool maintainAspectRatio)  pad,required TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  KnobStyle style,  double minAngle,  double maxAngle,  bool isRelative,  KnobRelativeEffect relativeEffect,  String? knobImage,  String? pointerImage,  int? midiChannel,  int? midiCc,  bool maintainAspectRatio)  knob,required TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  String imagePath,  bool maintainAspectRatio)  staticImage,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  PadShape shape,  String? pathData,  String? originalPathData,  double smoothingAmount,  double cornerRadius,  double borderWidth,  String borderColor,  String onColor,  String offColor,  int? midiChannel,  int? midiNote,  int velocityThreshold,  bool maintainAspectRatio)  pad,required TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  KnobStyle style,  double minAngle,  double maxAngle,  bool isRelative,  KnobRelativeEffect relativeEffect,  String? knobImage,  String? pointerImage,  int? midiChannel,  int? midiCc,  int velocityThreshold,  bool maintainAspectRatio)  knob,required TResult Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  String imagePath,  bool maintainAspectRatio)  staticImage,}) {final _that = this;
 switch (_that) {
 case ComponentPad():
-return pad(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.shape,_that.pathData,_that.originalPathData,_that.smoothingAmount,_that.cornerRadius,_that.borderWidth,_that.borderColor,_that.onColor,_that.offColor,_that.midiChannel,_that.midiNote,_that.maintainAspectRatio);case ComponentKnob():
-return knob(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.style,_that.minAngle,_that.maxAngle,_that.isRelative,_that.relativeEffect,_that.knobImage,_that.pointerImage,_that.midiChannel,_that.midiCc,_that.maintainAspectRatio);case ComponentStaticImage():
+return pad(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.shape,_that.pathData,_that.originalPathData,_that.smoothingAmount,_that.cornerRadius,_that.borderWidth,_that.borderColor,_that.onColor,_that.offColor,_that.midiChannel,_that.midiNote,_that.velocityThreshold,_that.maintainAspectRatio);case ComponentKnob():
+return knob(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.style,_that.minAngle,_that.maxAngle,_that.isRelative,_that.relativeEffect,_that.knobImage,_that.pointerImage,_that.midiChannel,_that.midiCc,_that.velocityThreshold,_that.maintainAspectRatio);case ComponentStaticImage():
 return staticImage(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.imagePath,_that.maintainAspectRatio);case _:
   throw StateError('Unexpected subclass');
 
@@ -241,11 +241,11 @@ return staticImage(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  PadShape shape,  String? pathData,  String? originalPathData,  double smoothingAmount,  double cornerRadius,  double borderWidth,  String borderColor,  String onColor,  String offColor,  int? midiChannel,  int? midiNote,  bool maintainAspectRatio)?  pad,TResult? Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  KnobStyle style,  double minAngle,  double maxAngle,  bool isRelative,  KnobRelativeEffect relativeEffect,  String? knobImage,  String? pointerImage,  int? midiChannel,  int? midiCc,  bool maintainAspectRatio)?  knob,TResult? Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  String imagePath,  bool maintainAspectRatio)?  staticImage,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  PadShape shape,  String? pathData,  String? originalPathData,  double smoothingAmount,  double cornerRadius,  double borderWidth,  String borderColor,  String onColor,  String offColor,  int? midiChannel,  int? midiNote,  int velocityThreshold,  bool maintainAspectRatio)?  pad,TResult? Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  KnobStyle style,  double minAngle,  double maxAngle,  bool isRelative,  KnobRelativeEffect relativeEffect,  String? knobImage,  String? pointerImage,  int? midiChannel,  int? midiCc,  int velocityThreshold,  bool maintainAspectRatio)?  knob,TResult? Function( String id,  String name,  double x,  double y,  double width,  double height,  double rotation,  int zIndex,  bool isLocked,  bool isVisible,  String imagePath,  bool maintainAspectRatio)?  staticImage,}) {final _that = this;
 switch (_that) {
 case ComponentPad() when pad != null:
-return pad(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.shape,_that.pathData,_that.originalPathData,_that.smoothingAmount,_that.cornerRadius,_that.borderWidth,_that.borderColor,_that.onColor,_that.offColor,_that.midiChannel,_that.midiNote,_that.maintainAspectRatio);case ComponentKnob() when knob != null:
-return knob(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.style,_that.minAngle,_that.maxAngle,_that.isRelative,_that.relativeEffect,_that.knobImage,_that.pointerImage,_that.midiChannel,_that.midiCc,_that.maintainAspectRatio);case ComponentStaticImage() when staticImage != null:
+return pad(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.shape,_that.pathData,_that.originalPathData,_that.smoothingAmount,_that.cornerRadius,_that.borderWidth,_that.borderColor,_that.onColor,_that.offColor,_that.midiChannel,_that.midiNote,_that.velocityThreshold,_that.maintainAspectRatio);case ComponentKnob() when knob != null:
+return knob(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.style,_that.minAngle,_that.maxAngle,_that.isRelative,_that.relativeEffect,_that.knobImage,_that.pointerImage,_that.midiChannel,_that.midiCc,_that.velocityThreshold,_that.maintainAspectRatio);case ComponentStaticImage() when staticImage != null:
 return staticImage(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,_that.rotation,_that.zIndex,_that.isLocked,_that.isVisible,_that.imagePath,_that.maintainAspectRatio);case _:
   return null;
 
@@ -258,7 +258,7 @@ return staticImage(_that.id,_that.name,_that.x,_that.y,_that.width,_that.height,
 @JsonSerializable()
 
 class ComponentPad implements Component {
-  const ComponentPad({required this.id, required this.name, required this.x, required this.y, required this.width, required this.height, this.rotation = 0, this.zIndex = 0, this.isLocked = false, this.isVisible = true, this.shape = PadShape.rect, this.pathData, this.originalPathData, this.smoothingAmount = 0.0, this.cornerRadius = 0.0, this.borderWidth = 0.0, this.borderColor = '#FFFFFF', this.onColor = '#00FF00', this.offColor = '#333333', this.midiChannel, this.midiNote, this.maintainAspectRatio = false, final  String? $type}): $type = $type ?? 'pad';
+  const ComponentPad({required this.id, required this.name, required this.x, required this.y, required this.width, required this.height, this.rotation = 0, this.zIndex = 0, this.isLocked = false, this.isVisible = true, this.shape = PadShape.rect, this.pathData, this.originalPathData, this.smoothingAmount = 0.0, this.cornerRadius = 0.0, this.borderWidth = 0.0, this.borderColor = '#FFFFFF', this.onColor = '#00FF00', this.offColor = '#333333', this.midiChannel, this.midiNote, this.velocityThreshold = 0, this.maintainAspectRatio = false, final  String? $type}): $type = $type ?? 'pad';
   factory ComponentPad.fromJson(Map<String, dynamic> json) => _$ComponentPadFromJson(json);
 
 @override final  String id;
@@ -282,6 +282,7 @@ class ComponentPad implements Component {
 @JsonKey() final  String offColor;
  final  int? midiChannel;
  final  int? midiNote;
+@JsonKey() final  int velocityThreshold;
 @override@JsonKey() final  bool maintainAspectRatio;
 
 @JsonKey(name: 'type')
@@ -301,16 +302,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ComponentPad&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.x, x) || other.x == x)&&(identical(other.y, y) || other.y == y)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.rotation, rotation) || other.rotation == rotation)&&(identical(other.zIndex, zIndex) || other.zIndex == zIndex)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible)&&(identical(other.shape, shape) || other.shape == shape)&&(identical(other.pathData, pathData) || other.pathData == pathData)&&(identical(other.originalPathData, originalPathData) || other.originalPathData == originalPathData)&&(identical(other.smoothingAmount, smoothingAmount) || other.smoothingAmount == smoothingAmount)&&(identical(other.cornerRadius, cornerRadius) || other.cornerRadius == cornerRadius)&&(identical(other.borderWidth, borderWidth) || other.borderWidth == borderWidth)&&(identical(other.borderColor, borderColor) || other.borderColor == borderColor)&&(identical(other.onColor, onColor) || other.onColor == onColor)&&(identical(other.offColor, offColor) || other.offColor == offColor)&&(identical(other.midiChannel, midiChannel) || other.midiChannel == midiChannel)&&(identical(other.midiNote, midiNote) || other.midiNote == midiNote)&&(identical(other.maintainAspectRatio, maintainAspectRatio) || other.maintainAspectRatio == maintainAspectRatio));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ComponentPad&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.x, x) || other.x == x)&&(identical(other.y, y) || other.y == y)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.rotation, rotation) || other.rotation == rotation)&&(identical(other.zIndex, zIndex) || other.zIndex == zIndex)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible)&&(identical(other.shape, shape) || other.shape == shape)&&(identical(other.pathData, pathData) || other.pathData == pathData)&&(identical(other.originalPathData, originalPathData) || other.originalPathData == originalPathData)&&(identical(other.smoothingAmount, smoothingAmount) || other.smoothingAmount == smoothingAmount)&&(identical(other.cornerRadius, cornerRadius) || other.cornerRadius == cornerRadius)&&(identical(other.borderWidth, borderWidth) || other.borderWidth == borderWidth)&&(identical(other.borderColor, borderColor) || other.borderColor == borderColor)&&(identical(other.onColor, onColor) || other.onColor == onColor)&&(identical(other.offColor, offColor) || other.offColor == offColor)&&(identical(other.midiChannel, midiChannel) || other.midiChannel == midiChannel)&&(identical(other.midiNote, midiNote) || other.midiNote == midiNote)&&(identical(other.velocityThreshold, velocityThreshold) || other.velocityThreshold == velocityThreshold)&&(identical(other.maintainAspectRatio, maintainAspectRatio) || other.maintainAspectRatio == maintainAspectRatio));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,name,x,y,width,height,rotation,zIndex,isLocked,isVisible,shape,pathData,originalPathData,smoothingAmount,cornerRadius,borderWidth,borderColor,onColor,offColor,midiChannel,midiNote,maintainAspectRatio]);
+int get hashCode => Object.hashAll([runtimeType,id,name,x,y,width,height,rotation,zIndex,isLocked,isVisible,shape,pathData,originalPathData,smoothingAmount,cornerRadius,borderWidth,borderColor,onColor,offColor,midiChannel,midiNote,velocityThreshold,maintainAspectRatio]);
 
 @override
 String toString() {
-  return 'Component.pad(id: $id, name: $name, x: $x, y: $y, width: $width, height: $height, rotation: $rotation, zIndex: $zIndex, isLocked: $isLocked, isVisible: $isVisible, shape: $shape, pathData: $pathData, originalPathData: $originalPathData, smoothingAmount: $smoothingAmount, cornerRadius: $cornerRadius, borderWidth: $borderWidth, borderColor: $borderColor, onColor: $onColor, offColor: $offColor, midiChannel: $midiChannel, midiNote: $midiNote, maintainAspectRatio: $maintainAspectRatio)';
+  return 'Component.pad(id: $id, name: $name, x: $x, y: $y, width: $width, height: $height, rotation: $rotation, zIndex: $zIndex, isLocked: $isLocked, isVisible: $isVisible, shape: $shape, pathData: $pathData, originalPathData: $originalPathData, smoothingAmount: $smoothingAmount, cornerRadius: $cornerRadius, borderWidth: $borderWidth, borderColor: $borderColor, onColor: $onColor, offColor: $offColor, midiChannel: $midiChannel, midiNote: $midiNote, velocityThreshold: $velocityThreshold, maintainAspectRatio: $maintainAspectRatio)';
 }
 
 
@@ -321,7 +322,7 @@ abstract mixin class $ComponentPadCopyWith<$Res> implements $ComponentCopyWith<$
   factory $ComponentPadCopyWith(ComponentPad value, $Res Function(ComponentPad) _then) = _$ComponentPadCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, double x, double y, double width, double height, double rotation, int zIndex, bool isLocked, bool isVisible, PadShape shape, String? pathData, String? originalPathData, double smoothingAmount, double cornerRadius, double borderWidth, String borderColor, String onColor, String offColor, int? midiChannel, int? midiNote, bool maintainAspectRatio
+ String id, String name, double x, double y, double width, double height, double rotation, int zIndex, bool isLocked, bool isVisible, PadShape shape, String? pathData, String? originalPathData, double smoothingAmount, double cornerRadius, double borderWidth, String borderColor, String onColor, String offColor, int? midiChannel, int? midiNote, int velocityThreshold, bool maintainAspectRatio
 });
 
 
@@ -338,7 +339,7 @@ class _$ComponentPadCopyWithImpl<$Res>
 
 /// Create a copy of Component
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? x = null,Object? y = null,Object? width = null,Object? height = null,Object? rotation = null,Object? zIndex = null,Object? isLocked = null,Object? isVisible = null,Object? shape = null,Object? pathData = freezed,Object? originalPathData = freezed,Object? smoothingAmount = null,Object? cornerRadius = null,Object? borderWidth = null,Object? borderColor = null,Object? onColor = null,Object? offColor = null,Object? midiChannel = freezed,Object? midiNote = freezed,Object? maintainAspectRatio = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? x = null,Object? y = null,Object? width = null,Object? height = null,Object? rotation = null,Object? zIndex = null,Object? isLocked = null,Object? isVisible = null,Object? shape = null,Object? pathData = freezed,Object? originalPathData = freezed,Object? smoothingAmount = null,Object? cornerRadius = null,Object? borderWidth = null,Object? borderColor = null,Object? onColor = null,Object? offColor = null,Object? midiChannel = freezed,Object? midiNote = freezed,Object? velocityThreshold = null,Object? maintainAspectRatio = null,}) {
   return _then(ComponentPad(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -361,7 +362,8 @@ as String,onColor: null == onColor ? _self.onColor : onColor // ignore: cast_nul
 as String,offColor: null == offColor ? _self.offColor : offColor // ignore: cast_nullable_to_non_nullable
 as String,midiChannel: freezed == midiChannel ? _self.midiChannel : midiChannel // ignore: cast_nullable_to_non_nullable
 as int?,midiNote: freezed == midiNote ? _self.midiNote : midiNote // ignore: cast_nullable_to_non_nullable
-as int?,maintainAspectRatio: null == maintainAspectRatio ? _self.maintainAspectRatio : maintainAspectRatio // ignore: cast_nullable_to_non_nullable
+as int?,velocityThreshold: null == velocityThreshold ? _self.velocityThreshold : velocityThreshold // ignore: cast_nullable_to_non_nullable
+as int,maintainAspectRatio: null == maintainAspectRatio ? _self.maintainAspectRatio : maintainAspectRatio // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -373,7 +375,7 @@ as bool,
 @JsonSerializable()
 
 class ComponentKnob implements Component {
-  const ComponentKnob({required this.id, required this.name, required this.x, required this.y, required this.width, required this.height, this.rotation = 0, this.zIndex = 0, this.isLocked = false, this.isVisible = true, this.style = KnobStyle.vectorArc, this.minAngle = -135.0, this.maxAngle = 135.0, this.isRelative = false, this.relativeEffect = KnobRelativeEffect.tint, this.knobImage, this.pointerImage, this.midiChannel, this.midiCc, this.maintainAspectRatio = false, final  String? $type}): $type = $type ?? 'knob';
+  const ComponentKnob({required this.id, required this.name, required this.x, required this.y, required this.width, required this.height, this.rotation = 0, this.zIndex = 0, this.isLocked = false, this.isVisible = true, this.style = KnobStyle.vectorArc, this.minAngle = -135.0, this.maxAngle = 135.0, this.isRelative = false, this.relativeEffect = KnobRelativeEffect.tint, this.knobImage, this.pointerImage, this.midiChannel, this.midiCc, this.velocityThreshold = 0, this.maintainAspectRatio = false, final  String? $type}): $type = $type ?? 'knob';
   factory ComponentKnob.fromJson(Map<String, dynamic> json) => _$ComponentKnobFromJson(json);
 
 @override final  String id;
@@ -395,6 +397,7 @@ class ComponentKnob implements Component {
  final  String? pointerImage;
  final  int? midiChannel;
  final  int? midiCc;
+@JsonKey() final  int velocityThreshold;
 @override@JsonKey() final  bool maintainAspectRatio;
 
 @JsonKey(name: 'type')
@@ -414,16 +417,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ComponentKnob&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.x, x) || other.x == x)&&(identical(other.y, y) || other.y == y)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.rotation, rotation) || other.rotation == rotation)&&(identical(other.zIndex, zIndex) || other.zIndex == zIndex)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible)&&(identical(other.style, style) || other.style == style)&&(identical(other.minAngle, minAngle) || other.minAngle == minAngle)&&(identical(other.maxAngle, maxAngle) || other.maxAngle == maxAngle)&&(identical(other.isRelative, isRelative) || other.isRelative == isRelative)&&(identical(other.relativeEffect, relativeEffect) || other.relativeEffect == relativeEffect)&&(identical(other.knobImage, knobImage) || other.knobImage == knobImage)&&(identical(other.pointerImage, pointerImage) || other.pointerImage == pointerImage)&&(identical(other.midiChannel, midiChannel) || other.midiChannel == midiChannel)&&(identical(other.midiCc, midiCc) || other.midiCc == midiCc)&&(identical(other.maintainAspectRatio, maintainAspectRatio) || other.maintainAspectRatio == maintainAspectRatio));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ComponentKnob&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.x, x) || other.x == x)&&(identical(other.y, y) || other.y == y)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.rotation, rotation) || other.rotation == rotation)&&(identical(other.zIndex, zIndex) || other.zIndex == zIndex)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible)&&(identical(other.style, style) || other.style == style)&&(identical(other.minAngle, minAngle) || other.minAngle == minAngle)&&(identical(other.maxAngle, maxAngle) || other.maxAngle == maxAngle)&&(identical(other.isRelative, isRelative) || other.isRelative == isRelative)&&(identical(other.relativeEffect, relativeEffect) || other.relativeEffect == relativeEffect)&&(identical(other.knobImage, knobImage) || other.knobImage == knobImage)&&(identical(other.pointerImage, pointerImage) || other.pointerImage == pointerImage)&&(identical(other.midiChannel, midiChannel) || other.midiChannel == midiChannel)&&(identical(other.midiCc, midiCc) || other.midiCc == midiCc)&&(identical(other.velocityThreshold, velocityThreshold) || other.velocityThreshold == velocityThreshold)&&(identical(other.maintainAspectRatio, maintainAspectRatio) || other.maintainAspectRatio == maintainAspectRatio));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,name,x,y,width,height,rotation,zIndex,isLocked,isVisible,style,minAngle,maxAngle,isRelative,relativeEffect,knobImage,pointerImage,midiChannel,midiCc,maintainAspectRatio]);
+int get hashCode => Object.hashAll([runtimeType,id,name,x,y,width,height,rotation,zIndex,isLocked,isVisible,style,minAngle,maxAngle,isRelative,relativeEffect,knobImage,pointerImage,midiChannel,midiCc,velocityThreshold,maintainAspectRatio]);
 
 @override
 String toString() {
-  return 'Component.knob(id: $id, name: $name, x: $x, y: $y, width: $width, height: $height, rotation: $rotation, zIndex: $zIndex, isLocked: $isLocked, isVisible: $isVisible, style: $style, minAngle: $minAngle, maxAngle: $maxAngle, isRelative: $isRelative, relativeEffect: $relativeEffect, knobImage: $knobImage, pointerImage: $pointerImage, midiChannel: $midiChannel, midiCc: $midiCc, maintainAspectRatio: $maintainAspectRatio)';
+  return 'Component.knob(id: $id, name: $name, x: $x, y: $y, width: $width, height: $height, rotation: $rotation, zIndex: $zIndex, isLocked: $isLocked, isVisible: $isVisible, style: $style, minAngle: $minAngle, maxAngle: $maxAngle, isRelative: $isRelative, relativeEffect: $relativeEffect, knobImage: $knobImage, pointerImage: $pointerImage, midiChannel: $midiChannel, midiCc: $midiCc, velocityThreshold: $velocityThreshold, maintainAspectRatio: $maintainAspectRatio)';
 }
 
 
@@ -434,7 +437,7 @@ abstract mixin class $ComponentKnobCopyWith<$Res> implements $ComponentCopyWith<
   factory $ComponentKnobCopyWith(ComponentKnob value, $Res Function(ComponentKnob) _then) = _$ComponentKnobCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, double x, double y, double width, double height, double rotation, int zIndex, bool isLocked, bool isVisible, KnobStyle style, double minAngle, double maxAngle, bool isRelative, KnobRelativeEffect relativeEffect, String? knobImage, String? pointerImage, int? midiChannel, int? midiCc, bool maintainAspectRatio
+ String id, String name, double x, double y, double width, double height, double rotation, int zIndex, bool isLocked, bool isVisible, KnobStyle style, double minAngle, double maxAngle, bool isRelative, KnobRelativeEffect relativeEffect, String? knobImage, String? pointerImage, int? midiChannel, int? midiCc, int velocityThreshold, bool maintainAspectRatio
 });
 
 
@@ -451,7 +454,7 @@ class _$ComponentKnobCopyWithImpl<$Res>
 
 /// Create a copy of Component
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? x = null,Object? y = null,Object? width = null,Object? height = null,Object? rotation = null,Object? zIndex = null,Object? isLocked = null,Object? isVisible = null,Object? style = null,Object? minAngle = null,Object? maxAngle = null,Object? isRelative = null,Object? relativeEffect = null,Object? knobImage = freezed,Object? pointerImage = freezed,Object? midiChannel = freezed,Object? midiCc = freezed,Object? maintainAspectRatio = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? x = null,Object? y = null,Object? width = null,Object? height = null,Object? rotation = null,Object? zIndex = null,Object? isLocked = null,Object? isVisible = null,Object? style = null,Object? minAngle = null,Object? maxAngle = null,Object? isRelative = null,Object? relativeEffect = null,Object? knobImage = freezed,Object? pointerImage = freezed,Object? midiChannel = freezed,Object? midiCc = freezed,Object? velocityThreshold = null,Object? maintainAspectRatio = null,}) {
   return _then(ComponentKnob(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -472,7 +475,8 @@ as KnobRelativeEffect,knobImage: freezed == knobImage ? _self.knobImage : knobIm
 as String?,pointerImage: freezed == pointerImage ? _self.pointerImage : pointerImage // ignore: cast_nullable_to_non_nullable
 as String?,midiChannel: freezed == midiChannel ? _self.midiChannel : midiChannel // ignore: cast_nullable_to_non_nullable
 as int?,midiCc: freezed == midiCc ? _self.midiCc : midiCc // ignore: cast_nullable_to_non_nullable
-as int?,maintainAspectRatio: null == maintainAspectRatio ? _self.maintainAspectRatio : maintainAspectRatio // ignore: cast_nullable_to_non_nullable
+as int?,velocityThreshold: null == velocityThreshold ? _self.velocityThreshold : velocityThreshold // ignore: cast_nullable_to_non_nullable
+as int,maintainAspectRatio: null == maintainAspectRatio ? _self.maintainAspectRatio : maintainAspectRatio // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
