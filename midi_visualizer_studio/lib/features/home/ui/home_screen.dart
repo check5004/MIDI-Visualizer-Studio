@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
+import 'package:midi_visualizer_studio/features/home/bloc/home_bloc.dart';
+import 'package:midi_visualizer_studio/features/home/bloc/home_event.dart';
+import 'package:midi_visualizer_studio/features/home/bloc/home_state.dart';
 import 'package:midi_visualizer_studio/features/settings/ui/settings_screen.dart';
+import 'package:file_picker/file_picker.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,77 +21,103 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          // Sidebar
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (int index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Projects')),
-              NavigationRailDestination(icon: Icon(Icons.settings), label: Text('Settings')),
-            ],
-            trailing: Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: IconButton(
-                icon: const Icon(Icons.help_outline),
-                onPressed: () => context.push('/tutorial'),
-                tooltip: 'Tutorial',
+    return BlocProvider(
+      create: (context) => HomeBloc(projectRepository: context.read<ProjectRepository>())..add(const LoadProjects()),
+      child: Scaffold(
+        body: Row(
+          children: [
+            // Sidebar
+            NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: const [
+                NavigationRailDestination(icon: Icon(Icons.dashboard), label: Text('Projects')),
+                NavigationRailDestination(icon: Icon(Icons.settings), label: Text('Settings')),
+              ],
+              trailing: Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: IconButton(
+                  icon: const Icon(Icons.help_outline),
+                  onPressed: () => context.push('/tutorial'),
+                  tooltip: 'Tutorial',
+                ),
               ),
             ),
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
+            const VerticalDivider(thickness: 1, width: 1),
 
-          // Main Content
-          Expanded(child: _buildMainContent()),
-        ],
+            // Main Content
+            Expanded(child: _buildMainContent()),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildRecentProjects() {
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.all(32.0),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Projects', style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 8),
-                Text('Manage your MIDI visualizer projects.', style: Theme.of(context).textTheme.bodyLarge),
-              ],
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (state.status == HomeStatus.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.status == HomeStatus.failure) {
+          return Center(child: Text('Error: ${state.errorMessage}'));
+        }
+
+        final projects = state.projects;
+
+        return CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(32.0),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Projects', style: Theme.of(context).textTheme.headlineMedium),
+                        IconButton(
+                          icon: const Icon(Icons.refresh),
+                          onPressed: () {
+                            context.read<HomeBloc>().add(const LoadProjects());
+                          },
+                          tooltip: 'Refresh Projects',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Manage your MIDI visualizer projects.', style: Theme.of(context).textTheme.bodyLarge),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 250,
-              mainAxisSpacing: 24,
-              crossAxisSpacing: 24,
-              childAspectRatio: 0.6,
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 250,
+                  mainAxisSpacing: 24,
+                  crossAxisSpacing: 24,
+                  childAspectRatio: 0.7,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index == 0) {
+                    return _NewProjectCard();
+                  }
+                  return _ProjectCard(project: projects[index - 1]);
+                }, childCount: projects.length + 1),
+              ),
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (index == 0) {
-                  return _NewProjectCard();
-                }
-                return _ProjectCard(index: index);
-              },
-              childCount: 6, // 1 New + 5 Mock Projects
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -114,7 +145,11 @@ class _NewProjectCard extends StatelessWidget {
         onTap: () {
           final projectRepository = context.read<ProjectRepository>();
           final project = projectRepository.createEmptyProject();
-          context.push('/editor/${project.id}', extra: project);
+          context.push('/editor/${project.id}', extra: project).then((_) {
+            if (context.mounted) {
+              context.read<HomeBloc>().add(const LoadProjects());
+            }
+          });
         },
         child: Container(
           color: colorScheme.primary.withValues(alpha: 0.08),
@@ -140,9 +175,9 @@ class _NewProjectCard extends StatelessWidget {
 }
 
 class _ProjectCard extends StatelessWidget {
-  final int index;
+  final Project project;
 
-  const _ProjectCard({required this.index});
+  const _ProjectCard({required this.project});
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +188,8 @@ class _ProjectCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          context.push('/editor/project-$index');
+          // Preview
+          context.push('/preview', extra: project);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -177,40 +213,60 @@ class _ProjectCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Project $index',
+                          project.name,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        Text('Edited 2h ago', style: Theme.of(context).textTheme.bodySmall),
+                        Text(
+                          'Edited ${_formatDate(project.updatedAt ?? project.createdAt)}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton.icon(
+                        IconButton(
+                          icon: const Icon(Icons.edit, size: 20),
+                          tooltip: 'Edit',
                           onPressed: () {
-                            // TODO: In a real app, we would load the project here.
-                            // For now, we'll just navigate to preview with a dummy project or ID.
-                            // Since we don't have a real project object here easily without loading,
-                            // we might need to rely on the PreviewScreen to load it if passed an ID.
-                            // But PreviewScreen currently expects a Project object.
-                            // Let's assume for now we can't easily launch without loading.
-                            // But the user wants "Direct Launch".
-                            // I will pass a dummy project for now to demonstrate the flow.
-                            final projectRepository = context.read<ProjectRepository>();
-                            // This is a hack for the mock. In reality we'd get the project by ID.
-                            final project = projectRepository.createProject(rows: 4, cols: 4);
-                            context.pushReplacement('/preview', extra: project);
+                            context.push('/editor/${project.id}', extra: project).then((_) {
+                              if (context.mounted) {
+                                context.read<HomeBloc>().add(const LoadProjects());
+                              }
+                            });
                           },
-                          icon: const Icon(Icons.play_arrow, size: 16),
-                          label: const Text('Launch'),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.file_upload, size: 20),
+                          tooltip: 'Export',
+                          onPressed: () async {
+                            final path = await FilePicker.platform.saveFile(
+                              dialogTitle: 'Export Project',
+                              fileName: '${project.name}.mvs',
+                              type: FileType.custom,
+                              allowedExtensions: ['mvs', 'zip'],
+                            );
+
+                            if (path != null && context.mounted) {
+                              try {
+                                await context.read<ProjectRepository>().exportProject(project, path);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(const SnackBar(content: Text('Project exported successfully')));
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(SnackBar(content: Text('Failed to export project: $e')));
+                                }
+                              }
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -222,5 +278,21 @@ class _ProjectCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Unknown';
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
   }
 }

@@ -52,73 +52,32 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<CutEvent>(_onCut);
     on<DeleteEvent>(_onDelete);
     on<DuplicateEvent>(_onDuplicate);
-  }
-
-  void _onSetFloodFillTolerance(SetFloodFillTolerance event, Emitter<EditorState> emit) {
-    emit(state.copyWith(floodFillTolerance: event.tolerance.clamp(0, 100)));
+    on<ExportProject>(_onExportProject);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
     emit(state.copyWith(status: EditorStatus.loading));
 
-    if (event.project != null) {
-      // Use the provided project (e.g. from New Project flow)
-      _historyCubit?.clear();
-      _historyCubit?.record(event.project!);
-      emit(state.copyWith(status: EditorStatus.ready, project: event.project));
-      return;
-    }
-
-    if (event.path.isEmpty || event.path == 'dummy' || event.path.startsWith('project-')) {
-      // Simulate loading a project with some dummy data
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final dummyProject = Project(
-        id: event.path.isEmpty ? 'dummy' : event.path,
-        name: event.path.startsWith('project-') ? 'Mock Project ${event.path.split('-').last}' : 'New Project',
-        version: '1.0.0',
-        layers: [
-          const Component.pad(
-            id: '1',
-            name: 'Pad 1',
-            x: 100,
-            y: 100,
-            width: 100,
-            height: 100,
-            midiChannel: 0,
-            midiNote: 60,
-          ),
-          const Component.knob(
-            id: '2',
-            name: 'Knob 1',
-            x: 300,
-            y: 100,
-            width: 80,
-            height: 80,
-            midiChannel: 0,
-            midiCc: 1,
-          ),
-        ],
-      );
-
-      _historyCubit?.clear();
-      _historyCubit?.record(dummyProject);
-      emit(state.copyWith(status: EditorStatus.ready, project: dummyProject));
-    } else {
-      try {
-        if (_projectRepository == null) {
-          emit(state.copyWith(status: EditorStatus.ready, errorMessage: 'Project repository not available'));
-          return;
-        }
-        final project = await _projectRepository.loadProject(event.path);
-        _historyCubit?.clear();
-        _historyCubit?.record(project);
-        emit(state.copyWith(status: EditorStatus.ready, project: project, errorMessage: null));
-      } catch (e) {
-        emit(state.copyWith(status: EditorStatus.ready, errorMessage: 'Failed to load project: $e'));
+    try {
+      Project? project;
+      if (event.project != null) {
+        project = event.project;
+      } else if (event.path.isNotEmpty) {
+        project = await _projectRepository?.loadProject(event.path);
       }
+
+      if (project != null) {
+        emit(state.copyWith(status: EditorStatus.ready, project: project, errorMessage: null));
+        _recordHistory();
+      } else {
+        emit(state.copyWith(status: EditorStatus.error, errorMessage: 'Failed to load project: Project not found'));
+      }
+    } catch (e) {
+      emit(state.copyWith(status: EditorStatus.error, errorMessage: 'Failed to load project: $e'));
     }
   }
+
+  // ... (previous handlers)
 
   Future<void> _onSaveProject(SaveProject event, Emitter<EditorState> emit) async {
     final project = state.project;
@@ -140,11 +99,23 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       maxX += 100;
       maxY += 100;
 
-      final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY);
+      final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY, updatedAt: DateTime.now());
 
-      await _projectRepository?.saveProject(projectToSave, event.path);
+      await _projectRepository?.saveProjectInternal(projectToSave);
+      emit(state.copyWith(project: projectToSave, errorMessage: null)); // Update state with new timestamp
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to save project: $e'));
+    }
+  }
+
+  Future<void> _onExportProject(ExportProject event, Emitter<EditorState> emit) async {
+    final project = state.project;
+    if (project == null) return;
+
+    try {
+      await _projectRepository?.exportProject(project, event.path);
+    } catch (e) {
+      emit(state.copyWith(errorMessage: 'Failed to export project: $e'));
     }
   }
 
@@ -514,6 +485,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         currentTool: EditorTool.select,
       ),
     );
+  }
+
+  void _onSetFloodFillTolerance(SetFloodFillTolerance event, Emitter<EditorState> emit) {
+    emit(state.copyWith(floodFillTolerance: event.tolerance.clamp(0, 100)));
   }
 
   Set<img.Point> _performFloodFill(img.Image image, int startX, int startY, {int tolerance = 10}) {

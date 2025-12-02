@@ -61,9 +61,17 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               icon: const Icon(Icons.save),
               tooltip: 'Save Project',
+              onPressed: () {
+                context.read<EditorBloc>().add(const EditorEvent.saveProject());
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Project saved')));
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_upload),
+              tooltip: 'Export Project',
               onPressed: () async {
                 final path = await FilePicker.platform.saveFile(
-                  dialogTitle: 'Save Project',
+                  dialogTitle: 'Export Project',
                   fileName: '${project?.name ?? "project"}.mvs',
                   type: FileType.custom,
                   allowedExtensions: ['mvs', 'zip'],
@@ -71,7 +79,8 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                 if (path != null) {
                   if (context.mounted) {
-                    context.read<EditorBloc>().add(EditorEvent.saveProject(path));
+                    context.read<EditorBloc>().add(EditorEvent.exportProject(path));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Project exported')));
                   }
                 }
               },

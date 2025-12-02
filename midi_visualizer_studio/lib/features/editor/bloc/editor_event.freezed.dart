@@ -55,7 +55,7 @@ extension EditorEventPatterns on EditorEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( UpdateComponents value)?  updateComponents,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,TResult Function( ToggleGrid value)?  toggleGrid,TResult Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult Function( SetGridSize value)?  setGridSize,TResult Function( HandleMidiMessage value)?  handleMidiMessage,TResult Function( SaveProject value)?  saveProject,TResult Function( FillImageArea value)?  fillImageArea,TResult Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult Function( CopyEvent value)?  copy,TResult Function( PasteEvent value)?  paste,TResult Function( CutEvent value)?  cut,TResult Function( DeleteEvent value)?  delete,TResult Function( DuplicateEvent value)?  duplicate,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( UpdateComponents value)?  updateComponents,TResult Function( SelectComponent value)?  selectComponent,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,TResult Function( ToggleGrid value)?  toggleGrid,TResult Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult Function( SetGridSize value)?  setGridSize,TResult Function( HandleMidiMessage value)?  handleMidiMessage,TResult Function( SaveProject value)?  saveProject,TResult Function( ExportProject value)?  exportProject,TResult Function( FillImageArea value)?  fillImageArea,TResult Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult Function( CopyEvent value)?  copy,TResult Function( PasteEvent value)?  paste,TResult Function( CutEvent value)?  cut,TResult Function( DeleteEvent value)?  delete,TResult Function( DuplicateEvent value)?  duplicate,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -81,7 +81,8 @@ return toggleGrid(_that);case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid(_that);case SetGridSize() when setGridSize != null:
 return setGridSize(_that);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that);case SaveProject() when saveProject != null:
-return saveProject(_that);case FillImageArea() when fillImageArea != null:
+return saveProject(_that);case ExportProject() when exportProject != null:
+return exportProject(_that);case FillImageArea() when fillImageArea != null:
 return fillImageArea(_that);case SetFloodFillTolerance() when setFloodFillTolerance != null:
 return setFloodFillTolerance(_that);case CopyEvent() when copy != null:
 return copy(_that);case PasteEvent() when paste != null:
@@ -106,7 +107,7 @@ return duplicate(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( UpdateComponents value)  updateComponents,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,required TResult Function( ToggleGrid value)  toggleGrid,required TResult Function( ToggleSnapToGrid value)  toggleSnapToGrid,required TResult Function( SetGridSize value)  setGridSize,required TResult Function( HandleMidiMessage value)  handleMidiMessage,required TResult Function( SaveProject value)  saveProject,required TResult Function( FillImageArea value)  fillImageArea,required TResult Function( SetFloodFillTolerance value)  setFloodFillTolerance,required TResult Function( CopyEvent value)  copy,required TResult Function( PasteEvent value)  paste,required TResult Function( CutEvent value)  cut,required TResult Function( DeleteEvent value)  delete,required TResult Function( DuplicateEvent value)  duplicate,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( UpdateComponents value)  updateComponents,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,required TResult Function( ToggleGrid value)  toggleGrid,required TResult Function( ToggleSnapToGrid value)  toggleSnapToGrid,required TResult Function( SetGridSize value)  setGridSize,required TResult Function( HandleMidiMessage value)  handleMidiMessage,required TResult Function( SaveProject value)  saveProject,required TResult Function( ExportProject value)  exportProject,required TResult Function( FillImageArea value)  fillImageArea,required TResult Function( SetFloodFillTolerance value)  setFloodFillTolerance,required TResult Function( CopyEvent value)  copy,required TResult Function( PasteEvent value)  paste,required TResult Function( CutEvent value)  cut,required TResult Function( DeleteEvent value)  delete,required TResult Function( DuplicateEvent value)  duplicate,}){
 final _that = this;
 switch (_that) {
 case LoadProject():
@@ -132,7 +133,8 @@ return toggleGrid(_that);case ToggleSnapToGrid():
 return toggleSnapToGrid(_that);case SetGridSize():
 return setGridSize(_that);case HandleMidiMessage():
 return handleMidiMessage(_that);case SaveProject():
-return saveProject(_that);case FillImageArea():
+return saveProject(_that);case ExportProject():
+return exportProject(_that);case FillImageArea():
 return fillImageArea(_that);case SetFloodFillTolerance():
 return setFloodFillTolerance(_that);case CopyEvent():
 return copy(_that);case PasteEvent():
@@ -156,7 +158,7 @@ return duplicate(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( UpdateComponents value)?  updateComponents,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,TResult? Function( ToggleGrid value)?  toggleGrid,TResult? Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult? Function( SetGridSize value)?  setGridSize,TResult? Function( HandleMidiMessage value)?  handleMidiMessage,TResult? Function( SaveProject value)?  saveProject,TResult? Function( FillImageArea value)?  fillImageArea,TResult? Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult? Function( CopyEvent value)?  copy,TResult? Function( PasteEvent value)?  paste,TResult? Function( CutEvent value)?  cut,TResult? Function( DeleteEvent value)?  delete,TResult? Function( DuplicateEvent value)?  duplicate,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( UpdateComponents value)?  updateComponents,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,TResult? Function( ToggleGrid value)?  toggleGrid,TResult? Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult? Function( SetGridSize value)?  setGridSize,TResult? Function( HandleMidiMessage value)?  handleMidiMessage,TResult? Function( SaveProject value)?  saveProject,TResult? Function( ExportProject value)?  exportProject,TResult? Function( FillImageArea value)?  fillImageArea,TResult? Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult? Function( CopyEvent value)?  copy,TResult? Function( PasteEvent value)?  paste,TResult? Function( CutEvent value)?  cut,TResult? Function( DeleteEvent value)?  delete,TResult? Function( DuplicateEvent value)?  duplicate,}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -182,7 +184,8 @@ return toggleGrid(_that);case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid(_that);case SetGridSize() when setGridSize != null:
 return setGridSize(_that);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that);case SaveProject() when saveProject != null:
-return saveProject(_that);case FillImageArea() when fillImageArea != null:
+return saveProject(_that);case ExportProject() when exportProject != null:
+return exportProject(_that);case FillImageArea() when fillImageArea != null:
 return fillImageArea(_that);case SetFloodFillTolerance() when setFloodFillTolerance != null:
 return setFloodFillTolerance(_that);case CopyEvent() when copy != null:
 return copy(_that);case PasteEvent() when paste != null:
@@ -206,7 +209,7 @@ return duplicate(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path,  Project? project)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( List<Component> components)?  updateComponents,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function( String path)?  saveProject,TResult Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult Function( int tolerance)?  setFloodFillTolerance,TResult Function()?  copy,TResult Function()?  paste,TResult Function()?  cut,TResult Function()?  delete,TResult Function()?  duplicate,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String path,  Project? project)?  loadProject,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( List<Component> components)?  updateComponents,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function()?  saveProject,TResult Function( String path)?  exportProject,TResult Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult Function( int tolerance)?  setFloodFillTolerance,TResult Function()?  copy,TResult Function()?  paste,TResult Function()?  cut,TResult Function()?  delete,TResult Function()?  duplicate,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path,_that.project);case AddComponent() when addComponent != null:
@@ -231,7 +234,8 @@ return toggleGrid();case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid();case SetGridSize() when setGridSize != null:
 return setGridSize(_that.size);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that.packet);case SaveProject() when saveProject != null:
-return saveProject(_that.path);case FillImageArea() when fillImageArea != null:
+return saveProject();case ExportProject() when exportProject != null:
+return exportProject(_that.path);case FillImageArea() when fillImageArea != null:
 return fillImageArea(_that.componentId,_that.position,_that.color);case SetFloodFillTolerance() when setFloodFillTolerance != null:
 return setFloodFillTolerance(_that.tolerance);case CopyEvent() when copy != null:
 return copy();case PasteEvent() when paste != null:
@@ -256,7 +260,7 @@ return duplicate();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path,  Project? project)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( List<Component> components)  updateComponents,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function( String path)  saveProject,required TResult Function( String componentId,  Offset position,  Color color)  fillImageArea,required TResult Function( int tolerance)  setFloodFillTolerance,required TResult Function()  copy,required TResult Function()  paste,required TResult Function()  cut,required TResult Function()  delete,required TResult Function()  duplicate,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String path,  Project? project)  loadProject,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( List<Component> components)  updateComponents,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function()  saveProject,required TResult Function( String path)  exportProject,required TResult Function( String componentId,  Offset position,  Color color)  fillImageArea,required TResult Function( int tolerance)  setFloodFillTolerance,required TResult Function()  copy,required TResult Function()  paste,required TResult Function()  cut,required TResult Function()  delete,required TResult Function()  duplicate,}) {final _that = this;
 switch (_that) {
 case LoadProject():
 return loadProject(_that.path,_that.project);case AddComponent():
@@ -281,7 +285,8 @@ return toggleGrid();case ToggleSnapToGrid():
 return toggleSnapToGrid();case SetGridSize():
 return setGridSize(_that.size);case HandleMidiMessage():
 return handleMidiMessage(_that.packet);case SaveProject():
-return saveProject(_that.path);case FillImageArea():
+return saveProject();case ExportProject():
+return exportProject(_that.path);case FillImageArea():
 return fillImageArea(_that.componentId,_that.position,_that.color);case SetFloodFillTolerance():
 return setFloodFillTolerance(_that.tolerance);case CopyEvent():
 return copy();case PasteEvent():
@@ -305,7 +310,7 @@ return duplicate();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path,  Project? project)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( List<Component> components)?  updateComponents,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function( String path)?  saveProject,TResult? Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult? Function( int tolerance)?  setFloodFillTolerance,TResult? Function()?  copy,TResult? Function()?  paste,TResult? Function()?  cut,TResult? Function()?  delete,TResult? Function()?  duplicate,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String path,  Project? project)?  loadProject,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( List<Component> components)?  updateComponents,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function()?  saveProject,TResult? Function( String path)?  exportProject,TResult? Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult? Function( int tolerance)?  setFloodFillTolerance,TResult? Function()?  copy,TResult? Function()?  paste,TResult? Function()?  cut,TResult? Function()?  delete,TResult? Function()?  duplicate,}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.path,_that.project);case AddComponent() when addComponent != null:
@@ -330,7 +335,8 @@ return toggleGrid();case ToggleSnapToGrid() when toggleSnapToGrid != null:
 return toggleSnapToGrid();case SetGridSize() when setGridSize != null:
 return setGridSize(_that.size);case HandleMidiMessage() when handleMidiMessage != null:
 return handleMidiMessage(_that.packet);case SaveProject() when saveProject != null:
-return saveProject(_that.path);case FillImageArea() when fillImageArea != null:
+return saveProject();case ExportProject() when exportProject != null:
+return exportProject(_that.path);case FillImageArea() when fillImageArea != null:
 return fillImageArea(_that.componentId,_that.position,_that.color);case SetFloodFillTolerance() when setFloodFillTolerance != null:
 return setFloodFillTolerance(_that.tolerance);case CopyEvent() when copy != null:
 return copy();case PasteEvent() when paste != null:
@@ -1591,7 +1597,39 @@ as MidiPacket,
 
 
 class SaveProject implements EditorEvent {
-  const SaveProject(this.path);
+  const SaveProject();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SaveProject);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EditorEvent.saveProject()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ExportProject implements EditorEvent {
+  const ExportProject(this.path);
   
 
  final  String path;
@@ -1600,13 +1638,13 @@ class SaveProject implements EditorEvent {
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$SaveProjectCopyWith<SaveProject> get copyWith => _$SaveProjectCopyWithImpl<SaveProject>(this, _$identity);
+$ExportProjectCopyWith<ExportProject> get copyWith => _$ExportProjectCopyWithImpl<ExportProject>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SaveProject&&(identical(other.path, path) || other.path == path));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExportProject&&(identical(other.path, path) || other.path == path));
 }
 
 
@@ -1615,15 +1653,15 @@ int get hashCode => Object.hash(runtimeType,path);
 
 @override
 String toString() {
-  return 'EditorEvent.saveProject(path: $path)';
+  return 'EditorEvent.exportProject(path: $path)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $SaveProjectCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
-  factory $SaveProjectCopyWith(SaveProject value, $Res Function(SaveProject) _then) = _$SaveProjectCopyWithImpl;
+abstract mixin class $ExportProjectCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $ExportProjectCopyWith(ExportProject value, $Res Function(ExportProject) _then) = _$ExportProjectCopyWithImpl;
 @useResult
 $Res call({
  String path
@@ -1634,17 +1672,17 @@ $Res call({
 
 }
 /// @nodoc
-class _$SaveProjectCopyWithImpl<$Res>
-    implements $SaveProjectCopyWith<$Res> {
-  _$SaveProjectCopyWithImpl(this._self, this._then);
+class _$ExportProjectCopyWithImpl<$Res>
+    implements $ExportProjectCopyWith<$Res> {
+  _$ExportProjectCopyWithImpl(this._self, this._then);
 
-  final SaveProject _self;
-  final $Res Function(SaveProject) _then;
+  final ExportProject _self;
+  final $Res Function(ExportProject) _then;
 
 /// Create a copy of EditorEvent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? path = null,}) {
-  return _then(SaveProject(
+  return _then(ExportProject(
 null == path ? _self.path : path // ignore: cast_nullable_to_non_nullable
 as String,
   ));
