@@ -233,7 +233,7 @@ return $default(_that.status,_that.project,_that.mode,_that.currentTool,_that.zo
 
 
 class _EditorState implements EditorState {
-  const _EditorState({this.status = EditorStatus.initial, this.project, this.mode = EditorMode.edit, this.currentTool = EditorTool.select, this.zoomLevel = 1.0, this.viewOffset = Offset.zero, this.viewportSize = Size.zero, final  List<Offset> currentPathPoints = const [], this.showGrid = false, this.snapToGrid = true, this.gridSize = 20.0, this.floodFillTolerance = 10, final  Set<String> selectedComponentIds = const {}, final  Set<String> activeComponentIds = const {}, this.lastSelectedId, this.errorMessage}): _currentPathPoints = currentPathPoints,_selectedComponentIds = selectedComponentIds,_activeComponentIds = activeComponentIds;
+  const _EditorState({this.status = EditorStatus.initial, this.project, this.mode = EditorMode.edit, this.currentTool = EditorTool.select, this.zoomLevel = 1.0, this.viewOffset = Offset.zero, this.viewportSize = Size.zero, final  List<Offset> currentPathPoints = const [], this.showGrid = true, this.snapToGrid = true, this.gridSize = 10.0, this.floodFillTolerance = 10, final  Set<String> selectedComponentIds = const {}, final  Set<String> activeComponentIds = const {}, this.lastSelectedId, this.errorMessage}): _currentPathPoints = currentPathPoints,_selectedComponentIds = selectedComponentIds,_activeComponentIds = activeComponentIds;
   
 
 @override@JsonKey() final  EditorStatus status;

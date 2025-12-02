@@ -436,7 +436,7 @@ class _CanvasViewState extends State<CanvasView> {
                                                   isSelected: isSelected,
                                                   isActive: isActive,
                                                   gridSize: state.gridSize,
-                                                  snapToGrid: state.snapToGrid,
+                                                  snapToGrid: state.showGrid && state.snapToGrid,
                                                   padding: padding,
                                                   dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
                                                   onDragStart: (details) {

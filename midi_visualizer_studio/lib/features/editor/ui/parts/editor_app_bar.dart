@@ -208,31 +208,70 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             const VerticalDivider(indent: 10, endIndent: 10),
 
             // Grid Settings
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.grid_on),
-              tooltip: 'Grid Settings',
-              itemBuilder: (context) => [
-                CheckedPopupMenuItem(checked: state.showGrid, value: 'show_grid', child: const Text('Show Grid')),
-                CheckedPopupMenuItem(
-                  checked: state.snapToGrid,
-                  value: 'snap_to_grid',
-                  child: const Text('Snap to Grid'),
-                ),
-                const PopupMenuDivider(),
-                PopupMenuItem(value: 'grid_size', child: Text('Grid Size: ${state.gridSize.toInt()}')),
-              ],
-              onSelected: (value) {
-                if (value == 'show_grid') {
-                  context.read<EditorBloc>().add(const EditorEvent.toggleGrid());
-                } else if (value == 'snap_to_grid') {
-                  context.read<EditorBloc>().add(const EditorEvent.toggleSnapToGrid());
-                } else if (value == 'grid_size') {
-                  // Cycle grid size
-                  final sizes = [10.0, 20.0, 50.0, 100.0];
-                  final currentIndex = sizes.indexOf(state.gridSize);
-                  final nextIndex = (currentIndex + 1) % sizes.length;
-                  context.read<EditorBloc>().add(EditorEvent.setGridSize(sizes[nextIndex]));
-                }
+            // Capture the bloc from the current context
+            Builder(
+              builder: (context) {
+                final editorBloc = context.read<EditorBloc>();
+                return PopupMenuButton<String>(
+                  icon: const Icon(Icons.grid_on),
+                  tooltip: 'Grid Settings',
+                  itemBuilder: (context) => [
+                    CheckedPopupMenuItem(checked: state.showGrid, value: 'show_grid', child: const Text('Show Grid')),
+                    CheckedPopupMenuItem(
+                      checked: state.snapToGrid,
+                      value: 'snap_to_grid',
+                      child: const Text('Snap to Grid'),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      enabled: false,
+                      child: BlocBuilder<EditorBloc, EditorState>(
+                        bloc: editorBloc,
+                        builder: (context, state) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Grid Size', style: Theme.of(context).textTheme.bodyMedium),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    iconSize: 20,
+                                    splashRadius: 20,
+                                    onPressed: () {
+                                      if (state.gridSize > 5) {
+                                        editorBloc.add(EditorEvent.setGridSize(state.gridSize - 5));
+                                      }
+                                    },
+                                  ),
+                                  Text('${state.gridSize.toInt()}', style: Theme.of(context).textTheme.bodyMedium),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    iconSize: 20,
+                                    splashRadius: 20,
+                                    onPressed: () {
+                                      if (state.gridSize < 100) {
+                                        editorBloc.add(EditorEvent.setGridSize(state.gridSize + 5));
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 'show_grid') {
+                      editorBloc.add(const EditorEvent.toggleGrid());
+                    } else if (value == 'snap_to_grid') {
+                      editorBloc.add(const EditorEvent.toggleSnapToGrid());
+                    }
+                  },
+                );
               },
             ),
 

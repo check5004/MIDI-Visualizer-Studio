@@ -358,6 +358,16 @@ class _ComponentSelectionOverlayState extends State<ComponentSelectionOverlay> {
     newX = newCenterX - newWidth / 2;
     newY = newCenterY - newHeight / 2;
 
+    if (widget.snapToGrid) {
+      newX = (newX / widget.gridSize).round() * widget.gridSize;
+      newY = (newY / widget.gridSize).round() * widget.gridSize;
+      newWidth = (newWidth / widget.gridSize).round() * widget.gridSize;
+      newHeight = (newHeight / widget.gridSize).round() * widget.gridSize;
+
+      if (newWidth < widget.gridSize) newWidth = widget.gridSize;
+      if (newHeight < widget.gridSize) newHeight = widget.gridSize;
+    }
+
     final updatedComponent = widget.component.map(
       pad: (c) => c.copyWith(x: newX, y: newY, width: newWidth, height: newHeight, rotation: newRotation),
       knob: (c) => c.copyWith(x: newX, y: newY, width: newWidth, height: newHeight, rotation: newRotation),
