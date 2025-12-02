@@ -56,3 +56,7 @@ Flutter製のMIDIビジュアライザー作成・再生アプリケーション
 GitHub Actionsにより以下のワークフローが自動化されています：
 - Web版のビルドとGitHub Pagesへのデプロイ。
 - Windows版のビルドとGitHub Releasesへの公開。
+
+## ライセンス
+
+このプロジェクトは [MIT License](../LICENSE) の下で公開されています。
