@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/core/router/app_router.dart';
 import 'package:midi_visualizer_studio/core/services/midi_service.dart';
+import 'package:midi_visualizer_studio/features/common/services/color_history_service.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
@@ -35,20 +36,40 @@ void main() async {
 
   final midiService = MidiService();
   final prefs = await SharedPreferences.getInstance();
+  final colorHistoryService = ColorHistoryService(prefs);
 
-  runApp(MidiVisualizerApp(midiService: midiService, prefs: prefs));
+  final projectRepository = ProjectRepository();
+  runApp(
+    MidiVisualizerApp(
+      midiService: midiService,
+      prefs: prefs,
+      colorHistoryService: colorHistoryService,
+      projectRepository: projectRepository,
+    ),
+  );
 }
 
 class MidiVisualizerApp extends StatelessWidget {
   final MidiService midiService;
   final SharedPreferences prefs;
+  final ColorHistoryService colorHistoryService;
+  final ProjectRepository projectRepository;
 
-  const MidiVisualizerApp({super.key, required this.midiService, required this.prefs});
+  const MidiVisualizerApp({
+    super.key,
+    required this.midiService,
+    required this.prefs,
+    required this.colorHistoryService,
+    required this.projectRepository,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (context) => ProjectRepository(),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider.value(value: projectRepository),
+        RepositoryProvider.value(value: colorHistoryService),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => MidiBloc(midiService)),

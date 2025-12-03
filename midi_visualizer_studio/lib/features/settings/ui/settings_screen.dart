@@ -8,6 +8,7 @@ import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_event.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 import 'package:midi_visualizer_studio/features/settings/ui/parts/settings_card.dart';
+import 'package:midi_visualizer_studio/features/common/ui/advanced_color_picker_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -88,36 +89,28 @@ class _GeneralSettingsSection extends StatelessWidget {
         const Divider(),
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
-            final colors = [
-              0xFF1E1E1E, // Dark Grey
-              0xFF000000, // Black
-              0xFFFFFFFF, // White
-              0xFF00FF00, // Green Screen
-              0xFF0000FF, // Blue Screen
-            ];
             return ListTile(
               title: const Text('Editor Background'),
-              subtitle: Wrap(
-                spacing: 8,
-                children: colors.map((color) {
-                  final isSelected = state.editorBackgroundColor == color;
-                  return GestureDetector(
-                    onTap: () {
-                      context.read<SettingsBloc>().add(SettingsEvent.updateEditorBackgroundColor(color));
-                    },
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Color(color),
-                        border: isSelected
-                            ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-                            : Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+              trailing: GestureDetector(
+                onTap: () async {
+                  final color = Color(state.editorBackgroundColor);
+                  final selectedColor = await showDialog<Color>(
+                    context: context,
+                    builder: (context) => AdvancedColorPickerDialog(initialColor: color),
                   );
-                }).toList(),
+                  if (selectedColor != null) {
+                    context.read<SettingsBloc>().add(SettingsEvent.updateEditorBackgroundColor(selectedColor.value));
+                  }
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(state.editorBackgroundColor),
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
               ),
             );
           },
@@ -203,14 +196,6 @@ class _StreamingSettingsSection extends StatelessWidget {
       children: [
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
-            final colors = [
-              0xFF00FF00, // Green
-              0xFF0000FF, // Blue
-              0xFFFF00FF, // Magenta
-              0xFF000000, // Black
-              0xFFFFFFFF, // White
-            ];
-
             return Column(
               children: [
                 const ListTile(
@@ -219,27 +204,26 @@ class _StreamingSettingsSection extends StatelessWidget {
                 ),
                 ListTile(
                   title: const Text('Default Color'),
-                  subtitle: Wrap(
-                    spacing: 8,
-                    children: colors.map((color) {
-                      final isSelected = state.defaultChromaKeyColor == color;
-                      return GestureDetector(
-                        onTap: () {
-                          context.read<SettingsBloc>().add(SettingsEvent.updateChromaKeyColor(color));
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Color(color),
-                            border: isSelected
-                                ? Border.all(color: Theme.of(context).colorScheme.primary, width: 3)
-                                : Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
+                  trailing: GestureDetector(
+                    onTap: () async {
+                      final color = Color(state.defaultChromaKeyColor);
+                      final selectedColor = await showDialog<Color>(
+                        context: context,
+                        builder: (context) => AdvancedColorPickerDialog(initialColor: color),
                       );
-                    }).toList(),
+                      if (selectedColor != null) {
+                        context.read<SettingsBloc>().add(SettingsEvent.updateChromaKeyColor(selectedColor.value));
+                      }
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(state.defaultChromaKeyColor),
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
                   ),
                 ),
                 const Divider(),
