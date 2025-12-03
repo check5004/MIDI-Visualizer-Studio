@@ -108,7 +108,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     if (mounted) {
-      context.go('/home');
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('/home');
+      }
     }
   }
 

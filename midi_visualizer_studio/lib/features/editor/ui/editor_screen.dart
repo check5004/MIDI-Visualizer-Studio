@@ -41,7 +41,13 @@ class _EditorScreenState extends State<EditorScreen> {
           )..add(EditorEvent.loadProject(path: widget.projectId, project: widget.project)),
         ),
       ],
-      child: BlocBuilder<EditorBloc, EditorState>(
+      child: BlocConsumer<EditorBloc, EditorState>(
+        listenWhen: (previous, current) => previous.tempProject == null && current.tempProject != null,
+        listener: (context, state) {
+          if (state.tempProject != null) {
+            _showRestoreDialog(context);
+          }
+        },
         builder: (context, state) {
           if (state.status == EditorStatus.loading) {
             return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -140,6 +146,31 @@ class _EditorScreenState extends State<EditorScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _showRestoreDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Restore Session?'),
+          content: const Text('An unsaved session was found. Do you want to restore your changes?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Discard')),
+            TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Restore')),
+          ],
+        );
+      },
+    );
+
+    if (context.mounted) {
+      if (result == true) {
+        context.read<EditorBloc>().add(const EditorEvent.restoreSession());
+      } else {
+        context.read<EditorBloc>().add(const EditorEvent.discardSession());
+      }
+    }
   }
 }
 

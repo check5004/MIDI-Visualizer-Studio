@@ -51,4 +51,6 @@ class EditorEvent with _$EditorEvent {
       UpdateDrawing;
   const factory EditorEvent.finishDrawing() = FinishDrawing;
   const factory EditorEvent.createPadGrid(int rows, int columns) = CreatePadGrid;
+  const factory EditorEvent.restoreSession() = RestoreSession;
+  const factory EditorEvent.discardSession() = DiscardSession;
 }

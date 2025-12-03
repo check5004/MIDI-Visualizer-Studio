@@ -32,5 +32,7 @@ abstract class EditorState with _$EditorState {
     String? lastSelectedId,
     String? errorMessage,
     @Default(false) bool isInteractingWithInspector,
+    @Default(false) bool hasUnsavedChanges,
+    Project? tempProject,
   }) = _EditorState;
 }

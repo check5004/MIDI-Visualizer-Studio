@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:ui';
 
@@ -14,22 +13,29 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 import 'package:midi_visualizer_studio/core/utils/path_utils.dart';
+import 'package:midi_visualizer_studio/core/services/temporary_storage_service.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final HistoryCubit? _historyCubit;
   final ProjectRepository? _projectRepository;
+  final TemporaryStorageService _temporaryStorageService;
 
-  EditorBloc({HistoryCubit? historyCubit, ProjectRepository? projectRepository})
-    : _historyCubit = historyCubit,
-      _projectRepository = projectRepository,
-      super(const EditorState()) {
+  EditorBloc({
+    HistoryCubit? historyCubit,
+    ProjectRepository? projectRepository,
+    TemporaryStorageService? temporaryStorageService,
+  }) : _historyCubit = historyCubit,
+       _projectRepository = projectRepository,
+       _temporaryStorageService = temporaryStorageService ?? TemporaryStorageService(),
+       super(const EditorState()) {
     on<LoadProject>(_onLoadProject);
     on<UpdateViewTransform>(_onUpdateViewTransform);
     on<UpdateViewportSize>(_onUpdateViewportSize);
     on<CenterOnContent>(_onCenterOnContent);
     on<AddComponent>(_onAddComponent);
-    on<UpdateComponent>(_onUpdateComponent);
-    on<UpdateComponents>(_onUpdateComponents);
+    on<UpdateComponent>(_onUpdateComponent, transformer: _debounce(const Duration(milliseconds: 300)));
+    on<UpdateComponents>(_onUpdateComponents, transformer: _debounce(const Duration(milliseconds: 300)));
     on<SelectComponent>(_onSelectComponent);
     on<SelectComponents>(_onSelectComponents);
     on<ReorderComponent>(_onReorderComponent);
@@ -64,6 +70,12 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<UpdateDrawing>(_onUpdateDrawing);
     on<FinishDrawing>(_onFinishDrawing);
     on<CreatePadGrid>(_onCreatePadGrid);
+    on<RestoreSession>(_onRestoreSession);
+    on<DiscardSession>(_onDiscardSession);
+  }
+
+  EventTransformer<E> _debounce<E>(Duration duration) {
+    return (events, mapper) => events.debounce(duration).switchMap(mapper);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -76,6 +88,44 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       }
 
       if (project != null) {
+        // Check for temporary project
+        final hasTemp = await _temporaryStorageService.hasTemporaryProject(project.id);
+        if (hasTemp) {
+          final tempProject = await _temporaryStorageService.loadProject(project.id);
+          if (tempProject != null) {
+            // Check if content is actually different (ignoring timestamps)
+            final isContentDifferent = tempProject.copyWith(updatedAt: null) != project.copyWith(updatedAt: null);
+
+            if (isContentDifferent) {
+              final tempTime = tempProject.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+              final projTime = project.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+
+              if (tempTime.isAfter(projTime)) {
+                emit(
+                  state.copyWith(
+                    status: EditorStatus.ready,
+                    project: project,
+                    tempProject: tempProject,
+                    hasUnsavedChanges: true,
+                    errorMessage: null,
+                  ),
+                );
+                // Do not record history or auto-save here, as it would overwrite the temp file
+                return;
+              } else {
+                // If temp is older or same age but different content, it's ambiguous.
+                // But usually this means persistent is newer.
+                // However, if we are here, it means temp exists.
+                // If persistent is newer, we should probably clear temp.
+                await _temporaryStorageService.clearProject(project.id);
+              }
+            } else {
+              // If content is same, clear the temp file to avoid future prompts
+              await _temporaryStorageService.clearProject(project.id);
+            }
+          }
+        }
+
         emit(state.copyWith(status: EditorStatus.ready, project: project, errorMessage: null));
         _recordHistory();
       } else {
@@ -122,10 +172,45 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY, updatedAt: DateTime.now());
 
       await _projectRepository?.saveProjectInternal(projectToSave);
-      emit(state.copyWith(project: projectToSave, errorMessage: null)); // Update state with new timestamp
+      await _temporaryStorageService.clearProject(project.id); // Clear temp on save
+      emit(
+        state.copyWith(project: projectToSave, errorMessage: null, hasUnsavedChanges: false),
+      ); // Update state with new timestamp
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to save project: $e'));
     }
+  }
+
+  Future<void> _onRestoreSession(RestoreSession event, Emitter<EditorState> emit) async {
+    if (state.tempProject != null) {
+      emit(
+        state.copyWith(
+          project: state.tempProject,
+          tempProject: null,
+          hasUnsavedChanges: true, // It is unsaved relative to the persistent storage
+        ),
+      );
+      _recordHistory();
+    }
+  }
+
+  Future<void> _onDiscardSession(DiscardSession event, Emitter<EditorState> emit) async {
+    if (state.project != null) {
+      await _temporaryStorageService.clearProject(state.project!.id);
+      emit(state.copyWith(tempProject: null, hasUnsavedChanges: false));
+      _recordHistory(); // Record the initial state (original project)
+    }
+  }
+
+  void _recordHistory() {
+    if (state.project != null) {
+      _historyCubit?.record(state.project!);
+    }
+  }
+
+  void _saveToTempStorage(Project project) {
+    final updatedProject = project.copyWith(updatedAt: DateTime.now());
+    _temporaryStorageService.saveProject(updatedProject);
   }
 
   Future<void> _onExportProject(ExportProject event, Emitter<EditorState> emit) async {
@@ -162,7 +247,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     );
 
     final updatedLayers = [...project.layers, component];
-    emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
+    final newProject = project.copyWith(layers: updatedLayers);
+    emit(state.copyWith(project: newProject));
+    _saveToTempStorage(newProject);
   }
 
   void _onUpdateComponent(UpdateComponent event, Emitter<EditorState> emit) {
@@ -191,7 +278,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       return c.id == event.id ? componentToUpdate : c;
     }).toList();
 
-    emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
+    final newProject = project.copyWith(layers: updatedLayers);
+    emit(state.copyWith(project: newProject));
+    _saveToTempStorage(newProject);
   }
 
   void _onUpdateComponents(UpdateComponents event, Emitter<EditorState> emit) {
@@ -226,7 +315,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       }
     }
 
-    emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
+    final newProject = project.copyWith(layers: updatedLayers);
+    emit(state.copyWith(project: newProject));
+    _saveToTempStorage(newProject);
   }
 
   void _onSelectComponent(SelectComponent event, Emitter<EditorState> emit) {
@@ -284,12 +375,15 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       layers.insert(event.newIndex, layers.removeAt(event.oldIndex));
     }
 
-    emit(state.copyWith(project: project.copyWith(layers: layers)));
+    final newProject = project.copyWith(layers: layers);
+    emit(state.copyWith(project: newProject));
+    _saveToTempStorage(newProject);
   }
 
   void _onUpdateProjectSettings(UpdateProjectSettings event, Emitter<EditorState> emit) {
     _recordHistory();
     emit(state.copyWith(project: event.project));
+    _saveToTempStorage(event.project);
   }
 
   void _onToggleMode(ToggleMode event, Emitter<EditorState> emit) {
@@ -298,6 +392,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
   void _onRestoreProject(RestoreProject event, Emitter<EditorState> emit) {
     emit(state.copyWith(project: event.project));
+    _saveToTempStorage(event.project);
   }
 
   void _onUndo(UndoEvent event, Emitter<EditorState> emit) {
@@ -310,6 +405,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
           .where((id) => previousProject.layers.any((l) => l.id == id))
           .toSet();
       emit(state.copyWith(project: previousProject, selectedComponentIds: validSelection));
+      _saveToTempStorage(previousProject);
     }
   }
 
@@ -323,6 +419,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
           .where((id) => nextProject.layers.any((l) => l.id == id))
           .toSet();
       emit(state.copyWith(project: nextProject, selectedComponentIds: validSelection));
+      _saveToTempStorage(nextProject);
     }
   }
 
@@ -486,6 +583,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         newProject = project.copyWith(layers: newLayers);
       }
       emit(state.copyWith(activeComponentIds: activeIds, project: newProject));
+      _saveToTempStorage(newProject);
     }
   }
 
@@ -574,7 +672,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     );
 
     final updatedLayers = [...project.layers, newComponent];
-    emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
+    final newProject = project.copyWith(layers: updatedLayers);
+    emit(state.copyWith(project: newProject));
+    _saveToTempStorage(newProject);
   }
 
   void _onSetFloodFillTolerance(SetFloodFillTolerance event, Emitter<EditorState> emit) {
@@ -811,12 +911,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       }
 
       final updatedLayers = [...project.layers, ...newComponents];
-      emit(
-        state.copyWith(
-          project: project.copyWith(layers: updatedLayers),
-          selectedComponentIds: newIds,
-        ),
-      );
+      final newProject = project.copyWith(layers: updatedLayers);
+      emit(state.copyWith(project: newProject, selectedComponentIds: newIds));
+      _saveToTempStorage(newProject);
     } catch (e) {
       // Ignore invalid clipboard data
     }
@@ -913,15 +1010,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     final updatedLayers = [...project.layers, component];
 
+    final newProject = project.copyWith(layers: updatedLayers);
+
     emit(
       state.copyWith(
-        project: project.copyWith(layers: updatedLayers),
+        project: newProject,
         drawingStartPoint: null,
         currentDrawingRect: null,
         currentTool: EditorTool.select, // Reset tool
         selectedComponentIds: {id}, // Select the new component
       ),
     );
+    _saveToTempStorage(newProject);
   }
 
   void _onCreatePadGrid(CreatePadGrid event, Emitter<EditorState> emit) {
@@ -977,12 +1077,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     }
 
     final updatedLayers = [...project.layers, ...newComponents];
-    emit(
-      state.copyWith(
-        project: project.copyWith(layers: updatedLayers),
-        selectedComponentIds: newIds,
-      ),
-    );
+    final newProject = project.copyWith(layers: updatedLayers);
+    emit(state.copyWith(project: newProject, selectedComponentIds: newIds));
+    _saveToTempStorage(newProject);
   }
 
   Future<void> _onCut(CutEvent event, Emitter<EditorState> emit) async {
@@ -997,12 +1094,10 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     _recordHistory();
     final updatedLayers = project.layers.where((c) => !state.selectedComponentIds.contains(c.id)).toList();
 
-    emit(
-      state.copyWith(
-        project: project.copyWith(layers: updatedLayers),
-        selectedComponentIds: {},
-      ),
-    );
+    final newProject = project.copyWith(layers: updatedLayers);
+
+    emit(state.copyWith(project: newProject, selectedComponentIds: {}));
+    _saveToTempStorage(newProject);
   }
 
   void _onDuplicate(DuplicateEvent event, Emitter<EditorState> emit) {
@@ -1030,19 +1125,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
     final updatedLayers = [...project.layers, ...newComponents];
 
-    emit(
-      state.copyWith(
-        project: project.copyWith(layers: updatedLayers),
-        selectedComponentIds: newIds,
-      ),
-    );
-  }
+    final newProject = project.copyWith(layers: updatedLayers);
 
-  // Helper to record history before mutation
-  void _recordHistory() {
-    final project = state.project;
-    if (project != null) {
-      _historyCubit?.record(project);
-    }
+    emit(state.copyWith(project: newProject, selectedComponentIds: newIds));
+    _saveToTempStorage(newProject);
   }
 }
