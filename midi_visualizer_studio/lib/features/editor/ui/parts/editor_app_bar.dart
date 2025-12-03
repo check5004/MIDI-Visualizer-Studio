@@ -101,14 +101,15 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
               tooltip: 'Rectangle',
               color: state.currentTool == EditorTool.rectangle ? Theme.of(context).colorScheme.primary : null,
               onPressed: () {
-                _addComponent(context, PadShape.rect);
+                context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.rectangle));
               },
             ),
             IconButton(
               icon: const Icon(Icons.circle_outlined),
               tooltip: 'Circle',
+              color: state.currentTool == EditorTool.circle ? Theme.of(context).colorScheme.primary : null,
               onPressed: () {
-                _addComponent(context, PadShape.circle);
+                context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.circle));
               },
             ),
             IconButton(
@@ -309,12 +310,6 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
         );
       },
     );
-  }
-
-  void _addComponent(BuildContext context, PadShape shape) {
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-    final component = Component.pad(id: id, name: 'Pad $id', x: 100, y: 100, width: 100, height: 100, shape: shape);
-    context.read<EditorBloc>().add(EditorEvent.addComponent(component));
   }
 }
 

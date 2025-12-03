@@ -46,4 +46,8 @@ class EditorEvent with _$EditorEvent {
   const factory EditorEvent.duplicate() = DuplicateEvent;
   const factory EditorEvent.interactionStart() = InteractionStart;
   const factory EditorEvent.interactionEnd() = InteractionEnd;
+  const factory EditorEvent.startDrawing(Offset point) = StartDrawing;
+  const factory EditorEvent.updateDrawing(Offset point, {@Default(false) bool isShift, @Default(false) bool isAlt}) =
+      UpdateDrawing;
+  const factory EditorEvent.finishDrawing() = FinishDrawing;
 }

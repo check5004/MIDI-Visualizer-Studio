@@ -60,6 +60,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<DuplicateEvent>(_onDuplicate);
     on<InteractionStart>(_onInteractionStart);
     on<InteractionEnd>(_onInteractionEnd);
+    on<StartDrawing>(_onStartDrawing);
+    on<UpdateDrawing>(_onUpdateDrawing);
+    on<FinishDrawing>(_onFinishDrawing);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -566,12 +569,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     );
 
     final updatedLayers = [...project.layers, newComponent];
-    emit(
-      state.copyWith(
-        project: project.copyWith(layers: updatedLayers),
-        currentTool: EditorTool.select,
-      ),
-    );
+    emit(state.copyWith(project: project.copyWith(layers: updatedLayers)));
   }
 
   void _onSetFloodFillTolerance(SetFloodFillTolerance event, Emitter<EditorState> emit) {
@@ -797,6 +795,11 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       for (final item in jsonList) {
         final component = Component.fromJson(item as Map<String, dynamic>);
         final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
+        // ... (rest of paste logic is likely truncated in view, but I'm appending new methods at the end of the class, so I should target the end of the file or a known location)
+        // Wait, I can't see the end of the file. I should append the new methods before the end of the class.
+        // Let's look at the file content again or just append to the end if I can find the closing brace.
+        // The view_file output was truncated at line 800.
+        // I will use a separate tool call to read the end of the file first to be safe.
 
         // Calculate center position based on viewOffset and viewportSize
         final scale = state.zoomLevel;
@@ -906,6 +909,88 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
   void _onInteractionEnd(InteractionEnd event, Emitter<EditorState> emit) {
     emit(state.copyWith(isInteractingWithInspector: false));
+  }
+
+  void _onStartDrawing(StartDrawing event, Emitter<EditorState> emit) {
+    emit(state.copyWith(drawingStartPoint: event.point, currentDrawingRect: Rect.fromPoints(event.point, event.point)));
+  }
+
+  void _onUpdateDrawing(UpdateDrawing event, Emitter<EditorState> emit) {
+    if (state.drawingStartPoint == null) return;
+
+    final start = state.drawingStartPoint!;
+    var end = event.point;
+
+    if (event.isShift) {
+      // Constrain to 1:1 aspect ratio
+      final dx = end.dx - start.dx;
+      final dy = end.dy - start.dy;
+      final maxDelta = (dx.abs() > dy.abs()) ? dx.abs() : dy.abs();
+
+      final signX = dx >= 0 ? 1 : -1;
+      final signY = dy >= 0 ? 1 : -1;
+
+      end = Offset(start.dx + maxDelta * signX, start.dy + maxDelta * signY);
+    }
+
+    Rect rect;
+    if (event.isAlt) {
+      // Draw from center
+      // Start point is center. End point is a corner.
+      // Width/Height = 2 * distance from center
+      final width = (end.dx - start.dx).abs() * 2;
+      final height = (end.dy - start.dy).abs() * 2;
+      rect = Rect.fromCenter(center: start, width: width, height: height);
+    } else {
+      rect = Rect.fromPoints(start, end);
+    }
+
+    emit(state.copyWith(currentDrawingRect: rect));
+  }
+
+  void _onFinishDrawing(FinishDrawing event, Emitter<EditorState> emit) {
+    final rect = state.currentDrawingRect;
+    if (rect == null || state.project == null) return;
+
+    // Don't create if too small
+    if (rect.width < 5 || rect.height < 5) {
+      emit(state.copyWith(drawingStartPoint: null, currentDrawingRect: null));
+      return;
+    }
+
+    _recordHistory();
+
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    PadShape shape;
+    switch (state.currentTool) {
+      case EditorTool.rectangle:
+        shape = PadShape.rect;
+        break;
+      case EditorTool.circle:
+        shape = PadShape.circle;
+        break;
+      default:
+        shape = PadShape.rect;
+    }
+
+    final component = Component.pad(
+      id: id,
+      name: '${shape == PadShape.circle ? "Circle" : "Rect"} $id',
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+      shape: shape,
+    );
+
+    final updatedLayers = [...state.project!.layers, component];
+    emit(
+      state.copyWith(
+        project: state.project!.copyWith(layers: updatedLayers),
+        drawingStartPoint: null,
+        currentDrawingRect: null,
+      ),
+    );
   }
 
   // Helper to record history before mutation

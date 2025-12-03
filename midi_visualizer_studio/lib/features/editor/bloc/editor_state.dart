@@ -8,7 +8,7 @@ enum EditorStatus { initial, loading, ready, error }
 
 enum EditorMode { edit, play, overlay }
 
-enum EditorTool { select, path, bucketFill, rectangle }
+enum EditorTool { select, path, bucketFill, rectangle, circle }
 
 @freezed
 abstract class EditorState with _$EditorState {
@@ -21,6 +21,8 @@ abstract class EditorState with _$EditorState {
     @Default(Offset.zero) Offset viewOffset,
     @Default(Size.zero) Size viewportSize,
     @Default([]) List<Offset> currentPathPoints,
+    Offset? drawingStartPoint,
+    Rect? currentDrawingRect,
     @Default(true) bool showGrid,
     @Default(true) bool snapToGrid,
     @Default(10.0) double gridSize,

@@ -12,6 +12,7 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/painters/component_painter.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/painters/grid_painter.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/painters/path_preview_painter.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/painters/drawing_preview_painter.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/ruler_widget.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/selection_overlay.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
@@ -324,6 +325,9 @@ class _CanvasViewState extends State<CanvasView> {
 
                                   if (state.currentTool == EditorTool.path) {
                                     context.read<EditorBloc>().add(EditorEvent.addPathPoint(dataPos));
+                                  } else if (state.currentTool == EditorTool.rectangle ||
+                                      state.currentTool == EditorTool.circle) {
+                                    // Do nothing on tap for drawing tools, wait for drag
                                   } else {
                                     context.read<EditorBloc>().add(
                                       const EditorEvent.selectComponent('', multiSelect: false),
@@ -345,6 +349,10 @@ class _CanvasViewState extends State<CanvasView> {
                                       _selectionStart = details.localPosition;
                                       _selectionEnd = details.localPosition;
                                     });
+                                  } else if (state.currentTool == EditorTool.rectangle ||
+                                      state.currentTool == EditorTool.circle) {
+                                    final dataPos = details.localPosition - const Offset(kCanvasOrigin, kCanvasOrigin);
+                                    context.read<EditorBloc>().add(EditorEvent.startDrawing(dataPos));
                                   }
                                 },
                                 onPanUpdate: (details) {
@@ -352,6 +360,18 @@ class _CanvasViewState extends State<CanvasView> {
                                     setState(() {
                                       _selectionEnd = details.localPosition;
                                     });
+                                  } else if (state.currentTool == EditorTool.rectangle ||
+                                      state.currentTool == EditorTool.circle) {
+                                    final dataPos = details.localPosition - const Offset(kCanvasOrigin, kCanvasOrigin);
+                                    final isShift =
+                                        HardwareKeyboard.instance.isShiftPressed ||
+                                        HardwareKeyboard.instance.isMetaPressed ||
+                                        HardwareKeyboard.instance.isControlPressed;
+                                    final isAlt = HardwareKeyboard.instance.isAltPressed;
+
+                                    context.read<EditorBloc>().add(
+                                      EditorEvent.updateDrawing(dataPos, isShift: isShift, isAlt: isAlt),
+                                    );
                                   }
                                 },
                                 onPanEnd: (details) {
@@ -386,6 +406,9 @@ class _CanvasViewState extends State<CanvasView> {
                                       _selectionStart = null;
                                       _selectionEnd = null;
                                     });
+                                  } else if (state.currentTool == EditorTool.rectangle ||
+                                      state.currentTool == EditorTool.circle) {
+                                    context.read<EditorBloc>().add(const EditorEvent.finishDrawing());
                                   }
                                 },
                                 child: BlocBuilder<SettingsBloc, SettingsState>(
@@ -412,6 +435,16 @@ class _CanvasViewState extends State<CanvasView> {
                                               child: CustomPaint(
                                                 painter: PathPreviewPainter(
                                                   points: state.currentPathPoints,
+                                                  origin: const Offset(kCanvasOrigin, kCanvasOrigin),
+                                                ),
+                                              ),
+                                            ),
+                                          if (state.currentDrawingRect != null)
+                                            Positioned.fill(
+                                              child: CustomPaint(
+                                                painter: DrawingPreviewPainter(
+                                                  rect: state.currentDrawingRect!,
+                                                  tool: state.currentTool,
                                                   origin: const Offset(kCanvasOrigin, kCanvasOrigin),
                                                 ),
                                               ),
