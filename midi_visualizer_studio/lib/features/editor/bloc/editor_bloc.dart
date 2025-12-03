@@ -831,15 +831,97 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   }
 
   void _onStartDrawing(StartDrawing event, Emitter<EditorState> emit) {
-    // Drawing logic handled in UI/Painter mostly, but state tracks tool
+    emit(state.copyWith(drawingStartPoint: event.point, currentDrawingRect: Rect.fromPoints(event.point, event.point)));
   }
 
   void _onUpdateDrawing(UpdateDrawing event, Emitter<EditorState> emit) {
-    // Drawing logic handled in UI/Painter mostly
+    final startPoint = state.drawingStartPoint;
+    if (startPoint == null) return;
+
+    var endPoint = event.point;
+    Rect newRect;
+
+    if (event.isAlt) {
+      // Draw from center
+      final delta = endPoint - startPoint;
+      final newStart = startPoint - delta;
+      newRect = Rect.fromPoints(newStart, endPoint);
+    } else {
+      newRect = Rect.fromPoints(startPoint, endPoint);
+    }
+
+    if (event.isShift) {
+      // Constrain to square/circle
+      final width = newRect.width;
+      final height = newRect.height;
+      final size = width > height ? width : height;
+
+      if (event.isAlt) {
+        // Center-based square
+        final center = newRect.center;
+        newRect = Rect.fromCenter(center: center, width: size, height: size);
+      } else {
+        // Corner-based square
+        // Determine direction
+        final dx = endPoint.dx - startPoint.dx;
+        final dy = endPoint.dy - startPoint.dy;
+
+        final signX = dx.sign;
+        final signY = dy.sign;
+
+        newRect = Rect.fromLTWH(
+          startPoint.dx + (signX < 0 ? -size : 0),
+          startPoint.dy + (signY < 0 ? -size : 0),
+          size,
+          size,
+        );
+      }
+    }
+
+    emit(state.copyWith(currentDrawingRect: newRect));
   }
 
   void _onFinishDrawing(FinishDrawing event, Emitter<EditorState> emit) {
-    // Drawing logic handled in UI/Painter mostly
+    final rect = state.currentDrawingRect;
+    final project = state.project;
+
+    if (rect == null || project == null) {
+      emit(state.copyWith(drawingStartPoint: null, currentDrawingRect: null));
+      return;
+    }
+
+    // Don't create if too small
+    if (rect.width < 5 || rect.height < 5) {
+      emit(state.copyWith(drawingStartPoint: null, currentDrawingRect: null));
+      return;
+    }
+
+    _recordHistory();
+
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final shape = state.currentTool == EditorTool.circle ? PadShape.circle : PadShape.rect;
+
+    final component = Component.pad(
+      id: id,
+      name: '${shape == PadShape.circle ? "Circle" : "Rectangle"} $id',
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+      shape: shape,
+    );
+
+    final updatedLayers = [...project.layers, component];
+
+    emit(
+      state.copyWith(
+        project: project.copyWith(layers: updatedLayers),
+        drawingStartPoint: null,
+        currentDrawingRect: null,
+        currentTool: EditorTool.select, // Reset tool
+        selectedComponentIds: {id}, // Select the new component
+      ),
+    );
   }
 
   void _onCreatePadGrid(CreatePadGrid event, Emitter<EditorState> emit) {

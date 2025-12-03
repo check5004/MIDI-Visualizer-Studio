@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'dart:typed_data';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -270,6 +271,81 @@ void main() {
           isA<EditorState>()
               .having((s) => s.selectedComponentIds, 'selected', {'pad1', 'pad2'})
               .having((s) => s.lastSelectedId, 'lastSelectedId', 'pad2'),
+        ),
+      );
+    });
+  });
+
+  group('EditorBloc Shape Drawing', () {
+    late HistoryCubit historyCubit;
+    late ProjectRepository projectRepository;
+    late EditorBloc editorBloc;
+
+    final testProject = Project(id: 'test', name: 'Test Project', version: '1.0.0', layers: []);
+
+    setUp(() {
+      historyCubit = FakeHistoryCubit();
+      projectRepository = FakeProjectRepository();
+      editorBloc = EditorBloc(historyCubit: historyCubit, projectRepository: projectRepository);
+      editorBloc.emit(EditorState(project: testProject, status: EditorStatus.ready));
+    });
+
+    tearDown(() {
+      editorBloc.close();
+    });
+
+    test('StartDrawing sets initial state', () async {
+      const startPoint = Offset(100, 100);
+      editorBloc.add(const EditorEvent.startDrawing(startPoint));
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(
+          isA<EditorState>()
+              .having((s) => s.drawingStartPoint, 'drawingStartPoint', startPoint)
+              .having((s) => s.currentDrawingRect, 'currentDrawingRect', Rect.fromPoints(startPoint, startPoint)),
+        ),
+      );
+    });
+
+    test('UpdateDrawing updates rect', () async {
+      const startPoint = Offset(100, 100);
+      editorBloc.add(const EditorEvent.startDrawing(startPoint));
+      await Future.delayed(Duration.zero);
+
+      const endPoint = Offset(200, 200);
+      editorBloc.add(const EditorEvent.updateDrawing(endPoint));
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(
+          isA<EditorState>().having(
+            (s) => s.currentDrawingRect,
+            'currentDrawingRect',
+            Rect.fromPoints(startPoint, endPoint),
+          ),
+        ),
+      );
+    });
+
+    test('FinishDrawing creates component', () async {
+      const startPoint = Offset(100, 100);
+      editorBloc.add(const EditorEvent.startDrawing(startPoint));
+      await Future.delayed(Duration.zero);
+
+      const endPoint = Offset(200, 200);
+      editorBloc.add(const EditorEvent.updateDrawing(endPoint));
+      await Future.delayed(Duration.zero);
+
+      editorBloc.add(const EditorEvent.finishDrawing());
+
+      await expectLater(
+        editorBloc.stream,
+        emitsThrough(
+          isA<EditorState>()
+              .having((s) => s.project!.layers.length, 'layers length', 1)
+              .having((s) => s.drawingStartPoint, 'drawingStartPoint', isNull)
+              .having((s) => s.currentDrawingRect, 'currentDrawingRect', isNull),
         ),
       );
     });
