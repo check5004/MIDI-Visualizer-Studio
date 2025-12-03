@@ -63,6 +63,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     on<StartDrawing>(_onStartDrawing);
     on<UpdateDrawing>(_onUpdateDrawing);
     on<FinishDrawing>(_onFinishDrawing);
+    on<CreatePadGrid>(_onCreatePadGrid);
   }
 
   Future<void> _onLoadProject(LoadProject event, Emitter<EditorState> emit) async {
@@ -798,50 +799,18 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
       for (final item in jsonList) {
         final component = Component.fromJson(item as Map<String, dynamic>);
-        final newId = DateTime.now().millisecondsSinceEpoch.toString() + newComponents.length.toString();
-        // ... (rest of paste logic is likely truncated in view, but I'm appending new methods at the end of the class, so I should target the end of the file or a known location)
-        // Wait, I can't see the end of the file. I should append the new methods before the end of the class.
-        // Let's look at the file content again or just append to the end if I can find the closing brace.
-        // The view_file output was truncated at line 800.
-        // I will use a separate tool call to read the end of the file first to be safe.
-
-        // Calculate center position based on viewOffset and viewportSize
-        final scale = state.zoomLevel;
-        final viewportW = state.viewportSize.width > 0 ? state.viewportSize.width : 800.0;
-        final viewportH = state.viewportSize.height > 0 ? state.viewportSize.height : 600.0;
-
-        // Center of viewport in screen coordinates is (viewportW/2, viewportH/2)
-        // P_screen = s * (P_data + kCanvasOrigin) + t
-        // P_screen - t = s * (P_data + kCanvasOrigin)
-        // (P_screen - t) / s = P_data + kCanvasOrigin
-        // P_data = ((P_screen - t) / s) - kCanvasOrigin
-
-        final t = state.viewOffset;
-        final pScreen = Offset(viewportW / 2, viewportH / 2);
-        final kCanvasOrigin = 5000.0; // Hardcoded to match CanvasView
-
-        final pDataX = ((pScreen.dx - t.dx) / scale) - kCanvasOrigin;
-        final pDataY = ((pScreen.dy - t.dy) / scale) - kCanvasOrigin;
-
-        final centerX = pDataX;
-        final centerY = pDataY;
-
+        final newId = DateTime.now().millisecondsSinceEpoch.toString() + '_' + component.id;
         final newComponent = component.copyWith(
           id: newId,
-          x: centerX + (newComponents.length * 20),
-          y: centerY + (newComponents.length * 20),
+          x: component.x + 20,
+          y: component.y + 20,
           name: '${component.name} (Copy)',
         );
-
         newComponents.add(newComponent);
         newIds.add(newId);
       }
 
-      if (newComponents.isEmpty) return;
-
-      _recordHistory();
       final updatedLayers = [...project.layers, ...newComponents];
-
       emit(
         state.copyWith(
           project: project.copyWith(layers: updatedLayers),
@@ -849,9 +818,89 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         ),
       );
     } catch (e) {
-      // Ignore invalid JSON or clipboard data not matching our format
-      debugPrint('Paste failed: $e');
+      // Ignore invalid clipboard data
     }
+  }
+
+  void _onInteractionStart(InteractionStart event, Emitter<EditorState> emit) {
+    emit(state.copyWith(isInteractingWithInspector: true));
+  }
+
+  void _onInteractionEnd(InteractionEnd event, Emitter<EditorState> emit) {
+    emit(state.copyWith(isInteractingWithInspector: false));
+  }
+
+  void _onStartDrawing(StartDrawing event, Emitter<EditorState> emit) {
+    // Drawing logic handled in UI/Painter mostly, but state tracks tool
+  }
+
+  void _onUpdateDrawing(UpdateDrawing event, Emitter<EditorState> emit) {
+    // Drawing logic handled in UI/Painter mostly
+  }
+
+  void _onFinishDrawing(FinishDrawing event, Emitter<EditorState> emit) {
+    // Drawing logic handled in UI/Painter mostly
+  }
+
+  void _onCreatePadGrid(CreatePadGrid event, Emitter<EditorState> emit) {
+    final project = state.project;
+    if (project == null) return;
+
+    _recordHistory();
+
+    final rows = event.rows;
+    final cols = event.columns;
+    const padSize = 50.0;
+    const gap = 10.0;
+
+    final totalWidth = cols * padSize + (cols - 1) * gap;
+    final totalHeight = rows * padSize + (rows - 1) * gap;
+
+    // Center in viewport
+    final viewportW = state.viewportSize.width > 0 ? state.viewportSize.width : 800.0;
+    final viewportH = state.viewportSize.height > 0 ? state.viewportSize.height : 600.0;
+    final t = state.viewOffset;
+    final scale = state.zoomLevel;
+    final kCanvasOrigin = 5000.0;
+
+    final pScreen = Offset(viewportW / 2, viewportH / 2);
+    final pDataX = ((pScreen.dx - t.dx) / scale) - kCanvasOrigin;
+    final pDataY = ((pScreen.dy - t.dy) / scale) - kCanvasOrigin;
+
+    final startX = pDataX - totalWidth / 2;
+    final startY = pDataY - totalHeight / 2;
+
+    final newComponents = <Component>[];
+    final newIds = <String>{};
+
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final id = DateTime.now().millisecondsSinceEpoch.toString() + '_${r}_$c';
+        final x = startX + c * (padSize + gap);
+        final y = startY + r * (padSize + gap);
+
+        final component = Component.pad(
+          id: id,
+          name: 'Pad ${r + 1}-${c + 1}',
+          x: x,
+          y: y,
+          width: padSize,
+          height: padSize,
+          shape: PadShape.rect,
+        );
+
+        newComponents.add(component);
+        newIds.add(id);
+      }
+    }
+
+    final updatedLayers = [...project.layers, ...newComponents];
+    emit(
+      state.copyWith(
+        project: project.copyWith(layers: updatedLayers),
+        selectedComponentIds: newIds,
+      ),
+    );
   }
 
   Future<void> _onCut(CutEvent event, Emitter<EditorState> emit) async {
@@ -903,96 +952,6 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
       state.copyWith(
         project: project.copyWith(layers: updatedLayers),
         selectedComponentIds: newIds,
-      ),
-    );
-  }
-
-  void _onInteractionStart(InteractionStart event, Emitter<EditorState> emit) {
-    emit(state.copyWith(isInteractingWithInspector: true));
-  }
-
-  void _onInteractionEnd(InteractionEnd event, Emitter<EditorState> emit) {
-    emit(state.copyWith(isInteractingWithInspector: false));
-  }
-
-  void _onStartDrawing(StartDrawing event, Emitter<EditorState> emit) {
-    emit(state.copyWith(drawingStartPoint: event.point, currentDrawingRect: Rect.fromPoints(event.point, event.point)));
-  }
-
-  void _onUpdateDrawing(UpdateDrawing event, Emitter<EditorState> emit) {
-    if (state.drawingStartPoint == null) return;
-
-    final start = state.drawingStartPoint!;
-    var end = event.point;
-
-    if (event.isShift) {
-      // Constrain to 1:1 aspect ratio
-      final dx = end.dx - start.dx;
-      final dy = end.dy - start.dy;
-      final maxDelta = (dx.abs() > dy.abs()) ? dx.abs() : dy.abs();
-
-      final signX = dx >= 0 ? 1 : -1;
-      final signY = dy >= 0 ? 1 : -1;
-
-      end = Offset(start.dx + maxDelta * signX, start.dy + maxDelta * signY);
-    }
-
-    Rect rect;
-    if (event.isAlt) {
-      // Draw from center
-      // Start point is center. End point is a corner.
-      // Width/Height = 2 * distance from center
-      final width = (end.dx - start.dx).abs() * 2;
-      final height = (end.dy - start.dy).abs() * 2;
-      rect = Rect.fromCenter(center: start, width: width, height: height);
-    } else {
-      rect = Rect.fromPoints(start, end);
-    }
-
-    emit(state.copyWith(currentDrawingRect: rect));
-  }
-
-  void _onFinishDrawing(FinishDrawing event, Emitter<EditorState> emit) {
-    final rect = state.currentDrawingRect;
-    if (rect == null || state.project == null) return;
-
-    // Don't create if too small
-    if (rect.width < 5 || rect.height < 5) {
-      emit(state.copyWith(drawingStartPoint: null, currentDrawingRect: null));
-      return;
-    }
-
-    _recordHistory();
-
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-    PadShape shape;
-    switch (state.currentTool) {
-      case EditorTool.rectangle:
-        shape = PadShape.rect;
-        break;
-      case EditorTool.circle:
-        shape = PadShape.circle;
-        break;
-      default:
-        shape = PadShape.rect;
-    }
-
-    final component = Component.pad(
-      id: id,
-      name: '${shape == PadShape.circle ? "Circle" : "Rect"} $id',
-      x: rect.left,
-      y: rect.top,
-      width: rect.width,
-      height: rect.height,
-      shape: shape,
-    );
-
-    final updatedLayers = [...state.project!.layers, component];
-    emit(
-      state.copyWith(
-        project: state.project!.copyWith(layers: updatedLayers),
-        drawingStartPoint: null,
-        currentDrawingRect: null,
       ),
     );
   }

@@ -55,7 +55,7 @@ extension EditorEventPatterns on EditorEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( UpdateViewTransform value)?  updateViewTransform,TResult Function( UpdateViewportSize value)?  updateViewportSize,TResult Function( CenterOnContent value)?  centerOnContent,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( UpdateComponents value)?  updateComponents,TResult Function( SelectComponent value)?  selectComponent,TResult Function( SelectComponents value)?  selectComponents,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,TResult Function( ToggleGrid value)?  toggleGrid,TResult Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult Function( SetGridSize value)?  setGridSize,TResult Function( HandleMidiMessage value)?  handleMidiMessage,TResult Function( SaveProject value)?  saveProject,TResult Function( ExportProject value)?  exportProject,TResult Function( FillImageArea value)?  fillImageArea,TResult Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult Function( CopyEvent value)?  copy,TResult Function( PasteEvent value)?  paste,TResult Function( CutEvent value)?  cut,TResult Function( DeleteEvent value)?  delete,TResult Function( DuplicateEvent value)?  duplicate,TResult Function( InteractionStart value)?  interactionStart,TResult Function( InteractionEnd value)?  interactionEnd,TResult Function( StartDrawing value)?  startDrawing,TResult Function( UpdateDrawing value)?  updateDrawing,TResult Function( FinishDrawing value)?  finishDrawing,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadProject value)?  loadProject,TResult Function( UpdateViewTransform value)?  updateViewTransform,TResult Function( UpdateViewportSize value)?  updateViewportSize,TResult Function( CenterOnContent value)?  centerOnContent,TResult Function( AddComponent value)?  addComponent,TResult Function( UpdateComponent value)?  updateComponent,TResult Function( UpdateComponents value)?  updateComponents,TResult Function( SelectComponent value)?  selectComponent,TResult Function( SelectComponents value)?  selectComponents,TResult Function( ReorderComponent value)?  reorderComponent,TResult Function( UpdateProjectSettings value)?  updateProjectSettings,TResult Function( ToggleMode value)?  toggleMode,TResult Function( SetZoom value)?  setZoom,TResult Function( ZoomIn value)?  zoomIn,TResult Function( ZoomOut value)?  zoomOut,TResult Function( SelectTool value)?  selectTool,TResult Function( AddPathPoint value)?  addPathPoint,TResult Function( FinishPath value)?  finishPath,TResult Function( CancelPath value)?  cancelPath,TResult Function( RestoreProject value)?  restoreProject,TResult Function( UndoEvent value)?  undo,TResult Function( RedoEvent value)?  redo,TResult Function( ToggleGrid value)?  toggleGrid,TResult Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult Function( SetGridSize value)?  setGridSize,TResult Function( HandleMidiMessage value)?  handleMidiMessage,TResult Function( SaveProject value)?  saveProject,TResult Function( ExportProject value)?  exportProject,TResult Function( FillImageArea value)?  fillImageArea,TResult Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult Function( CopyEvent value)?  copy,TResult Function( PasteEvent value)?  paste,TResult Function( CutEvent value)?  cut,TResult Function( DeleteEvent value)?  delete,TResult Function( DuplicateEvent value)?  duplicate,TResult Function( InteractionStart value)?  interactionStart,TResult Function( InteractionEnd value)?  interactionEnd,TResult Function( StartDrawing value)?  startDrawing,TResult Function( UpdateDrawing value)?  updateDrawing,TResult Function( FinishDrawing value)?  finishDrawing,TResult Function( CreatePadGrid value)?  createPadGrid,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -98,7 +98,8 @@ return interactionStart(_that);case InteractionEnd() when interactionEnd != null
 return interactionEnd(_that);case StartDrawing() when startDrawing != null:
 return startDrawing(_that);case UpdateDrawing() when updateDrawing != null:
 return updateDrawing(_that);case FinishDrawing() when finishDrawing != null:
-return finishDrawing(_that);case _:
+return finishDrawing(_that);case CreatePadGrid() when createPadGrid != null:
+return createPadGrid(_that);case _:
   return orElse();
 
 }
@@ -116,7 +117,7 @@ return finishDrawing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( UpdateViewTransform value)  updateViewTransform,required TResult Function( UpdateViewportSize value)  updateViewportSize,required TResult Function( CenterOnContent value)  centerOnContent,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( UpdateComponents value)  updateComponents,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( SelectComponents value)  selectComponents,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,required TResult Function( ToggleGrid value)  toggleGrid,required TResult Function( ToggleSnapToGrid value)  toggleSnapToGrid,required TResult Function( SetGridSize value)  setGridSize,required TResult Function( HandleMidiMessage value)  handleMidiMessage,required TResult Function( SaveProject value)  saveProject,required TResult Function( ExportProject value)  exportProject,required TResult Function( FillImageArea value)  fillImageArea,required TResult Function( SetFloodFillTolerance value)  setFloodFillTolerance,required TResult Function( CopyEvent value)  copy,required TResult Function( PasteEvent value)  paste,required TResult Function( CutEvent value)  cut,required TResult Function( DeleteEvent value)  delete,required TResult Function( DuplicateEvent value)  duplicate,required TResult Function( InteractionStart value)  interactionStart,required TResult Function( InteractionEnd value)  interactionEnd,required TResult Function( StartDrawing value)  startDrawing,required TResult Function( UpdateDrawing value)  updateDrawing,required TResult Function( FinishDrawing value)  finishDrawing,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadProject value)  loadProject,required TResult Function( UpdateViewTransform value)  updateViewTransform,required TResult Function( UpdateViewportSize value)  updateViewportSize,required TResult Function( CenterOnContent value)  centerOnContent,required TResult Function( AddComponent value)  addComponent,required TResult Function( UpdateComponent value)  updateComponent,required TResult Function( UpdateComponents value)  updateComponents,required TResult Function( SelectComponent value)  selectComponent,required TResult Function( SelectComponents value)  selectComponents,required TResult Function( ReorderComponent value)  reorderComponent,required TResult Function( UpdateProjectSettings value)  updateProjectSettings,required TResult Function( ToggleMode value)  toggleMode,required TResult Function( SetZoom value)  setZoom,required TResult Function( ZoomIn value)  zoomIn,required TResult Function( ZoomOut value)  zoomOut,required TResult Function( SelectTool value)  selectTool,required TResult Function( AddPathPoint value)  addPathPoint,required TResult Function( FinishPath value)  finishPath,required TResult Function( CancelPath value)  cancelPath,required TResult Function( RestoreProject value)  restoreProject,required TResult Function( UndoEvent value)  undo,required TResult Function( RedoEvent value)  redo,required TResult Function( ToggleGrid value)  toggleGrid,required TResult Function( ToggleSnapToGrid value)  toggleSnapToGrid,required TResult Function( SetGridSize value)  setGridSize,required TResult Function( HandleMidiMessage value)  handleMidiMessage,required TResult Function( SaveProject value)  saveProject,required TResult Function( ExportProject value)  exportProject,required TResult Function( FillImageArea value)  fillImageArea,required TResult Function( SetFloodFillTolerance value)  setFloodFillTolerance,required TResult Function( CopyEvent value)  copy,required TResult Function( PasteEvent value)  paste,required TResult Function( CutEvent value)  cut,required TResult Function( DeleteEvent value)  delete,required TResult Function( DuplicateEvent value)  duplicate,required TResult Function( InteractionStart value)  interactionStart,required TResult Function( InteractionEnd value)  interactionEnd,required TResult Function( StartDrawing value)  startDrawing,required TResult Function( UpdateDrawing value)  updateDrawing,required TResult Function( FinishDrawing value)  finishDrawing,required TResult Function( CreatePadGrid value)  createPadGrid,}){
 final _that = this;
 switch (_that) {
 case LoadProject():
@@ -159,7 +160,8 @@ return interactionStart(_that);case InteractionEnd():
 return interactionEnd(_that);case StartDrawing():
 return startDrawing(_that);case UpdateDrawing():
 return updateDrawing(_that);case FinishDrawing():
-return finishDrawing(_that);case _:
+return finishDrawing(_that);case CreatePadGrid():
+return createPadGrid(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -176,7 +178,7 @@ return finishDrawing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( UpdateViewTransform value)?  updateViewTransform,TResult? Function( UpdateViewportSize value)?  updateViewportSize,TResult? Function( CenterOnContent value)?  centerOnContent,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( UpdateComponents value)?  updateComponents,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( SelectComponents value)?  selectComponents,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,TResult? Function( ToggleGrid value)?  toggleGrid,TResult? Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult? Function( SetGridSize value)?  setGridSize,TResult? Function( HandleMidiMessage value)?  handleMidiMessage,TResult? Function( SaveProject value)?  saveProject,TResult? Function( ExportProject value)?  exportProject,TResult? Function( FillImageArea value)?  fillImageArea,TResult? Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult? Function( CopyEvent value)?  copy,TResult? Function( PasteEvent value)?  paste,TResult? Function( CutEvent value)?  cut,TResult? Function( DeleteEvent value)?  delete,TResult? Function( DuplicateEvent value)?  duplicate,TResult? Function( InteractionStart value)?  interactionStart,TResult? Function( InteractionEnd value)?  interactionEnd,TResult? Function( StartDrawing value)?  startDrawing,TResult? Function( UpdateDrawing value)?  updateDrawing,TResult? Function( FinishDrawing value)?  finishDrawing,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadProject value)?  loadProject,TResult? Function( UpdateViewTransform value)?  updateViewTransform,TResult? Function( UpdateViewportSize value)?  updateViewportSize,TResult? Function( CenterOnContent value)?  centerOnContent,TResult? Function( AddComponent value)?  addComponent,TResult? Function( UpdateComponent value)?  updateComponent,TResult? Function( UpdateComponents value)?  updateComponents,TResult? Function( SelectComponent value)?  selectComponent,TResult? Function( SelectComponents value)?  selectComponents,TResult? Function( ReorderComponent value)?  reorderComponent,TResult? Function( UpdateProjectSettings value)?  updateProjectSettings,TResult? Function( ToggleMode value)?  toggleMode,TResult? Function( SetZoom value)?  setZoom,TResult? Function( ZoomIn value)?  zoomIn,TResult? Function( ZoomOut value)?  zoomOut,TResult? Function( SelectTool value)?  selectTool,TResult? Function( AddPathPoint value)?  addPathPoint,TResult? Function( FinishPath value)?  finishPath,TResult? Function( CancelPath value)?  cancelPath,TResult? Function( RestoreProject value)?  restoreProject,TResult? Function( UndoEvent value)?  undo,TResult? Function( RedoEvent value)?  redo,TResult? Function( ToggleGrid value)?  toggleGrid,TResult? Function( ToggleSnapToGrid value)?  toggleSnapToGrid,TResult? Function( SetGridSize value)?  setGridSize,TResult? Function( HandleMidiMessage value)?  handleMidiMessage,TResult? Function( SaveProject value)?  saveProject,TResult? Function( ExportProject value)?  exportProject,TResult? Function( FillImageArea value)?  fillImageArea,TResult? Function( SetFloodFillTolerance value)?  setFloodFillTolerance,TResult? Function( CopyEvent value)?  copy,TResult? Function( PasteEvent value)?  paste,TResult? Function( CutEvent value)?  cut,TResult? Function( DeleteEvent value)?  delete,TResult? Function( DuplicateEvent value)?  duplicate,TResult? Function( InteractionStart value)?  interactionStart,TResult? Function( InteractionEnd value)?  interactionEnd,TResult? Function( StartDrawing value)?  startDrawing,TResult? Function( UpdateDrawing value)?  updateDrawing,TResult? Function( FinishDrawing value)?  finishDrawing,TResult? Function( CreatePadGrid value)?  createPadGrid,}){
 final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
@@ -219,7 +221,8 @@ return interactionStart(_that);case InteractionEnd() when interactionEnd != null
 return interactionEnd(_that);case StartDrawing() when startDrawing != null:
 return startDrawing(_that);case UpdateDrawing() when updateDrawing != null:
 return updateDrawing(_that);case FinishDrawing() when finishDrawing != null:
-return finishDrawing(_that);case _:
+return finishDrawing(_that);case CreatePadGrid() when createPadGrid != null:
+return createPadGrid(_that);case _:
   return null;
 
 }
@@ -236,7 +239,7 @@ return finishDrawing(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Project? project,  String path)?  loadProject,TResult Function( double zoom,  Offset offset)?  updateViewTransform,TResult Function( Size size)?  updateViewportSize,TResult Function()?  centerOnContent,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( List<Component> components)?  updateComponents,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( List<String> ids,  bool multiSelect)?  selectComponents,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function()?  saveProject,TResult Function( String path)?  exportProject,TResult Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult Function( int tolerance)?  setFloodFillTolerance,TResult Function()?  copy,TResult Function()?  paste,TResult Function()?  cut,TResult Function()?  delete,TResult Function()?  duplicate,TResult Function()?  interactionStart,TResult Function()?  interactionEnd,TResult Function( Offset point)?  startDrawing,TResult Function( Offset point,  bool isShift,  bool isAlt)?  updateDrawing,TResult Function()?  finishDrawing,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( Project? project,  String path)?  loadProject,TResult Function( double zoom,  Offset offset)?  updateViewTransform,TResult Function( Size size)?  updateViewportSize,TResult Function()?  centerOnContent,TResult Function( Component component)?  addComponent,TResult Function( String id,  Component component)?  updateComponent,TResult Function( List<Component> components)?  updateComponents,TResult Function( String id,  bool multiSelect)?  selectComponent,TResult Function( List<String> ids,  bool multiSelect)?  selectComponents,TResult Function( int oldIndex,  int newIndex)?  reorderComponent,TResult Function( Project project)?  updateProjectSettings,TResult Function( EditorMode mode)?  toggleMode,TResult Function( double zoom)?  setZoom,TResult Function()?  zoomIn,TResult Function()?  zoomOut,TResult Function( EditorTool tool)?  selectTool,TResult Function( Offset point)?  addPathPoint,TResult Function()?  finishPath,TResult Function()?  cancelPath,TResult Function( Project project)?  restoreProject,TResult Function()?  undo,TResult Function()?  redo,TResult Function()?  toggleGrid,TResult Function()?  toggleSnapToGrid,TResult Function( double size)?  setGridSize,TResult Function( MidiPacket packet)?  handleMidiMessage,TResult Function()?  saveProject,TResult Function( String path)?  exportProject,TResult Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult Function( int tolerance)?  setFloodFillTolerance,TResult Function()?  copy,TResult Function()?  paste,TResult Function()?  cut,TResult Function()?  delete,TResult Function()?  duplicate,TResult Function()?  interactionStart,TResult Function()?  interactionEnd,TResult Function( Offset point)?  startDrawing,TResult Function( Offset point,  bool isShift,  bool isAlt)?  updateDrawing,TResult Function()?  finishDrawing,TResult Function( int rows,  int columns)?  createPadGrid,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.project,_that.path);case UpdateViewTransform() when updateViewTransform != null:
@@ -278,7 +281,8 @@ return interactionStart();case InteractionEnd() when interactionEnd != null:
 return interactionEnd();case StartDrawing() when startDrawing != null:
 return startDrawing(_that.point);case UpdateDrawing() when updateDrawing != null:
 return updateDrawing(_that.point,_that.isShift,_that.isAlt);case FinishDrawing() when finishDrawing != null:
-return finishDrawing();case _:
+return finishDrawing();case CreatePadGrid() when createPadGrid != null:
+return createPadGrid(_that.rows,_that.columns);case _:
   return orElse();
 
 }
@@ -296,7 +300,7 @@ return finishDrawing();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Project? project,  String path)  loadProject,required TResult Function( double zoom,  Offset offset)  updateViewTransform,required TResult Function( Size size)  updateViewportSize,required TResult Function()  centerOnContent,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( List<Component> components)  updateComponents,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( List<String> ids,  bool multiSelect)  selectComponents,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function()  saveProject,required TResult Function( String path)  exportProject,required TResult Function( String componentId,  Offset position,  Color color)  fillImageArea,required TResult Function( int tolerance)  setFloodFillTolerance,required TResult Function()  copy,required TResult Function()  paste,required TResult Function()  cut,required TResult Function()  delete,required TResult Function()  duplicate,required TResult Function()  interactionStart,required TResult Function()  interactionEnd,required TResult Function( Offset point)  startDrawing,required TResult Function( Offset point,  bool isShift,  bool isAlt)  updateDrawing,required TResult Function()  finishDrawing,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( Project? project,  String path)  loadProject,required TResult Function( double zoom,  Offset offset)  updateViewTransform,required TResult Function( Size size)  updateViewportSize,required TResult Function()  centerOnContent,required TResult Function( Component component)  addComponent,required TResult Function( String id,  Component component)  updateComponent,required TResult Function( List<Component> components)  updateComponents,required TResult Function( String id,  bool multiSelect)  selectComponent,required TResult Function( List<String> ids,  bool multiSelect)  selectComponents,required TResult Function( int oldIndex,  int newIndex)  reorderComponent,required TResult Function( Project project)  updateProjectSettings,required TResult Function( EditorMode mode)  toggleMode,required TResult Function( double zoom)  setZoom,required TResult Function()  zoomIn,required TResult Function()  zoomOut,required TResult Function( EditorTool tool)  selectTool,required TResult Function( Offset point)  addPathPoint,required TResult Function()  finishPath,required TResult Function()  cancelPath,required TResult Function( Project project)  restoreProject,required TResult Function()  undo,required TResult Function()  redo,required TResult Function()  toggleGrid,required TResult Function()  toggleSnapToGrid,required TResult Function( double size)  setGridSize,required TResult Function( MidiPacket packet)  handleMidiMessage,required TResult Function()  saveProject,required TResult Function( String path)  exportProject,required TResult Function( String componentId,  Offset position,  Color color)  fillImageArea,required TResult Function( int tolerance)  setFloodFillTolerance,required TResult Function()  copy,required TResult Function()  paste,required TResult Function()  cut,required TResult Function()  delete,required TResult Function()  duplicate,required TResult Function()  interactionStart,required TResult Function()  interactionEnd,required TResult Function( Offset point)  startDrawing,required TResult Function( Offset point,  bool isShift,  bool isAlt)  updateDrawing,required TResult Function()  finishDrawing,required TResult Function( int rows,  int columns)  createPadGrid,}) {final _that = this;
 switch (_that) {
 case LoadProject():
 return loadProject(_that.project,_that.path);case UpdateViewTransform():
@@ -338,7 +342,8 @@ return interactionStart();case InteractionEnd():
 return interactionEnd();case StartDrawing():
 return startDrawing(_that.point);case UpdateDrawing():
 return updateDrawing(_that.point,_that.isShift,_that.isAlt);case FinishDrawing():
-return finishDrawing();case _:
+return finishDrawing();case CreatePadGrid():
+return createPadGrid(_that.rows,_that.columns);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -355,7 +360,7 @@ return finishDrawing();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Project? project,  String path)?  loadProject,TResult? Function( double zoom,  Offset offset)?  updateViewTransform,TResult? Function( Size size)?  updateViewportSize,TResult? Function()?  centerOnContent,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( List<Component> components)?  updateComponents,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( List<String> ids,  bool multiSelect)?  selectComponents,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function()?  saveProject,TResult? Function( String path)?  exportProject,TResult? Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult? Function( int tolerance)?  setFloodFillTolerance,TResult? Function()?  copy,TResult? Function()?  paste,TResult? Function()?  cut,TResult? Function()?  delete,TResult? Function()?  duplicate,TResult? Function()?  interactionStart,TResult? Function()?  interactionEnd,TResult? Function( Offset point)?  startDrawing,TResult? Function( Offset point,  bool isShift,  bool isAlt)?  updateDrawing,TResult? Function()?  finishDrawing,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( Project? project,  String path)?  loadProject,TResult? Function( double zoom,  Offset offset)?  updateViewTransform,TResult? Function( Size size)?  updateViewportSize,TResult? Function()?  centerOnContent,TResult? Function( Component component)?  addComponent,TResult? Function( String id,  Component component)?  updateComponent,TResult? Function( List<Component> components)?  updateComponents,TResult? Function( String id,  bool multiSelect)?  selectComponent,TResult? Function( List<String> ids,  bool multiSelect)?  selectComponents,TResult? Function( int oldIndex,  int newIndex)?  reorderComponent,TResult? Function( Project project)?  updateProjectSettings,TResult? Function( EditorMode mode)?  toggleMode,TResult? Function( double zoom)?  setZoom,TResult? Function()?  zoomIn,TResult? Function()?  zoomOut,TResult? Function( EditorTool tool)?  selectTool,TResult? Function( Offset point)?  addPathPoint,TResult? Function()?  finishPath,TResult? Function()?  cancelPath,TResult? Function( Project project)?  restoreProject,TResult? Function()?  undo,TResult? Function()?  redo,TResult? Function()?  toggleGrid,TResult? Function()?  toggleSnapToGrid,TResult? Function( double size)?  setGridSize,TResult? Function( MidiPacket packet)?  handleMidiMessage,TResult? Function()?  saveProject,TResult? Function( String path)?  exportProject,TResult? Function( String componentId,  Offset position,  Color color)?  fillImageArea,TResult? Function( int tolerance)?  setFloodFillTolerance,TResult? Function()?  copy,TResult? Function()?  paste,TResult? Function()?  cut,TResult? Function()?  delete,TResult? Function()?  duplicate,TResult? Function()?  interactionStart,TResult? Function()?  interactionEnd,TResult? Function( Offset point)?  startDrawing,TResult? Function( Offset point,  bool isShift,  bool isAlt)?  updateDrawing,TResult? Function()?  finishDrawing,TResult? Function( int rows,  int columns)?  createPadGrid,}) {final _that = this;
 switch (_that) {
 case LoadProject() when loadProject != null:
 return loadProject(_that.project,_that.path);case UpdateViewTransform() when updateViewTransform != null:
@@ -397,7 +402,8 @@ return interactionStart();case InteractionEnd() when interactionEnd != null:
 return interactionEnd();case StartDrawing() when startDrawing != null:
 return startDrawing(_that.point);case UpdateDrawing() when updateDrawing != null:
 return updateDrawing(_that.point,_that.isShift,_that.isAlt);case FinishDrawing() when finishDrawing != null:
-return finishDrawing();case _:
+return finishDrawing();case CreatePadGrid() when createPadGrid != null:
+return createPadGrid(_that.rows,_that.columns);case _:
   return null;
 
 }
@@ -2512,5 +2518,73 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class CreatePadGrid implements EditorEvent {
+  const CreatePadGrid(this.rows, this.columns);
+  
+
+ final  int rows;
+ final  int columns;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CreatePadGridCopyWith<CreatePadGrid> get copyWith => _$CreatePadGridCopyWithImpl<CreatePadGrid>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreatePadGrid&&(identical(other.rows, rows) || other.rows == rows)&&(identical(other.columns, columns) || other.columns == columns));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,rows,columns);
+
+@override
+String toString() {
+  return 'EditorEvent.createPadGrid(rows: $rows, columns: $columns)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CreatePadGridCopyWith<$Res> implements $EditorEventCopyWith<$Res> {
+  factory $CreatePadGridCopyWith(CreatePadGrid value, $Res Function(CreatePadGrid) _then) = _$CreatePadGridCopyWithImpl;
+@useResult
+$Res call({
+ int rows, int columns
+});
+
+
+
+
+}
+/// @nodoc
+class _$CreatePadGridCopyWithImpl<$Res>
+    implements $CreatePadGridCopyWith<$Res> {
+  _$CreatePadGridCopyWithImpl(this._self, this._then);
+
+  final CreatePadGrid _self;
+  final $Res Function(CreatePadGrid) _then;
+
+/// Create a copy of EditorEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? rows = null,Object? columns = null,}) {
+  return _then(CreatePadGrid(
+null == rows ? _self.rows : rows // ignore: cast_nullable_to_non_nullable
+as int,null == columns ? _self.columns : columns // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
 
 // dart format on

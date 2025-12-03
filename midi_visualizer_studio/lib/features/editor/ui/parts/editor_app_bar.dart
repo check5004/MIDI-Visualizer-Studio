@@ -8,6 +8,7 @@ import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/features/editor/ui/dialogs/create_pad_dialog.dart';
 
 class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EditorAppBar({super.key});
@@ -126,6 +127,32 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: state.currentTool == EditorTool.bucketFill ? Theme.of(context).colorScheme.primary : null,
               onPressed: () {
                 context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.bucketFill));
+              },
+            ),
+
+            const VerticalDivider(indent: 10, endIndent: 10),
+
+            // Insert Template
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.add_box_outlined),
+              tooltip: 'Insert Template',
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'pad_grid',
+                  child: Row(children: [Icon(Icons.grid_view, size: 20), SizedBox(width: 8), Text('PAD Grid')]),
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'pad_grid') {
+                  final result = await showDialog<Map<String, int>>(
+                    context: context,
+                    builder: (context) => const CreatePadDialog(),
+                  );
+
+                  if (result != null && context.mounted) {
+                    context.read<EditorBloc>().add(EditorEvent.createPadGrid(result['rows']!, result['cols']!));
+                  }
+                }
               },
             ),
 

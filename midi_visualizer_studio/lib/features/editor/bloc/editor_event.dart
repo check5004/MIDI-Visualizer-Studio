@@ -50,4 +50,5 @@ class EditorEvent with _$EditorEvent {
   const factory EditorEvent.updateDrawing(Offset point, {@Default(false) bool isShift, @Default(false) bool isAlt}) =
       UpdateDrawing;
   const factory EditorEvent.finishDrawing() = FinishDrawing;
+  const factory EditorEvent.createPadGrid(int rows, int columns) = CreatePadGrid;
 }
