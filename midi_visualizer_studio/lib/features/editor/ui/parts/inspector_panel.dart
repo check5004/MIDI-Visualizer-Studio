@@ -18,41 +18,89 @@ class InspectorPanel extends StatefulWidget {
 class _InspectorPanelState extends State<InspectorPanel> {
   bool _isLearning = false;
   String? _learningComponentId;
+  int _currentVelocity = 0;
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<MidiBloc, MidiState>(
       listenWhen: (previous, current) =>
-          _isLearning && current.lastPacket != null && current.lastPacket != previous.lastPacket,
+          current.lastPacket != null &&
+          current.lastPacket != previous.lastPacket,
       listener: (context, midiState) {
-        if (_learningComponentId == null) return;
-
         final packet = midiState.lastPacket!;
-        // Assuming Note On/Off or CC
-        // Packet data: [status, data1, data2]
-        // Status: 0x9n (Note On), 0x8n (Note Off), 0xBn (CC)
-        // n = channel (0-15)
-
         if (packet.data.isEmpty) return;
 
         final status = packet.data[0] & 0xF0;
         final channel = packet.data[0] & 0x0F;
         final data1 = packet.data.length > 1 ? packet.data[1] : 0;
+        final data2 = packet.data.length > 2 ? packet.data[2] : 0;
 
-        if (status == 0x90 || status == 0x80) {
-          // Note On/Off
-          _bindMidi(_learningComponentId!, channel, note: data1);
-        } else if (status == 0xB0) {
-          // CC
-          _bindMidi(_learningComponentId!, channel, cc: data1);
+        if (_isLearning) {
+          if (_learningComponentId == null) return;
+
+          bool bound = false;
+          if (status == 0x90 || status == 0x80) {
+            // Note On/Off
+            _bindMidi(_learningComponentId!, channel, note: data1);
+            bound = true;
+          } else if (status == 0xB0) {
+            // CC
+            _bindMidi(_learningComponentId!, channel, cc: data1);
+            bound = true;
+          }
+
+          if (bound) {
+            setState(() {
+              _isLearning = false;
+              _learningComponentId = null;
+            });
+
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('MIDI Bound!')));
+          }
+        } else {
+          // Monitor velocity for selected component
+          final selectedIds = context
+              .read<EditorBloc>()
+              .state
+              .selectedComponentIds;
+          if (selectedIds.isNotEmpty) {
+            final selectedId = selectedIds.first;
+            final project = context.read<EditorBloc>().state.project;
+            if (project != null) {
+              final component = project.layers.firstWhere(
+                (c) => c.id == selectedId,
+                orElse: () => throw Exception('Component not found'),
+              );
+
+              int? targetChannel;
+              int? targetNote;
+
+              component.map(
+                pad: (c) {
+                  targetChannel = c.midiChannel;
+                  targetNote = c.midiNote;
+                },
+                knob: (c) {
+                  targetChannel = c.midiChannel;
+                  targetNote = c.midiCc;
+                },
+                staticImage: (_) {},
+              );
+
+              if (targetChannel != null && targetNote != null) {
+                if (channel == targetChannel && data1 == targetNote) {
+                  if (status == 0x90 && data2 > 0) {
+                    setState(() => _currentVelocity = data2);
+                  } else if (status == 0x80 || (status == 0x90 && data2 == 0)) {
+                    setState(() => _currentVelocity = 0);
+                  }
+                }
+              }
+            }
+          }
         }
-
-        setState(() {
-          _isLearning = false;
-          _learningComponentId = null;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('MIDI Bound!')));
       },
       child: Container(
         color: Theme.of(context).colorScheme.surface,
@@ -79,8 +127,13 @@ class _InspectorPanelState extends State<InspectorPanel> {
             }
 
             if (selectedIds.length > 1) {
-              final selectedComponents = project.layers.where((c) => selectedIds.contains(c.id)).toList();
-              return _buildMultiSelectionProperties(context, selectedComponents);
+              final selectedComponents = project.layers
+                  .where((c) => selectedIds.contains(c.id))
+                  .toList();
+              return _buildMultiSelectionProperties(
+                context,
+                selectedComponents,
+              );
             }
 
             final selectedId = selectedIds.first;
@@ -131,7 +184,10 @@ class _InspectorPanelState extends State<InspectorPanel> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Properties', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text(
+          'Properties',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         const SizedBox(height: 16),
         _PropertyField(
           label: 'Name',
@@ -143,7 +199,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
               knob: (c) => c.copyWith(name: value),
               staticImage: (c) => c.copyWith(name: value),
             );
-            context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+            context.read<EditorBloc>().add(
+              EditorEvent.updateComponent(component.id, updated),
+            );
           },
         ),
         const SizedBox(height: 8),
@@ -160,7 +218,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     knob: (c) => c.copyWith(x: value),
                     staticImage: (c) => c.copyWith(x: value),
                   );
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ),
@@ -176,7 +236,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     knob: (c) => c.copyWith(y: value),
                     staticImage: (c) => c.copyWith(y: value),
                   );
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ),
@@ -208,7 +270,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     );
                   }
 
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ),
@@ -235,7 +299,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     );
                   }
 
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ),
@@ -248,16 +314,26 @@ class _InspectorPanelState extends State<InspectorPanel> {
                   icon: Icon(
                     component.maintainAspectRatio ? Icons.link : Icons.link_off,
                     size: 20,
-                    color: component.maintainAspectRatio ? Theme.of(context).colorScheme.primary : Colors.grey,
+                    color: component.maintainAspectRatio
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey,
                   ),
                   tooltip: 'Lock Aspect Ratio',
                   onPressed: () {
                     final updated = component.map(
-                      pad: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
-                      knob: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
-                      staticImage: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
+                      pad: (c) => c.copyWith(
+                        maintainAspectRatio: !c.maintainAspectRatio,
+                      ),
+                      knob: (c) => c.copyWith(
+                        maintainAspectRatio: !c.maintainAspectRatio,
+                      ),
+                      staticImage: (c) => c.copyWith(
+                        maintainAspectRatio: !c.maintainAspectRatio,
+                      ),
                     );
-                    context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                    context.read<EditorBloc>().add(
+                      EditorEvent.updateComponent(component.id, updated),
+                    );
                   },
                 ),
               ],
@@ -266,7 +342,10 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ),
         const SizedBox(height: 16),
 
-        const Text('Type Specific', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'Type Specific',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         ...component.map(
           pad: (c) => _buildPadProperties(context, c),
@@ -275,14 +354,21 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ),
         const SizedBox(height: 16),
         const SizedBox(height: 16),
-        const Text('MIDI Binding', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'MIDI Binding',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         _buildMidiBindingSection(context, component, isLearningThis),
       ],
     );
   }
 
-  Widget _buildMidiBindingSection(BuildContext context, Component component, bool isLearningThis) {
+  Widget _buildMidiBindingSection(
+    BuildContext context,
+    Component component,
+    bool isLearningThis,
+  ) {
     return Column(
       children: [
         Row(
@@ -297,7 +383,8 @@ class _InspectorPanelState extends State<InspectorPanel> {
                 ),
                 min: 0,
                 max: 15,
-                enabled: !component.isLocked && component is! ComponentStaticImage,
+                enabled:
+                    !component.isLocked && component is! ComponentStaticImage,
                 onChanged: (value) {
                   final channel = value.toInt().clamp(0, 15);
                   final updated = component.map(
@@ -305,14 +392,20 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     knob: (c) => c.copyWith(midiChannel: channel),
                     staticImage: (c) => c,
                   );
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: NumberInput(
-                label: component.map(pad: (_) => 'Note', knob: (_) => 'CC', staticImage: (_) => 'N/A'),
+                label: component.map(
+                  pad: (_) => 'Note',
+                  knob: (_) => 'CC',
+                  staticImage: (_) => 'N/A',
+                ),
                 value: component.map(
                   pad: (c) => (c.midiNote ?? -1).toDouble(),
                   knob: (c) => (c.midiCc ?? -1).toDouble(),
@@ -320,7 +413,8 @@ class _InspectorPanelState extends State<InspectorPanel> {
                 ),
                 min: -1,
                 max: 127,
-                enabled: !component.isLocked && component is! ComponentStaticImage,
+                enabled:
+                    !component.isLocked && component is! ComponentStaticImage,
                 onChanged: (value) {
                   final val = value.toInt();
                   final updated = component.map(
@@ -328,13 +422,99 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     knob: (c) => c.copyWith(midiCc: val < 0 ? null : val),
                     staticImage: (c) => c,
                   );
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
+        if (component is! ComponentStaticImage) ...[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 4),
+                child: Text(
+                  'Velocity Threshold: ${component.map(pad: (c) => c.velocityThreshold, knob: (c) => c.velocityThreshold, staticImage: (_) => 0)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: LinearProgressIndicator(
+                      value: _currentVelocity / 127.0,
+                      backgroundColor: Colors.grey[800],
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        _currentVelocity >=
+                                component.map(
+                                  pad: (c) => c.velocityThreshold,
+                                  knob: (c) => c.velocityThreshold,
+                                  staticImage: (_) => 0,
+                                )
+                            ? Colors.green
+                            : Colors.orange,
+                      ),
+                      minHeight: 10,
+                    ),
+                  ),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 2,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 8,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 16,
+                      ),
+                      activeTrackColor: Colors.transparent,
+                      inactiveTrackColor: Colors.transparent,
+                    ),
+                    child: Slider(
+                      value: component.map(
+                        pad: (c) => c.velocityThreshold.toDouble(),
+                        knob: (c) => c.velocityThreshold.toDouble(),
+                        staticImage: (_) => 0,
+                      ),
+                      min: 0,
+                      max: 127,
+                      divisions: 127,
+                      label: component.map(
+                        pad: (c) => c.velocityThreshold.toString(),
+                        knob: (c) => c.velocityThreshold.toString(),
+                        staticImage: (_) => '0',
+                      ),
+                      onChanged: component.isLocked
+                          ? null
+                          : (value) {
+                              final threshold = value.toInt();
+                              final updated = component.map(
+                                pad: (c) =>
+                                    c.copyWith(velocityThreshold: threshold),
+                                knob: (c) =>
+                                    c.copyWith(velocityThreshold: threshold),
+                                staticImage: (c) => c,
+                              );
+                              context.read<EditorBloc>().add(
+                                EditorEvent.updateComponent(
+                                  component.id,
+                                  updated,
+                                ),
+                              );
+                            },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
         Row(
           children: [
             Expanded(
@@ -354,7 +534,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
                           });
                         }
                       },
-                icon: Icon(isLearningThis ? Icons.stop : Icons.radio_button_checked),
+                icon: Icon(
+                  isLearningThis ? Icons.stop : Icons.radio_button_checked,
+                ),
                 label: Text(isLearningThis ? 'Stop Learning' : 'Learn MIDI'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isLearningThis ? Colors.red : null,
@@ -377,7 +559,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     knob: (c) => c.copyWith(midiCc: null),
                     staticImage: (c) => c,
                   );
-                  context.read<EditorBloc>().add(EditorEvent.updateComponent(component.id, updated));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponent(component.id, updated),
+                  );
                 },
               ),
             ],
@@ -395,7 +579,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
         values: PadShape.values,
         onChanged: (value) {
           if (value != null) {
-            context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(shape: value)));
+            context.read<EditorBloc>().add(
+              EditorEvent.updateComponent(pad.id, pad.copyWith(shape: value)),
+            );
           }
         },
       ),
@@ -410,16 +596,29 @@ class _InspectorPanelState extends State<InspectorPanel> {
                 value: pad.smoothingAmount,
                 min: 0.0,
                 max: 5.0,
-                onChangeStart: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionStart()),
-                onChangeEnd: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionEnd()),
+                onChangeStart: (_) => context.read<EditorBloc>().add(
+                  const EditorEvent.interactionStart(),
+                ),
+                onChangeEnd: (_) => context.read<EditorBloc>().add(
+                  const EditorEvent.interactionEnd(),
+                ),
                 onChanged: (value) {
                   context.read<EditorBloc>().add(
-                    EditorEvent.updateComponent(pad.id, pad.copyWith(smoothingAmount: value)),
+                    EditorEvent.updateComponent(
+                      pad.id,
+                      pad.copyWith(smoothingAmount: value),
+                    ),
                   );
                 },
               ),
             ),
-            SizedBox(width: 40, child: Text(pad.smoothingAmount.toStringAsFixed(2), textAlign: TextAlign.end)),
+            SizedBox(
+              width: 40,
+              child: Text(
+                pad.smoothingAmount.toStringAsFixed(2),
+                textAlign: TextAlign.end,
+              ),
+            ),
           ],
         ),
       ],
@@ -428,7 +627,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
         label: 'On Color',
         color: pad.onColor,
         onChanged: (color) {
-          context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onColor: color)));
+          context.read<EditorBloc>().add(
+            EditorEvent.updateComponent(pad.id, pad.copyWith(onColor: color)),
+          );
         },
       ),
       const SizedBox(height: 8),
@@ -436,7 +637,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
         label: 'Off Color',
         color: pad.offColor,
         onChanged: (color) {
-          context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offColor: color)));
+          context.read<EditorBloc>().add(
+            EditorEvent.updateComponent(pad.id, pad.copyWith(offColor: color)),
+          );
         },
       ),
     ];
@@ -450,7 +653,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
         values: KnobStyle.values,
         onChanged: (value) {
           if (value != null) {
-            context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(style: value)));
+            context.read<EditorBloc>().add(
+              EditorEvent.updateComponent(knob.id, knob.copyWith(style: value)),
+            );
           }
         },
       ),
@@ -462,7 +667,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
               label: 'Min Angle',
               value: knob.minAngle,
               onChanged: (value) {
-                context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(minAngle: value)));
+                context.read<EditorBloc>().add(
+                  EditorEvent.updateComponent(
+                    knob.id,
+                    knob.copyWith(minAngle: value),
+                  ),
+                );
               },
             ),
           ),
@@ -472,7 +682,12 @@ class _InspectorPanelState extends State<InspectorPanel> {
               label: 'Max Angle',
               value: knob.maxAngle,
               onChanged: (value) {
-                context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(maxAngle: value)));
+                context.read<EditorBloc>().add(
+                  EditorEvent.updateComponent(
+                    knob.id,
+                    knob.copyWith(maxAngle: value),
+                  ),
+                );
               },
             ),
           ),
@@ -488,7 +703,12 @@ class _PropertyField extends StatelessWidget {
   final bool enabled;
   final ValueChanged<String> onChanged;
 
-  const _PropertyField({required this.label, required this.value, this.enabled = true, required this.onChanged});
+  const _PropertyField({
+    required this.label,
+    required this.value,
+    this.enabled = true,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -510,7 +730,11 @@ class _ColorPickerField extends StatelessWidget {
   final String color;
   final ValueChanged<String> onChanged;
 
-  const _ColorPickerField({required this.label, required this.color, required this.onChanged});
+  const _ColorPickerField({
+    required this.label,
+    required this.color,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -522,7 +746,10 @@ class _ColorPickerField extends StatelessWidget {
             decoration: InputDecoration(
               labelText: label,
               border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
             ),
             onChanged: onChanged,
           ),
@@ -568,7 +795,8 @@ class _ColorPickerField extends StatelessWidget {
                 return GestureDetector(
                   onTap: () {
                     // Convert Color to Hex
-                    final hex = '#${c.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+                    final hex =
+                        '#${c.value.toRadixString(16).padLeft(8, '0').substring(2)}';
                     onChanged(hex.toUpperCase());
                     Navigator.pop(dialogContext);
                   },
@@ -600,11 +828,17 @@ class _ColorPickerField extends StatelessWidget {
   }
 }
 
-Widget _buildMultiSelectionProperties(BuildContext context, List<Component> components) {
+Widget _buildMultiSelectionProperties(
+  BuildContext context,
+  List<Component> components,
+) {
   return ListView(
     padding: const EdgeInsets.all(16),
     children: [
-      const Text('Multiple Selection', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+      const Text(
+        'Multiple Selection',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      ),
       const SizedBox(height: 16),
       _buildAlignmentTools(context, components),
       const SizedBox(height: 16),
@@ -627,7 +861,9 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
                     staticImage: (comp) => comp.copyWith(x: value),
                   );
                 }).toList();
-                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+                context.read<EditorBloc>().add(
+                  EditorEvent.updateComponents(updates),
+                );
               },
             ),
           ),
@@ -644,7 +880,9 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
                     staticImage: (comp) => comp.copyWith(y: value),
                   );
                 }).toList();
-                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+                context.read<EditorBloc>().add(
+                  EditorEvent.updateComponents(updates),
+                );
               },
             ),
           ),
@@ -665,7 +903,9 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
                     staticImage: (comp) => comp.copyWith(width: value),
                   );
                 }).toList();
-                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+                context.read<EditorBloc>().add(
+                  EditorEvent.updateComponents(updates),
+                );
               },
             ),
           ),
@@ -682,17 +922,24 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
                     staticImage: (comp) => comp.copyWith(height: value),
                   );
                 }).toList();
-                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+                context.read<EditorBloc>().add(
+                  EditorEvent.updateComponents(updates),
+                );
               },
             ),
           ),
         ],
       ),
-      if (components.any((c) => c is ComponentPad && c.shape == PadShape.path)) ...[
+      if (components.any(
+        (c) => c is ComponentPad && c.shape == PadShape.path,
+      )) ...[
         const SizedBox(height: 16),
         const Divider(),
         const SizedBox(height: 8),
-        const Text('Path Smoothing', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'Path Smoothing',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         Row(
           children: [
             const Text('Amount'),
@@ -700,12 +947,23 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
             Expanded(
               child: Slider(
                 value: components
-                    .firstWhere((c) => c is ComponentPad && c.shape == PadShape.path, orElse: () => components.first)
-                    .map(pad: (c) => c.smoothingAmount, knob: (_) => 0.0, staticImage: (_) => 0.0),
+                    .firstWhere(
+                      (c) => c is ComponentPad && c.shape == PadShape.path,
+                      orElse: () => components.first,
+                    )
+                    .map(
+                      pad: (c) => c.smoothingAmount,
+                      knob: (_) => 0.0,
+                      staticImage: (_) => 0.0,
+                    ),
                 min: 0.0,
                 max: 5.0,
-                onChangeStart: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionStart()),
-                onChangeEnd: (_) => context.read<EditorBloc>().add(const EditorEvent.interactionEnd()),
+                onChangeStart: (_) => context.read<EditorBloc>().add(
+                  const EditorEvent.interactionStart(),
+                ),
+                onChangeEnd: (_) => context.read<EditorBloc>().add(
+                  const EditorEvent.interactionEnd(),
+                ),
                 onChanged: (value) {
                   final updates = components.map((c) {
                     if (c is ComponentPad && c.shape == PadShape.path) {
@@ -713,7 +971,9 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
                     }
                     return c;
                   }).toList();
-                  context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+                  context.read<EditorBloc>().add(
+                    EditorEvent.updateComponents(updates),
+                  );
                 },
               ),
             ),
@@ -738,7 +998,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
             tooltip: 'Align Left',
             onPressed: () {
               if (components.isEmpty) return;
-              final minX = components.map((c) => c.x).reduce((a, b) => a < b ? a : b);
+              final minX = components
+                  .map((c) => c.x)
+                  .reduce((a, b) => a < b ? a : b);
               final updates = components.map((c) {
                 return c.map(
                   pad: (comp) => comp.copyWith(x: minX),
@@ -746,7 +1008,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
                   staticImage: (comp) => comp.copyWith(x: minX),
                 );
               }).toList();
-              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponents(updates),
+              );
             },
           ),
           IconButton(
@@ -755,8 +1019,12 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
             onPressed: () {
               if (components.isEmpty) return;
               // Center relative to selection bounding box
-              final minX = components.map((c) => c.x).reduce((a, b) => a < b ? a : b);
-              final maxX = components.map((c) => c.x + c.width).reduce((a, b) => a > b ? a : b);
+              final minX = components
+                  .map((c) => c.x)
+                  .reduce((a, b) => a < b ? a : b);
+              final maxX = components
+                  .map((c) => c.x + c.width)
+                  .reduce((a, b) => a > b ? a : b);
               final centerX = (minX + maxX) / 2;
 
               final updates = components.map((c) {
@@ -767,7 +1035,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
                   staticImage: (comp) => comp.copyWith(x: newX),
                 );
               }).toList();
-              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponents(updates),
+              );
             },
           ),
           IconButton(
@@ -775,7 +1045,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
             tooltip: 'Align Right',
             onPressed: () {
               if (components.isEmpty) return;
-              final maxX = components.map((c) => c.x + c.width).reduce((a, b) => a > b ? a : b);
+              final maxX = components
+                  .map((c) => c.x + c.width)
+                  .reduce((a, b) => a > b ? a : b);
               final updates = components.map((c) {
                 final newX = maxX - c.width;
                 return c.map(
@@ -784,7 +1056,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
                   staticImage: (comp) => comp.copyWith(x: newX),
                 );
               }).toList();
-              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponents(updates),
+              );
             },
           ),
         ],
@@ -798,7 +1072,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
             tooltip: 'Align Top',
             onPressed: () {
               if (components.isEmpty) return;
-              final minY = components.map((c) => c.y).reduce((a, b) => a < b ? a : b);
+              final minY = components
+                  .map((c) => c.y)
+                  .reduce((a, b) => a < b ? a : b);
               final updates = components.map((c) {
                 return c.map(
                   pad: (comp) => comp.copyWith(y: minY),
@@ -806,7 +1082,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
                   staticImage: (comp) => comp.copyWith(y: minY),
                 );
               }).toList();
-              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponents(updates),
+              );
             },
           ),
           IconButton(
@@ -814,8 +1092,12 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
             tooltip: 'Align Middle',
             onPressed: () {
               if (components.isEmpty) return;
-              final minY = components.map((c) => c.y).reduce((a, b) => a < b ? a : b);
-              final maxY = components.map((c) => c.y + c.height).reduce((a, b) => a > b ? a : b);
+              final minY = components
+                  .map((c) => c.y)
+                  .reduce((a, b) => a < b ? a : b);
+              final maxY = components
+                  .map((c) => c.y + c.height)
+                  .reduce((a, b) => a > b ? a : b);
               final centerY = (minY + maxY) / 2;
 
               final updates = components.map((c) {
@@ -826,7 +1108,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
                   staticImage: (comp) => comp.copyWith(y: newY),
                 );
               }).toList();
-              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponents(updates),
+              );
             },
           ),
           IconButton(
@@ -834,7 +1118,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
             tooltip: 'Align Bottom',
             onPressed: () {
               if (components.isEmpty) return;
-              final maxY = components.map((c) => c.y + c.height).reduce((a, b) => a > b ? a : b);
+              final maxY = components
+                  .map((c) => c.y + c.height)
+                  .reduce((a, b) => a > b ? a : b);
               final updates = components.map((c) {
                 final newY = maxY - c.height;
                 return c.map(
@@ -843,7 +1129,9 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
                   staticImage: (comp) => comp.copyWith(y: newY),
                 );
               }).toList();
-              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponents(updates),
+              );
             },
           ),
         ],
@@ -857,7 +1145,11 @@ class _MixedNumberInput extends StatelessWidget {
   final List<double> values;
   final ValueChanged<double> onChanged;
 
-  const _MixedNumberInput({required this.label, required this.values, required this.onChanged});
+  const _MixedNumberInput({
+    required this.label,
+    required this.values,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -866,7 +1158,9 @@ class _MixedNumberInput extends StatelessWidget {
 
     return NumberInput(
       label: label,
-      value: allSame ? firstValue : 0, // 0 as placeholder if mixed, but we should probably handle display differently
+      value: allSame
+          ? firstValue
+          : 0, // 0 as placeholder if mixed, but we should probably handle display differently
       // Since NumberInput might not support "Mixed" text, we might need to modify NumberInput or use a controller.
       // For now, if mixed, we show the first value but maybe with a different color or indicator?
       // Or we can just pass the first value and let user overwrite.
@@ -883,7 +1177,12 @@ class _EnumDropdown<T extends Enum> extends StatelessWidget {
   final List<T> values;
   final ValueChanged<T?> onChanged;
 
-  const _EnumDropdown({required this.label, required this.value, required this.values, required this.onChanged});
+  const _EnumDropdown({
+    required this.label,
+    required this.value,
+    required this.values,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {

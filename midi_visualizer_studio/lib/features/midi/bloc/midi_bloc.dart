@@ -23,39 +23,59 @@ class MidiBloc extends Bloc<MidiEvent, MidiState> {
 
     // Listen to MIDI stream
     _midiSubscription = _midiService.onMidiDataReceived.listen((packet) {
+      if (packet.data.isNotEmpty && packet.data[0] >= 0xF8)
+        return; // Ignore System Real-Time messages
       add(MidiEvent.midiMessageReceived(packet));
     });
   }
 
-  Future<void> _onScanDevices(ScanDevices event, Emitter<MidiState> emit) async {
+  Future<void> _onScanDevices(
+    ScanDevices event,
+    Emitter<MidiState> emit,
+  ) async {
     emit(state.copyWith(status: MidiStatus.scanning));
     try {
       final devices = await _midiService.devices;
       emit(state.copyWith(status: MidiStatus.ready, devices: devices));
     } catch (e) {
-      emit(state.copyWith(status: MidiStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: MidiStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
-  Future<void> _onConnectDevice(ConnectDevice event, Emitter<MidiState> emit) async {
+  Future<void> _onConnectDevice(
+    ConnectDevice event,
+    Emitter<MidiState> emit,
+  ) async {
     try {
       await _midiService.connectToDevice(event.device);
       emit(state.copyWith(connectedDevice: event.device));
     } catch (e) {
-      emit(state.copyWith(status: MidiStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: MidiStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
-  Future<void> _onDisconnectDevice(DisconnectDevice event, Emitter<MidiState> emit) async {
+  Future<void> _onDisconnectDevice(
+    DisconnectDevice event,
+    Emitter<MidiState> emit,
+  ) async {
     try {
       await _midiService.disconnectDevice(event.device);
       emit(state.copyWith(connectedDevice: null));
     } catch (e) {
-      emit(state.copyWith(status: MidiStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: MidiStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
-  void _onMidiMessageReceived(MidiMessageReceived event, Emitter<MidiState> emit) {
+  void _onMidiMessageReceived(
+    MidiMessageReceived event,
+    Emitter<MidiState> emit,
+  ) {
     emit(state.copyWith(lastPacket: event.packet));
   }
 

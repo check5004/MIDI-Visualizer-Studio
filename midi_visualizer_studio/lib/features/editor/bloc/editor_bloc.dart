@@ -454,7 +454,9 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         pad: (pad) {
           if (pad.midiChannel == channel && pad.midiNote == data1) {
             if (isNoteOn) {
-              if (activeIds.add(pad.id)) changed = true;
+              if (data2 >= pad.velocityThreshold) {
+                if (activeIds.add(pad.id)) changed = true;
+              }
             } else if (isNoteOff) {
               if (activeIds.remove(pad.id)) changed = true;
             }
@@ -462,11 +464,13 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
         },
         knob: (knob) {
           if (knob.midiChannel == channel && knob.midiCc == data1) {
-            if (activeIds.add(knob.id)) changed = true;
+            if (data2 >= knob.velocityThreshold) {
+              if (activeIds.add(knob.id)) changed = true;
 
-            if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.spin) {
-              final newRotation = (knob.rotation + 0.2) % (2 * 3.14159);
-              updates[knob.id] = knob.copyWith(rotation: newRotation);
+              if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.spin) {
+                final newRotation = (knob.rotation + 0.2) % (2 * 3.14159);
+                updates[knob.id] = knob.copyWith(rotation: newRotation);
+              }
             }
           }
         },

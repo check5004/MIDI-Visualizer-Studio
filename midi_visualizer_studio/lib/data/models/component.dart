@@ -35,6 +35,7 @@ abstract class Component with _$Component {
     @Default('#333333') String offColor,
     int? midiChannel,
     int? midiNote,
+    @Default(0) int velocityThreshold,
     @Default(false) bool maintainAspectRatio,
   }) = ComponentPad;
 
@@ -58,6 +59,7 @@ abstract class Component with _$Component {
     String? pointerImage,
     int? midiChannel,
     int? midiCc,
+    @Default(0) int velocityThreshold,
     @Default(false) bool maintainAspectRatio,
   }) = ComponentKnob;
 
@@ -76,5 +78,6 @@ abstract class Component with _$Component {
     @Default(true) bool maintainAspectRatio,
   }) = ComponentStaticImage;
 
-  factory Component.fromJson(Map<String, dynamic> json) => _$ComponentFromJson(json);
+  factory Component.fromJson(Map<String, dynamic> json) =>
+      _$ComponentFromJson(json);
 }
