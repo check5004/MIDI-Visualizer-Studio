@@ -15,6 +15,7 @@ import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 import 'package:midi_visualizer_studio/core/utils/path_utils.dart';
 import 'package:midi_visualizer_studio/core/services/temporary_storage_service.dart';
 import 'package:stream_transform/stream_transform.dart';
+import 'package:midi_visualizer_studio/core/utils/midi_parser.dart';
 
 class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final HistoryCubit? _historyCubit;
@@ -533,47 +534,44 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
     final packet = event.packet;
     if (packet.data.isEmpty) return;
 
-    final status = packet.data[0] & 0xF0;
-    final channel = packet.data[0] & 0x0F;
-    final data1 = packet.data.length > 1 ? packet.data[1] : 0;
-    final data2 = packet.data.length > 2 ? packet.data[2] : 0;
-
-    final isNoteOn = status == 0x90 && data2 > 0;
-    final isNoteOff = status == 0x80 || (status == 0x90 && data2 == 0);
-
-    if (!isNoteOn && !isNoteOff) return;
+    final messages = MidiParser.parse(packet.data);
+    if (messages.isEmpty) return;
 
     final activeIds = Set<String>.from(state.activeComponentIds);
     bool changed = false;
     final updates = <String, Component>{};
 
-    for (final component in project.layers) {
-      component.map(
-        pad: (pad) {
-          if (pad.midiChannel == channel && pad.midiNote == data1) {
-            if (isNoteOn) {
-              if (data2 >= pad.velocityThreshold) {
-                if (activeIds.add(pad.id)) changed = true;
-              }
-            } else if (isNoteOff) {
-              if (activeIds.remove(pad.id)) changed = true;
-            }
-          }
-        },
-        knob: (knob) {
-          if (knob.midiChannel == channel && knob.midiCc == data1) {
-            if (data2 >= knob.velocityThreshold) {
-              if (activeIds.add(knob.id)) changed = true;
+    for (final message in messages) {
+      if (!message.isNoteOn && !message.isNoteOff && !message.isControlChange) continue;
 
-              if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.spin) {
-                final newRotation = (knob.rotation + 0.2) % (2 * 3.14159);
-                updates[knob.id] = knob.copyWith(rotation: newRotation);
+      for (final component in project.layers) {
+        component.map(
+          pad: (pad) {
+            if (pad.midiChannel == message.channel && pad.midiNote == message.data1) {
+              if (message.isNoteOn) {
+                if (message.data2 >= pad.velocityThreshold) {
+                  if (activeIds.add(pad.id)) changed = true;
+                }
+              } else if (message.isNoteOff) {
+                if (activeIds.remove(pad.id)) changed = true;
               }
             }
-          }
-        },
-        staticImage: (_) {},
-      );
+          },
+          knob: (knob) {
+            if (knob.midiChannel == message.channel && knob.midiCc == message.data1) {
+              if (message.data2 >= knob.velocityThreshold) {
+                if (activeIds.add(knob.id)) changed = true;
+
+                if (knob.isRelative && knob.relativeEffect == KnobRelativeEffect.spin) {
+                  final newRotation = (knob.rotation + 0.2) % (2 * 3.14159);
+                  updates[knob.id] = knob.copyWith(rotation: newRotation);
+                }
+              }
+            }
+          },
+          staticImage: (_) {},
+        );
+      }
     }
 
     if (changed || updates.isNotEmpty) {

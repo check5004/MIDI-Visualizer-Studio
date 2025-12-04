@@ -8,6 +8,7 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/features/common/ui/advanced_color_picker_dialog.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/number_input.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
+import 'package:midi_visualizer_studio/core/utils/midi_parser.dart';
 
 class InspectorPanel extends StatefulWidget {
   const InspectorPanel({super.key});
@@ -29,66 +30,67 @@ class _InspectorPanelState extends State<InspectorPanel> {
         final packet = midiState.lastPacket!;
         if (packet.data.isEmpty) return;
 
-        final status = packet.data[0] & 0xF0;
-        final channel = packet.data[0] & 0x0F;
-        final data1 = packet.data.length > 1 ? packet.data[1] : 0;
-        final data2 = packet.data.length > 2 ? packet.data[2] : 0;
+        final messages = MidiParser.parse(packet.data);
+        if (messages.isEmpty) return;
 
-        if (_isLearning) {
-          if (_learningComponentId == null) return;
+        for (final message in messages) {
+          if (_isLearning) {
+            if (_learningComponentId == null) continue;
 
-          bool bound = false;
-          if (status == 0x90 || status == 0x80) {
-            // Note On/Off
-            _bindMidi(_learningComponentId!, channel, note: data1);
-            bound = true;
-          } else if (status == 0xB0) {
-            // CC
-            _bindMidi(_learningComponentId!, channel, cc: data1);
-            bound = true;
-          }
+            bool bound = false;
+            if (message.isNoteOn || message.isNoteOff) {
+              // Note On/Off
+              _bindMidi(_learningComponentId!, message.channel, note: message.data1);
+              bound = true;
+            } else if (message.isControlChange) {
+              // CC
+              _bindMidi(_learningComponentId!, message.channel, cc: message.data1);
+              bound = true;
+            }
 
-          if (bound) {
-            setState(() {
-              _isLearning = false;
-              _learningComponentId = null;
-            });
+            if (bound) {
+              setState(() {
+                _isLearning = false;
+                _learningComponentId = null;
+              });
 
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('MIDI Bound!')));
-          }
-        } else {
-          // Monitor velocity for selected component
-          final selectedIds = context.read<EditorBloc>().state.selectedComponentIds;
-          if (selectedIds.isNotEmpty) {
-            final selectedId = selectedIds.first;
-            final project = context.read<EditorBloc>().state.project;
-            if (project != null) {
-              final component = project.layers.firstWhere(
-                (c) => c.id == selectedId,
-                orElse: () => throw Exception('Component not found'),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('MIDI Bound!')));
+              break; // Stop after first successful bind
+            }
+          } else {
+            // Monitor velocity for selected component
+            final selectedIds = context.read<EditorBloc>().state.selectedComponentIds;
+            if (selectedIds.isNotEmpty) {
+              final selectedId = selectedIds.first;
+              final project = context.read<EditorBloc>().state.project;
+              if (project != null) {
+                final component = project.layers.firstWhere(
+                  (c) => c.id == selectedId,
+                  orElse: () => throw Exception('Component not found'),
+                );
 
-              int? targetChannel;
-              int? targetNote;
+                int? targetChannel;
+                int? targetNote;
 
-              component.map(
-                pad: (c) {
-                  targetChannel = c.midiChannel;
-                  targetNote = c.midiNote;
-                },
-                knob: (c) {
-                  targetChannel = c.midiChannel;
-                  targetNote = c.midiCc;
-                },
-                staticImage: (_) {},
-              );
+                component.map(
+                  pad: (c) {
+                    targetChannel = c.midiChannel;
+                    targetNote = c.midiNote;
+                  },
+                  knob: (c) {
+                    targetChannel = c.midiChannel;
+                    targetNote = c.midiCc;
+                  },
+                  staticImage: (_) {},
+                );
 
-              if (targetChannel != null && targetNote != null) {
-                if (channel == targetChannel && data1 == targetNote) {
-                  if (status == 0x90 && data2 > 0) {
-                    setState(() => _currentVelocity = data2);
-                  } else if (status == 0x80 || (status == 0x90 && data2 == 0)) {
-                    setState(() => _currentVelocity = 0);
+                if (targetChannel != null && targetNote != null) {
+                  if (message.channel == targetChannel && message.data1 == targetNote) {
+                    if (message.isNoteOn) {
+                      setState(() => _currentVelocity = message.data2);
+                    } else if (message.isNoteOff) {
+                      setState(() => _currentVelocity = 0);
+                    }
                   }
                 }
               }
