@@ -80,7 +80,16 @@ class _PreviewScreenState extends State<PreviewScreen> {
     // Let's try to set the window size to the content size.
     // Wait for transition to complete
     await Future.delayed(const Duration(milliseconds: 100));
-    await windowManager.setSize(Size(_contentBounds.width, _contentBounds.height), animate: false);
+
+    if (widget.project.previewWindowWidth != null && widget.project.previewWindowHeight != null) {
+      await windowManager.setSize(
+        Size(widget.project.previewWindowWidth!, widget.project.previewWindowHeight!),
+        animate: false,
+      );
+    } else {
+      await windowManager.setSize(Size(_contentBounds.width, _contentBounds.height), animate: false);
+    }
+    await windowManager.setAspectRatio(_contentBounds.width / _contentBounds.height);
 
     // Re-apply shadow removal after resize as it might have been reset
     await windowManager.setHasShadow(false);
@@ -97,21 +106,35 @@ class _PreviewScreenState extends State<PreviewScreen> {
     await windowManager.setHasShadow(true);
     await windowManager.setTitleBarStyle(TitleBarStyle.normal);
     await windowManager.setAlwaysOnTop(false);
+    await windowManager.setAspectRatio(0);
   }
 
   Future<void> _handleClose() async {
     if (!kIsWeb) {
+      // Save current window size
+      final size = await windowManager.getSize();
+      final updatedProject = widget.project.copyWith(previewWindowWidth: size.width, previewWindowHeight: size.height);
+
       // Restore default size first
       await windowManager.setSize(const Size(1280, 720), animate: false);
       await windowManager.center();
       // Wait for resize to complete before navigating
       await Future.delayed(const Duration(milliseconds: 100));
-    }
-    if (mounted) {
-      if (context.canPop()) {
-        context.pop();
-      } else {
-        context.go('/home');
+
+      if (mounted) {
+        if (context.canPop()) {
+          context.pop(updatedProject);
+        } else {
+          context.go('/home');
+        }
+      }
+    } else {
+      if (mounted) {
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go('/home');
+        }
       }
     }
   }
@@ -137,44 +160,42 @@ class _PreviewScreenState extends State<PreviewScreen> {
               children: [
                 // Content
                 Positioned.fill(
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: _contentBounds.width,
-                        height: _contentBounds.height,
-                        child: BlocBuilder<EditorBloc, EditorState>(
-                          builder: (context, state) {
-                            final project = state.project;
-                            if (project == null) return const SizedBox();
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: _contentBounds.width,
+                      height: _contentBounds.height,
+                      child: BlocBuilder<EditorBloc, EditorState>(
+                        builder: (context, state) {
+                          final project = state.project;
+                          if (project == null) return const SizedBox();
 
-                            return Stack(
-                              children: [
-                                Stack(
-                                  children: project.layers.map((component) {
-                                    if (!component.isVisible) return const SizedBox();
+                          return Stack(
+                            children: [
+                              Stack(
+                                children: project.layers.map((component) {
+                                  if (!component.isVisible) return const SizedBox();
 
-                                    final isActive = state.activeComponentIds.contains(component.id);
+                                  final isActive = state.activeComponentIds.contains(component.id);
 
-                                    return Positioned(
-                                      left: component.x - _contentBounds.left,
-                                      top: component.y - _contentBounds.top,
-                                      child: CustomPaint(
-                                        painter: ComponentPainter(
-                                          component: component,
-                                          isSelected: false,
-                                          isActive: isActive,
-                                        ),
-                                        size: Size(component.width, component.height),
+                                  return Positioned(
+                                    left: component.x - _contentBounds.left,
+                                    top: component.y - _contentBounds.top,
+                                    child: CustomPaint(
+                                      painter: ComponentPainter(
+                                        component: component,
+                                        isSelected: false,
+                                        isActive: isActive,
                                       ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                                      size: Size(component.width, component.height),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),

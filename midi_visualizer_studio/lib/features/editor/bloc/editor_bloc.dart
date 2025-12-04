@@ -172,7 +172,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
 
       final projectToSave = project.copyWith(canvasWidth: maxX, canvasHeight: maxY, updatedAt: DateTime.now());
 
-      await _projectRepository?.saveProjectInternal(projectToSave);
+      await _projectRepository?.saveProject(projectToSave);
       await _temporaryStorageService.clearProject(project.id); // Clear temp on save
       emit(
         state.copyWith(project: projectToSave, errorMessage: null, hasUnsavedChanges: false),

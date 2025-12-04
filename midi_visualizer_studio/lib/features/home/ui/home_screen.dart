@@ -264,9 +264,12 @@ class _ProjectCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           // Preview
-          context.push('/preview', extra: project);
+          final updatedProject = await context.push<Project>('/preview', extra: project);
+          if (updatedProject != null && context.mounted) {
+            context.read<HomeBloc>().add(UpdateProject(updatedProject));
+          }
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

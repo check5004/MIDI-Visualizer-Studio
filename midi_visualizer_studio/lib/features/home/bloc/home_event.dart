@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
 
 abstract class HomeEvent extends Equatable {
   const HomeEvent();
@@ -18,4 +19,13 @@ class DeleteProject extends HomeEvent {
 
   @override
   List<Object?> get props => [id];
+}
+
+class UpdateProject extends HomeEvent {
+  final Project project;
+
+  const UpdateProject(this.project);
+
+  @override
+  List<Object?> get props => [project];
 }

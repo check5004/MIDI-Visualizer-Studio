@@ -18,6 +18,8 @@ abstract class Project with _$Project {
     @Default(600) double canvasHeight,
     @Default('#000000') String backgroundColor,
     @Default('#00FF00') String chromaKeyColor,
+    double? previewWindowWidth,
+    double? previewWindowHeight,
     @Default([]) List<Component> layers,
   }) = _Project;
 

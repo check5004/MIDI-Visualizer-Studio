@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/home/bloc/home_event.dart';
 import 'package:midi_visualizer_studio/features/home/bloc/home_state.dart';
 
@@ -11,6 +12,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       super(const HomeState()) {
     on<LoadProjects>(_onLoadProjects);
     on<DeleteProject>(_onDeleteProject);
+    on<UpdateProject>(_onUpdateProject);
+  }
+
+  Future<void> _onUpdateProject(UpdateProject event, Emitter<HomeState> emit) async {
+    try {
+      await _projectRepository.saveProject(event.project);
+      add(const LoadProjects());
+    } catch (e) {
+      emit(state.copyWith(errorMessage: 'Failed to update project: $e'));
+    }
   }
 
   Future<void> _onLoadProjects(LoadProjects event, Emitter<HomeState> emit) async {

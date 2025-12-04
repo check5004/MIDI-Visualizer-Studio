@@ -5,6 +5,7 @@ import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
+import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
@@ -338,9 +339,12 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             FilledButton.icon(
               icon: const Icon(Icons.play_arrow),
               label: const Text('Preview'),
-              onPressed: () {
+              onPressed: () async {
                 if (project != null) {
-                  context.push('/preview', extra: project);
+                  final updatedProject = await context.push<Project>('/preview', extra: project);
+                  if (updatedProject != null && context.mounted) {
+                    context.read<EditorBloc>().add(EditorEvent.updateProjectSettings(updatedProject));
+                  }
                 }
               },
             ),

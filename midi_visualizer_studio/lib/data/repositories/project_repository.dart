@@ -17,7 +17,7 @@ class ProjectRepository {
     return projectsDir.path;
   }
 
-  Future<void> saveProjectInternal(Project project) async {
+  Future<void> saveProject(Project project) async {
     final projectsPath = await _localPath;
     final projectPath = p.join(projectsPath, '${project.id}.mvs');
 

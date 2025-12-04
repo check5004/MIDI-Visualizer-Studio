@@ -38,6 +38,14 @@ _Project _$ProjectFromJson(Map<String, dynamic> json) =>
           'chromaKeyColor',
           (v) => v as String? ?? '#00FF00',
         ),
+        previewWindowWidth: $checkedConvert(
+          'previewWindowWidth',
+          (v) => (v as num?)?.toDouble(),
+        ),
+        previewWindowHeight: $checkedConvert(
+          'previewWindowHeight',
+          (v) => (v as num?)?.toDouble(),
+        ),
         layers: $checkedConvert(
           'layers',
           (v) =>
@@ -62,5 +70,7 @@ Map<String, dynamic> _$ProjectToJson(_Project instance) => <String, dynamic>{
   'canvasHeight': instance.canvasHeight,
   'backgroundColor': instance.backgroundColor,
   'chromaKeyColor': instance.chromaKeyColor,
+  'previewWindowWidth': instance.previewWindowWidth,
+  'previewWindowHeight': instance.previewWindowHeight,
   'layers': instance.layers.map((e) => e.toJson()).toList(),
 };
