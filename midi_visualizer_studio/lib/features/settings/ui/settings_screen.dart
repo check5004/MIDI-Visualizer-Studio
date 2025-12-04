@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:midi_visualizer_studio/data/models/shortcut_config.dart';
-import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
+
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_event.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 import 'package:midi_visualizer_studio/features/settings/ui/parts/settings_card.dart';
+import 'package:midi_visualizer_studio/features/midi/ui/parts/midi_device_list.dart';
 import 'package:midi_visualizer_studio/features/common/ui/advanced_color_picker_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -134,54 +135,7 @@ class _MidiSettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return SettingsCard(
       title: 'MIDI',
-      children: [
-        BlocBuilder<MidiBloc, MidiState>(
-          builder: (context, state) {
-            return Column(
-              children: [
-                ListTile(
-                  title: const Text('MIDI Devices'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () {
-                      context.read<MidiBloc>().add(const MidiEvent.scanDevices());
-                    },
-                  ),
-                ),
-                if (state.status == MidiStatus.scanning)
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: LinearProgressIndicator()),
-                  )
-                else if (state.devices.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(child: Text('No MIDI devices found')),
-                  )
-                else
-                  ...state.devices.map((device) {
-                    final isConnected = state.connectedDevice?.id == device.id;
-                    return ListTile(
-                      leading: const Icon(Icons.usb),
-                      title: Text(device.name),
-                      subtitle: Text(device.type),
-                      trailing: ElevatedButton(
-                        onPressed: () {
-                          if (isConnected) {
-                            context.read<MidiBloc>().add(MidiEvent.disconnectDevice(device));
-                          } else {
-                            context.read<MidiBloc>().add(MidiEvent.connectDevice(device));
-                          }
-                        },
-                        child: Text(isConnected ? 'Disconnect' : 'Connect'),
-                      ),
-                    );
-                  }),
-              ],
-            );
-          },
-        ),
-      ],
+      children: [SizedBox(height: 300, child: const MidiDeviceList())],
     );
   }
 }

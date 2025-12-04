@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
@@ -18,8 +19,27 @@ class InspectorPanel extends StatefulWidget {
 }
 
 class _InspectorPanelState extends State<InspectorPanel> {
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (_lastBoundTime != null && DateTime.now().difference(_lastBoundTime!) < const Duration(seconds: 3)) {
+        if (mounted) setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
   bool _isLearning = false;
   String? _learningComponentId;
+  DateTime? _lastBoundTime;
   int _currentVelocity = 0;
 
   @override
@@ -52,9 +72,8 @@ class _InspectorPanelState extends State<InspectorPanel> {
               setState(() {
                 _isLearning = false;
                 _learningComponentId = null;
+                _lastBoundTime = DateTime.now();
               });
-
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('MIDI Bound!')));
               break; // Stop after first successful bind
             }
           } else {
@@ -471,11 +490,55 @@ class _InspectorPanelState extends State<InspectorPanel> {
                           });
                         }
                       },
-                icon: Icon(isLearningThis ? Icons.stop : Icons.radio_button_checked),
-                label: Text(isLearningThis ? 'Stop Learning' : 'Learn MIDI'),
+                icon: Icon(
+                  isLearningThis
+                      ? Icons.stop
+                      : (_lastBoundTime != null &&
+                            DateTime.now().difference(_lastBoundTime!) < const Duration(seconds: 2) &&
+                            component.map(
+                              pad: (c) => c.midiNote != null,
+                              knob: (c) => c.midiCc != null,
+                              staticImage: (_) => false,
+                            ))
+                      ? Icons.check_circle
+                      : Icons.radio_button_checked,
+                ),
+                label: Text(
+                  isLearningThis
+                      ? 'Stop Learning'
+                      : (_lastBoundTime != null &&
+                            DateTime.now().difference(_lastBoundTime!) < const Duration(seconds: 2) &&
+                            component.map(
+                              pad: (c) => c.midiNote != null,
+                              knob: (c) => c.midiCc != null,
+                              staticImage: (_) => false,
+                            ))
+                      ? 'Bound!'
+                      : 'Learn MIDI',
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isLearningThis ? Colors.red : null,
-                  foregroundColor: isLearningThis ? Colors.white : null,
+                  backgroundColor: isLearningThis
+                      ? Colors.red
+                      : (_lastBoundTime != null &&
+                            DateTime.now().difference(_lastBoundTime!) < const Duration(seconds: 2) &&
+                            component.map(
+                              pad: (c) => c.midiNote != null,
+                              knob: (c) => c.midiCc != null,
+                              staticImage: (_) => false,
+                            ))
+                      ? Colors.green
+                      : null,
+                  foregroundColor:
+                      isLearningThis ||
+                          (_lastBoundTime != null &&
+                              DateTime.now().difference(_lastBoundTime!) < const Duration(seconds: 2) &&
+                              component.map(
+                                pad: (c) => c.midiNote != null,
+                                knob: (c) => c.midiCc != null,
+                                staticImage: (_) => false,
+                              ))
+                      ? Colors.white
+                      : null,
                 ),
               ),
             ),

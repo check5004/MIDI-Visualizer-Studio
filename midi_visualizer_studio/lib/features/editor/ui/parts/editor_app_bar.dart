@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/dialogs/create_pad_dialog.dart';
+import 'package:midi_visualizer_studio/features/midi/ui/dialogs/midi_settings_dialog.dart';
 
 class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EditorAppBar({super.key});
@@ -86,6 +87,17 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                 }
               },
             ),
+            const VerticalDivider(indent: 10, endIndent: 10),
+
+            // MIDI Settings
+            IconButton(
+              icon: const Icon(Icons.piano),
+              tooltip: 'MIDI Settings',
+              onPressed: () {
+                showDialog(context: context, builder: (context) => const MidiSettingsDialog());
+              },
+            ),
+
             const VerticalDivider(indent: 10, endIndent: 10),
 
             // Tools
