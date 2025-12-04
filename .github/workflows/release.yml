@@ -61,9 +61,9 @@ jobs:
       - name: Compress Artifacts
         shell: pwsh
         run: |
-          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "MyApp-Windows-${{ env.APP_VERSION }}.zip"
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "MIDI-Visualizer-Studio-Windows-${{ env.APP_VERSION }}.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: midi_visualizer_studio/MyApp-Windows-${{ env.APP_VERSION }}.zip
+          files: midi_visualizer_studio/MIDI-Visualizer-Studio-Windows-${{ env.APP_VERSION }}.zip
