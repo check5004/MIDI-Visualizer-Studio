@@ -579,6 +579,17 @@ class _InspectorPanelState extends State<InspectorPanel> {
           }
         },
       ),
+      if (pad.shape == PadShape.rect) ...[
+        const SizedBox(height: 8),
+        NumberInput(
+          label: 'Corner Radius',
+          value: pad.cornerRadius,
+          min: 0,
+          onChanged: (value) {
+            context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(cornerRadius: value)));
+          },
+        ),
+      ],
       if (pad.shape == PadShape.path) ...[
         const SizedBox(height: 8),
         Row(
@@ -864,6 +875,26 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
           ),
         ],
       ),
+      if (components.any((c) => c is ComponentPad && c.shape == PadShape.rect)) ...[
+        const SizedBox(height: 8),
+        _MixedNumberInput(
+          label: 'Corner Radius',
+          values: components
+              .whereType<ComponentPad>()
+              .where((c) => c.shape == PadShape.rect)
+              .map((c) => c.cornerRadius)
+              .toList(),
+          onChanged: (value) {
+            final updates = components.map((c) {
+              if (c is ComponentPad && c.shape == PadShape.rect) {
+                return c.copyWith(cornerRadius: value);
+              }
+              return c;
+            }).toList();
+            context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+          },
+        ),
+      ],
       if (components.any((c) => c is ComponentPad && c.shape == PadShape.path)) ...[
         const SizedBox(height: 16),
         const Divider(),

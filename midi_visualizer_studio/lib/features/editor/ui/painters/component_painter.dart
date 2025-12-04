@@ -18,7 +18,11 @@ class ComponentPainter extends CustomPainter {
       paint.color = _parseColor(isActive ? pad.onColor : pad.offColor);
 
       if (pad.shape == PadShape.rect) {
-        canvas.drawRect(Offset.zero & size, paint);
+        if (pad.cornerRadius > 0) {
+          canvas.drawRRect(RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(pad.cornerRadius)), paint);
+        } else {
+          canvas.drawRect(Offset.zero & size, paint);
+        }
       } else if (pad.shape == PadShape.circle) {
         canvas.drawOval(Offset.zero & size, paint);
       } else if (pad.shape == PadShape.path && pad.pathData != null) {
