@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ColorHistoryService {
   static const String _key = 'color_history';
-  static const int _maxHistory = 10;
+  static const int _maxHistory = 100;
   final SharedPreferences _prefs;
 
   ColorHistoryService(this._prefs);
