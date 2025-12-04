@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
+import 'package:midi_visualizer_studio/data/models/effect_config.dart';
 
 part 'project.freezed.dart';
 part 'project.g.dart';
@@ -20,6 +21,8 @@ abstract class Project with _$Project {
     @Default('#00FF00') String chromaKeyColor,
     double? previewWindowWidth,
     double? previewWindowHeight,
+    @Default(EffectConfig()) EffectConfig defaultOnEffectConfig,
+    @Default(EffectConfig()) EffectConfig defaultOffEffectConfig,
     @Default([]) List<Component> layers,
   }) = _Project;
 

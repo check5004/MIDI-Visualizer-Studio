@@ -78,7 +78,7 @@ class MockProjectRepository implements ProjectRepository {
   }
 
   @override
-  Future<void> saveProjectInternal(Project project) async {}
+  Future<void> saveProject(Project project) async {}
 
   @override
   Future<void> exportProject(Project project, String path) async {}

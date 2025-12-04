@@ -21,7 +21,7 @@ class FakeHistoryCubit extends HistoryCubit {
 
 class FakeProjectRepository extends ProjectRepository {
   @override
-  Future<void> saveProjectInternal(Project project) async {}
+  Future<void> saveProject(Project project) async {}
   @override
   Future<Project> loadProject(String path) async {
     return Project(id: 'test', name: 'Test Project', version: '1.0.0', layers: []);

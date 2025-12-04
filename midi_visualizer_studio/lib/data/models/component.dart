@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:midi_visualizer_studio/data/models/effect_config.dart';
 
 part 'component.freezed.dart';
 part 'component.g.dart';
@@ -37,6 +38,8 @@ abstract class Component with _$Component {
     int? midiNote,
     @Default(0) int velocityThreshold,
     @Default(false) bool maintainAspectRatio,
+    EffectConfig? onEffectConfig,
+    EffectConfig? offEffectConfig,
   }) = ComponentPad;
 
   const factory Component.knob({
@@ -61,6 +64,8 @@ abstract class Component with _$Component {
     int? midiCc,
     @Default(0) int velocityThreshold,
     @Default(false) bool maintainAspectRatio,
+    EffectConfig? onEffectConfig,
+    EffectConfig? offEffectConfig,
   }) = ComponentKnob;
 
   const factory Component.staticImage({
@@ -78,6 +83,5 @@ abstract class Component with _$Component {
     @Default(true) bool maintainAspectRatio,
   }) = ComponentStaticImage;
 
-  factory Component.fromJson(Map<String, dynamic> json) =>
-      _$ComponentFromJson(json);
+  factory Component.fromJson(Map<String, dynamic> json) => _$ComponentFromJson(json);
 }

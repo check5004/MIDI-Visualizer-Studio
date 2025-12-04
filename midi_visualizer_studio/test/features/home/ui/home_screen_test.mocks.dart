@@ -39,9 +39,9 @@ class MockProjectRepository extends _i1.Mock implements _i3.ProjectRepository {
   }
 
   @override
-  _i4.Future<void> saveProjectInternal(_i2.Project? project) =>
+  _i4.Future<void> saveProject(_i2.Project? project) =>
       (super.noSuchMethod(
-            Invocation.method(#saveProjectInternal, [project]),
+            Invocation.method(#saveProject, [project]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

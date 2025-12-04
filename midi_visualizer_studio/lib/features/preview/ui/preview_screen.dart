@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
-import 'package:midi_visualizer_studio/features/editor/ui/painters/component_painter.dart';
+
+import 'package:midi_visualizer_studio/features/preview/ui/widgets/effect_renderer.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'dart:io';
@@ -182,13 +184,19 @@ class _PreviewScreenState extends State<PreviewScreen> {
                                   return Positioned(
                                     left: component.x - _contentBounds.left,
                                     top: component.y - _contentBounds.top,
-                                    child: CustomPaint(
-                                      painter: ComponentPainter(
-                                        component: component,
-                                        isSelected: false,
-                                        isActive: isActive,
+                                    child: EffectRenderer(
+                                      component: component,
+                                      isActive: isActive,
+                                      onConfig: component.map(
+                                        pad: (c) => c.onEffectConfig ?? project.defaultOnEffectConfig,
+                                        knob: (c) => c.onEffectConfig ?? project.defaultOnEffectConfig,
+                                        staticImage: (_) => project.defaultOnEffectConfig,
                                       ),
-                                      size: Size(component.width, component.height),
+                                      offConfig: component.map(
+                                        pad: (c) => c.offEffectConfig ?? project.defaultOffEffectConfig,
+                                        knob: (c) => c.offEffectConfig ?? project.defaultOffEffectConfig,
+                                        staticImage: (_) => project.defaultOffEffectConfig,
+                                      ),
                                     ),
                                   );
                                 }).toList(),

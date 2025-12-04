@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math'; // Added for min/max functions
 
 import 'package:flutter/gestures.dart';
@@ -9,7 +8,9 @@ import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
-import 'package:midi_visualizer_studio/features/editor/ui/painters/component_painter.dart';
+import 'package:midi_visualizer_studio/data/models/effect_config.dart';
+
+import 'package:midi_visualizer_studio/features/preview/ui/widgets/effect_renderer.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/painters/grid_painter.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/painters/path_preview_painter.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/painters/drawing_preview_painter.dart';
@@ -472,6 +473,16 @@ class _CanvasViewState extends State<CanvasView> {
                                                   snapToGrid: state.showGrid && state.snapToGrid,
                                                   padding: padding,
                                                   hideBorder: state.isInteractingWithInspector,
+                                                  onEffectConfig: component.map(
+                                                    pad: (c) => c.onEffectConfig ?? project.defaultOnEffectConfig,
+                                                    knob: (c) => c.onEffectConfig ?? project.defaultOnEffectConfig,
+                                                    staticImage: (_) => project.defaultOnEffectConfig,
+                                                  ),
+                                                  offEffectConfig: component.map(
+                                                    pad: (c) => c.offEffectConfig ?? project.defaultOffEffectConfig,
+                                                    knob: (c) => c.offEffectConfig ?? project.defaultOffEffectConfig,
+                                                    staticImage: (_) => project.defaultOffEffectConfig,
+                                                  ),
                                                   dragDelta: isSelected ? _selectionDragDelta : Offset.zero,
                                                   onDragStart: (details) {
                                                     if (!isSelected) return;
@@ -651,6 +662,8 @@ class _ComponentWrapper extends StatefulWidget {
   final bool snapToGrid;
   final double padding;
   final bool hideBorder;
+  final EffectConfig onEffectConfig;
+  final EffectConfig offEffectConfig;
   final Offset dragDelta;
   final ValueChanged<DragStartDetails>? onDragStart;
   final ValueChanged<DragUpdateDetails>? onDragUpdate;
@@ -666,6 +679,8 @@ class _ComponentWrapper extends StatefulWidget {
     required this.snapToGrid,
     this.padding = 0,
     this.hideBorder = false,
+    required this.onEffectConfig,
+    required this.offEffectConfig,
     this.dragDelta = Offset.zero,
     this.onDragStart,
     this.onDragUpdate,
@@ -734,39 +749,11 @@ class _ComponentWrapperState extends State<_ComponentWrapper> {
   }
 
   Widget _buildComponentContent() {
-    return CustomPaint(
-      painter: ComponentPainter(
-        component: widget.component,
-        isSelected: false,
-        isActive: widget.isActive,
-      ), // Overlay handles selection visuals
-      child: SizedBox(
-        width: widget.component.width,
-        height: widget.component.height,
-        child: widget.component.map(
-          pad: (c) => Center(
-            child: Text(
-              c.name,
-              style: const TextStyle(color: Colors.white, fontSize: 10),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          knob: (c) => Center(
-            child: Text(
-              c.name,
-              style: const TextStyle(color: Colors.white, fontSize: 10),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          staticImage: (c) => Image.file(
-            File(c.imagePath),
-            fit: BoxFit.fill,
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(child: Icon(Icons.broken_image, color: Colors.red));
-            },
-          ),
-        ),
-      ),
+    return EffectRenderer(
+      component: widget.component,
+      isActive: widget.isActive,
+      onConfig: widget.onEffectConfig,
+      offConfig: widget.offEffectConfig,
     );
   }
 }

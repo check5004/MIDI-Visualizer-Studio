@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
+
+import 'package:midi_visualizer_studio/data/models/effect_config.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
@@ -176,15 +178,31 @@ class _InspectorPanelState extends State<InspectorPanel> {
   }
 
   Widget _buildProjectSettings(BuildContext context, Project project) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text(
-          'Select a component to edit its properties.',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey),
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
+      children: [
+        const Text('Project Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const SizedBox(height: 16),
+        _buildEffectProperties(context, 'Default Note On Effect', project.defaultOnEffectConfig, (newConfig) {
+          context.read<EditorBloc>().add(
+            EditorEvent.updateProjectSettings(project.copyWith(defaultOnEffectConfig: newConfig)),
+          );
+        }),
+        const SizedBox(height: 16),
+        _buildEffectProperties(context, 'Default Note Off Effect', project.defaultOffEffectConfig, (newConfig) {
+          context.read<EditorBloc>().add(
+            EditorEvent.updateProjectSettings(project.copyWith(defaultOffEffectConfig: newConfig)),
+          );
+        }),
+        const SizedBox(height: 16),
+        const Center(
+          child: Text(
+            'Select a component to edit its properties.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey),
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -630,6 +648,16 @@ class _InspectorPanelState extends State<InspectorPanel> {
           context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offColor: color)));
         },
       ),
+
+      const SizedBox(height: 16),
+      const SizedBox(height: 16),
+      _buildEffectProperties(context, 'Note On Effect', pad.onEffectConfig ?? const EffectConfig(), (newConfig) {
+        context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onEffectConfig: newConfig)));
+      }),
+      const SizedBox(height: 16),
+      _buildEffectProperties(context, 'Note Off Effect', pad.offEffectConfig ?? const EffectConfig(), (newConfig) {
+        context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offEffectConfig: newConfig)));
+      }),
     ];
   }
 
@@ -669,7 +697,60 @@ class _InspectorPanelState extends State<InspectorPanel> {
           ),
         ],
       ),
+      const SizedBox(height: 16),
+      _buildEffectProperties(context, 'Note On Effect', knob.onEffectConfig ?? const EffectConfig(), (newConfig) {
+        context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(onEffectConfig: newConfig)));
+      }),
+      const SizedBox(height: 16),
+      _buildEffectProperties(context, 'Note Off Effect', knob.offEffectConfig ?? const EffectConfig(), (newConfig) {
+        context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(offEffectConfig: newConfig)));
+      }),
     ];
+  }
+
+  Widget _buildEffectProperties(
+    BuildContext context,
+    String title,
+    EffectConfig config,
+    ValueChanged<EffectConfig> onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        _EnumDropdown<EffectType>(
+          label: 'Type',
+          value: config.type,
+          values: EffectType.values,
+          onChanged: (value) {
+            if (value != null) onChanged(config.copyWith(type: value));
+          },
+        ),
+        if (config.type != EffectType.none) ...[
+          const SizedBox(height: 8),
+          NumberInput(
+            label: 'Duration (ms)',
+            value: config.durationMs.toDouble(),
+            min: 0,
+            onChanged: (value) {
+              onChanged(config.copyWith(durationMs: value.toInt()));
+            },
+          ),
+          if (config.type == EffectType.ripple) ...[
+            const SizedBox(height: 8),
+            NumberInput(
+              label: 'Scale Multiplier',
+              value: config.scale,
+              min: 1.0,
+              onChanged: (value) {
+                onChanged(config.copyWith(scale: value));
+              },
+            ),
+          ],
+        ],
+      ],
+    );
   }
 }
 

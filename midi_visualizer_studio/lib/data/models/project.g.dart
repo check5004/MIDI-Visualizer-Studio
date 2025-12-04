@@ -46,6 +46,18 @@ _Project _$ProjectFromJson(Map<String, dynamic> json) =>
           'previewWindowHeight',
           (v) => (v as num?)?.toDouble(),
         ),
+        defaultOnEffectConfig: $checkedConvert(
+          'defaultOnEffectConfig',
+          (v) => v == null
+              ? const EffectConfig()
+              : EffectConfig.fromJson(v as Map<String, dynamic>),
+        ),
+        defaultOffEffectConfig: $checkedConvert(
+          'defaultOffEffectConfig',
+          (v) => v == null
+              ? const EffectConfig()
+              : EffectConfig.fromJson(v as Map<String, dynamic>),
+        ),
         layers: $checkedConvert(
           'layers',
           (v) =>
@@ -72,5 +84,7 @@ Map<String, dynamic> _$ProjectToJson(_Project instance) => <String, dynamic>{
   'chromaKeyColor': instance.chromaKeyColor,
   'previewWindowWidth': instance.previewWindowWidth,
   'previewWindowHeight': instance.previewWindowHeight,
+  'defaultOnEffectConfig': instance.defaultOnEffectConfig.toJson(),
+  'defaultOffEffectConfig': instance.defaultOffEffectConfig.toJson(),
   'layers': instance.layers.map((e) => e.toJson()).toList(),
 };

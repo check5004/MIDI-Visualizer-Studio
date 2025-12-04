@@ -54,6 +54,16 @@ ComponentPad _$ComponentPadFromJson(
       'maintainAspectRatio',
       (v) => v as bool? ?? false,
     ),
+    onEffectConfig: $checkedConvert(
+      'onEffectConfig',
+      (v) =>
+          v == null ? null : EffectConfig.fromJson(v as Map<String, dynamic>),
+    ),
+    offEffectConfig: $checkedConvert(
+      'offEffectConfig',
+      (v) =>
+          v == null ? null : EffectConfig.fromJson(v as Map<String, dynamic>),
+    ),
     $type: $checkedConvert('type', (v) => v as String?),
   );
   return val;
@@ -84,6 +94,8 @@ Map<String, dynamic> _$ComponentPadToJson(ComponentPad instance) =>
       'midiNote': instance.midiNote,
       'velocityThreshold': instance.velocityThreshold,
       'maintainAspectRatio': instance.maintainAspectRatio,
+      'onEffectConfig': instance.onEffectConfig?.toJson(),
+      'offEffectConfig': instance.offEffectConfig?.toJson(),
       'type': instance.$type,
     };
 
@@ -138,6 +150,16 @@ ComponentKnob _$ComponentKnobFromJson(
       'maintainAspectRatio',
       (v) => v as bool? ?? false,
     ),
+    onEffectConfig: $checkedConvert(
+      'onEffectConfig',
+      (v) =>
+          v == null ? null : EffectConfig.fromJson(v as Map<String, dynamic>),
+    ),
+    offEffectConfig: $checkedConvert(
+      'offEffectConfig',
+      (v) =>
+          v == null ? null : EffectConfig.fromJson(v as Map<String, dynamic>),
+    ),
     $type: $checkedConvert('type', (v) => v as String?),
   );
   return val;
@@ -166,6 +188,8 @@ Map<String, dynamic> _$ComponentKnobToJson(ComponentKnob instance) =>
       'midiCc': instance.midiCc,
       'velocityThreshold': instance.velocityThreshold,
       'maintainAspectRatio': instance.maintainAspectRatio,
+      'onEffectConfig': instance.onEffectConfig?.toJson(),
+      'offEffectConfig': instance.offEffectConfig?.toJson(),
       'type': instance.$type,
     };
 
