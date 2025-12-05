@@ -51,12 +51,20 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Flutter Info
+        run: |
+          flutter --version
+          flutter doctor -v
+
       - name: Extract Version
         run: |
           echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
       - name: Build macOS
-        run: flutter build macos --release --no-codesign --build-name=${{ env.APP_VERSION }}
+        env:
+          CODE_SIGNING_ALLOWED: NO
+          CODE_SIGNING_REQUIRED: NO
+        run: flutter build macos --release --build-name=${{ env.APP_VERSION }}
 
       - name: Compress Artifacts
         run: |
