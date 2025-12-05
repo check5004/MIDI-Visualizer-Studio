@@ -1009,6 +1009,40 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
           },
         ),
       ],
+      if (components.any((c) => c is ComponentPad)) ...[
+        const SizedBox(height: 16),
+        const Divider(),
+        const SizedBox(height: 8),
+        const Text('Colors', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        _MixedColorPickerField(
+          label: 'On Color',
+          colors: components.whereType<ComponentPad>().map((c) => c.onColor).toList(),
+          onChanged: (color) {
+            final updates = components.map((c) {
+              if (c is ComponentPad) {
+                return c.copyWith(onColor: color);
+              }
+              return c;
+            }).toList();
+            context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+          },
+        ),
+        const SizedBox(height: 8),
+        _MixedColorPickerField(
+          label: 'Off Color',
+          colors: components.whereType<ComponentPad>().map((c) => c.offColor).toList(),
+          onChanged: (color) {
+            final updates = components.map((c) {
+              if (c is ComponentPad) {
+                return c.copyWith(offColor: color);
+              }
+              return c;
+            }).toList();
+            context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+          },
+        ),
+      ],
       if (components.any((c) => c is ComponentPad && c.shape == PadShape.path)) ...[
         const SizedBox(height: 16),
         const Divider(),
@@ -1237,6 +1271,22 @@ class _MixedNumberInput extends StatelessWidget {
       // But let's stick to simple behavior: show first value if mixed.
       onChanged: onChanged,
     );
+  }
+}
+
+class _MixedColorPickerField extends StatelessWidget {
+  final String label;
+  final List<String> colors;
+  final ValueChanged<String> onChanged;
+
+  const _MixedColorPickerField({required this.label, required this.colors, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final firstColor = colors.isNotEmpty ? colors.first : '#FFFFFF';
+    // We could check if all are same, but for color picker, usually we just show one and let user overwrite
+
+    return _ColorPickerField(label: label, color: firstColor, onChanged: onChanged);
   }
 }
 
