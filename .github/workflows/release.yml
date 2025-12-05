@@ -43,6 +43,8 @@ jobs:
         working-directory: ./midi_visualizer_studio
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: subosito/flutter-action@v2
         with:
@@ -63,7 +65,23 @@ jobs:
         run: |
           Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "MIDI-Visualizer-Studio-Windows-${{ env.APP_VERSION }}.zip"
 
+      - name: Generate Release Notes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'SilentlyContinue'
+          $previousTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+          $ErrorActionPreference = 'Continue'
+          
+          if ($previousTag) {
+            Write-Host "Generating changelog from $previousTag to HEAD"
+            git log "${previousTag}..HEAD" --pretty=format:"- %s" | Out-File -FilePath release_notes.md -Encoding utf8
+          } else {
+            Write-Host "No previous tag found. Generating changelog for all commits."
+            git log --pretty=format:"- %s" | Out-File -FilePath release_notes.md -Encoding utf8
+          }
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          body_path: midi_visualizer_studio/release_notes.md
           files: midi_visualizer_studio/MIDI-Visualizer-Studio-Windows-${{ env.APP_VERSION }}.zip
