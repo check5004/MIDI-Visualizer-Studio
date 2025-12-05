@@ -36,6 +36,51 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./midi_visualizer_studio/build/web
 
+  build-macos:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./midi_visualizer_studio
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Extract Version
+        run: |
+          echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Build macOS
+        run: flutter build macos --release --no-codesign --build-name=${{ env.APP_VERSION }}
+
+      - name: Compress Artifacts
+        run: |
+          ZIP_PATH="$GITHUB_WORKSPACE/midi_visualizer_studio/MIDI-Visualizer-Studio-macOS-${{ env.APP_VERSION }}.zip"
+          cd build/macos/Build/Products/Release
+          zip -r "$ZIP_PATH" *.app
+
+      - name: Generate Release Notes
+        run: |
+          previous_tag=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+          if [ -n "$previous_tag" ]; then
+            echo "Generating changelog from $previous_tag to HEAD"
+            git log "${previous_tag}..HEAD" --pretty=format:"- %s" > release_notes.md
+          else
+            echo "No previous tag found. Generating changelog for all commits."
+            git log --pretty=format:"- %s" > release_notes.md
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: midi_visualizer_studio/release_notes.md
+          files: midi_visualizer_studio/MIDI-Visualizer-Studio-macOS-${{ env.APP_VERSION }}.zip
+
   build-windows:
     runs-on: windows-latest
     defaults:

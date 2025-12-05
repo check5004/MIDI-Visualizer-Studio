@@ -52,6 +52,31 @@ Flutter製のMIDIビジュアライザー作成・再生アプリケーション
 - **Web**: GitHub Actionsによる自動デプロイ対応。
 - **macOS**: 対応。
 
+## ダウンロードとインストール
+
+最新版は [GitHub Releases](https://github.com/check5004/MIDI-Visualizer-Studio/releases) からダウンロードできます。
+
+### Windows
+
+1. Releasesページから `MIDI-Visualizer-Studio-Windows-x.x.x.zip` をダウンロードします。
+2. ダウンロードしたZIPファイルを解凍（展開）します。
+3. フォルダ内の `midi_visualizer_studio.exe` を実行してください。
+   - ※「WindowsによってPCが保護されました」という画面が出た場合は、「詳細情報」をクリックし、「実行」を選択してください。
+
+### macOS
+
+1. Releasesページから `MIDI-Visualizer-Studio-macOS-x.x.x.zip` をダウンロードします。
+2. ダウンロードしたZIPファイルを解凍します。
+3. `midi_visualizer_studio.app` をアプリケーションフォルダなどに移動します。
+4. **初回起動時の注意**:
+   - 本アプリはAppleの開発者署名を行っていないため、通常のダブルクリックでは起動できない場合があります（「開発元が未確認のため開けません」や「壊れているため開けません」と表示されることがあります）。
+   - その場合は、アプリアイコンを **右クリック（またはControlキーを押しながらクリック）** し、メニューから「開く」を選択してください。確認ダイアログが表示されたら、再度「開く」をクリックすることで起動できます。
+   - それでも「壊れている」と表示される場合は、ターミナルで以下のコマンドを実行してください：
+     ```bash
+     xattr -cr /Applications/midi_visualizer_studio.app
+     ```
+     （※パスはアプリを置いた場所に合わせて変更してください）
+
 ## CI/CD
 GitHub Actionsにより以下のワークフローが自動化されています：
 - Web版のビルドとGitHub Pagesへのデプロイ。
