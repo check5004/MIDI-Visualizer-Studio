@@ -64,6 +64,14 @@ ComponentPad _$ComponentPadFromJson(
       (v) =>
           v == null ? null : EffectConfig.fromJson(v as Map<String, dynamic>),
     ),
+    pulseModeEnabled: $checkedConvert(
+      'pulseModeEnabled',
+      (v) => v as bool? ?? false,
+    ),
+    pulseDuration: $checkedConvert(
+      'pulseDuration',
+      (v) => (v as num?)?.toInt() ?? 50,
+    ),
     $type: $checkedConvert('type', (v) => v as String?),
   );
   return val;
@@ -96,6 +104,8 @@ Map<String, dynamic> _$ComponentPadToJson(ComponentPad instance) =>
       'maintainAspectRatio': instance.maintainAspectRatio,
       'onEffectConfig': instance.onEffectConfig?.toJson(),
       'offEffectConfig': instance.offEffectConfig?.toJson(),
+      'pulseModeEnabled': instance.pulseModeEnabled,
+      'pulseDuration': instance.pulseDuration,
       'type': instance.$type,
     };
 

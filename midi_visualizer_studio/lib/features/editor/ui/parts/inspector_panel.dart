@@ -433,10 +433,16 @@ class _InspectorPanelState extends State<InspectorPanel> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: LinearProgressIndicator(
-                      value: _currentVelocity / 127.0,
+                      value:
+                          (context.read<EditorBloc>().state.activeComponentIds.contains(component.id)
+                              ? _currentVelocity
+                              : 0) /
+                          127.0,
                       backgroundColor: Colors.grey[800],
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        _currentVelocity >=
+                        (context.read<EditorBloc>().state.activeComponentIds.contains(component.id)
+                                    ? _currentVelocity
+                                    : 0) >=
                                 component.map(
                                   pad: (c) => c.velocityThreshold,
                                   knob: (c) => c.velocityThreshold,
@@ -650,6 +656,33 @@ class _InspectorPanelState extends State<InspectorPanel> {
       ),
 
       const SizedBox(height: 16),
+      Row(
+        children: [
+          Checkbox(
+            value: pad.pulseModeEnabled,
+            onChanged: (value) {
+              context.read<EditorBloc>().add(
+                EditorEvent.updateComponent(pad.id, pad.copyWith(pulseModeEnabled: value ?? false)),
+              );
+            },
+          ),
+          const Text('Pulse Mode'),
+        ],
+      ),
+      if (pad.pulseModeEnabled) ...[
+        const SizedBox(height: 8),
+        NumberInput(
+          label: 'Pulse Duration (ms)',
+          value: pad.pulseDuration.toDouble(),
+          min: 10,
+          step: 10,
+          onChanged: (value) {
+            context.read<EditorBloc>().add(
+              EditorEvent.updateComponent(pad.id, pad.copyWith(pulseDuration: value.toInt())),
+            );
+          },
+        ),
+      ],
       const SizedBox(height: 16),
       _buildEffectProperties(context, 'Note On Effect', pad.onEffectConfig ?? const EffectConfig(), (newConfig) {
         context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onEffectConfig: newConfig)));
@@ -1007,6 +1040,48 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
             ),
           ],
         ),
+      ],
+      if (components.any((c) => c is ComponentPad)) ...[
+        const SizedBox(height: 16),
+        const Divider(),
+        const SizedBox(height: 8),
+        const Text('Pulse Mode', style: TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            Checkbox(
+              value: components.whereType<ComponentPad>().every(
+                (c) => c.pulseModeEnabled,
+              ), // Checked only if ALL are enabled
+              tristate: true, // Allow indeterminate state if mixed
+              onChanged: (value) {
+                final updates = components.map((c) {
+                  if (c is ComponentPad) {
+                    return c.copyWith(pulseModeEnabled: value ?? false);
+                  }
+                  return c;
+                }).toList();
+                context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+              },
+            ),
+            const Text('Enable Pulse Mode'),
+          ],
+        ),
+        if (components.whereType<ComponentPad>().any((c) => c.pulseModeEnabled)) ...[
+          const SizedBox(height: 8),
+          _MixedNumberInput(
+            label: 'Pulse Duration (ms)',
+            values: components.whereType<ComponentPad>().map((c) => c.pulseDuration.toDouble()).toList(),
+            onChanged: (value) {
+              final updates = components.map((c) {
+                if (c is ComponentPad) {
+                  return c.copyWith(pulseDuration: value.toInt());
+                }
+                return c;
+              }).toList();
+              context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
+            },
+          ),
+        ],
       ],
     ],
   );

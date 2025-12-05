@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:ui';
@@ -6,6 +7,7 @@ import 'package:image/image.dart' as img;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
@@ -21,6 +23,7 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
   final HistoryCubit? _historyCubit;
   final ProjectRepository? _projectRepository;
   final TemporaryStorageService _temporaryStorageService;
+  final Map<String, Timer> _pulseTimers = {};
 
   EditorBloc({
     HistoryCubit? historyCubit,
@@ -551,9 +554,31 @@ class EditorBloc extends Bloc<EditorEvent, EditorState> {
               if (message.isNoteOn) {
                 if (message.data2 >= pad.velocityThreshold) {
                   if (activeIds.add(pad.id)) changed = true;
+
+                  if (pad.pulseModeEnabled) {
+                    _pulseTimers[pad.id]?.cancel();
+                    _pulseTimers[pad.id] = Timer(Duration(milliseconds: pad.pulseDuration), () {
+                      // Simulate Note Off
+                      // Note Off status byte: 0x80 | channel
+                      final noteOffStatus = 0x80 | (pad.midiChannel ?? 0);
+                      final note = pad.midiNote ?? 0;
+                      final simulatedPacket = MidiPacket(
+                        Uint8List.fromList([noteOffStatus, note, 0]),
+                        DateTime.now().millisecondsSinceEpoch,
+                        packet.device,
+                      );
+                      add(EditorEvent.handleMidiMessage(simulatedPacket));
+                    });
+                  }
                 }
               } else if (message.isNoteOff) {
+                // If Pulse Mode is enabled, we still respect the Note Off if it comes in.
+                // But usually Pulse Mode is for when Note Off is missing or unreliable.
+                // However, the requirement says: "If real input changes, prioritize it and end this function's processing"
+                // So if Note Off comes, we turn it off and cancel the timer.
                 if (activeIds.remove(pad.id)) changed = true;
+                _pulseTimers[pad.id]?.cancel();
+                _pulseTimers.remove(pad.id);
               }
             }
           },

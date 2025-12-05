@@ -40,6 +40,8 @@ abstract class Component with _$Component {
     @Default(false) bool maintainAspectRatio,
     EffectConfig? onEffectConfig,
     EffectConfig? offEffectConfig,
+    @Default(false) bool pulseModeEnabled,
+    @Default(50) int pulseDuration,
   }) = ComponentPad;
 
   const factory Component.knob({
