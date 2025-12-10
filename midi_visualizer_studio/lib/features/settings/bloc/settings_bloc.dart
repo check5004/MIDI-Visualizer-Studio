@@ -14,6 +14,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   static const String _editorBackgroundColorKey = 'editor_background_color';
   static const String _windowlessKey = 'is_windowless';
   static const String _launchInPreviewKey = 'launch_in_preview';
+  static const String _localeKey = 'locale';
   static const String _shortcutsKey = 'shortcuts_config';
 
   SettingsBloc(this._prefs) : super(const SettingsState()) {
@@ -23,6 +24,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<UpdateEditorBackgroundColor>(_onUpdateEditorBackgroundColor);
     on<ToggleWindowless>(_onToggleWindowless);
     on<ToggleLaunchInPreview>(_onToggleLaunchInPreview);
+    on<UpdateLocale>(_onUpdateLocale);
     on<UpdateShortcut>(_onUpdateShortcut);
     on<ResetShortcuts>(_onResetShortcuts);
 
@@ -35,6 +37,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final editorBackgroundColor = _prefs.getInt(_editorBackgroundColorKey);
     final isWindowless = _prefs.getBool(_windowlessKey);
     final shouldLaunchInPreview = _prefs.getBool(_launchInPreviewKey) ?? true; // Default to true
+    final localeCode = _prefs.getString(_localeKey) ?? 'ja'; // Default to Japanese
     final shortcutsJson = _prefs.getString(_shortcutsKey);
 
     var newState = state;
@@ -51,7 +54,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       newState = newState.copyWith(isWindowless: isWindowless);
       _applyWindowStyle(isWindowless);
     }
-    newState = newState.copyWith(shouldLaunchInPreview: shouldLaunchInPreview);
+    newState = newState.copyWith(shouldLaunchInPreview: shouldLaunchInPreview, locale: Locale(localeCode));
 
     if (shortcutsJson != null) {
       try {
@@ -94,6 +97,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   void _onToggleLaunchInPreview(ToggleLaunchInPreview event, Emitter<SettingsState> emit) async {
     await _prefs.setBool(_launchInPreviewKey, event.enabled);
     emit(state.copyWith(shouldLaunchInPreview: event.enabled));
+  }
+
+  void _onUpdateLocale(UpdateLocale event, Emitter<SettingsState> emit) async {
+    await _prefs.setString(_localeKey, event.locale.languageCode);
+    emit(state.copyWith(locale: event.locale));
   }
 
   Future<void> _applyWindowStyle(bool isWindowless) async {

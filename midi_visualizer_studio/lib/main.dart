@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midi_visualizer_studio/core/router/app_router.dart';
 import 'package:midi_visualizer_studio/core/services/midi_service.dart';
@@ -8,7 +10,6 @@ import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:midi_visualizer_studio/data/models/project.dart'; // actually used in logic? Yes, Project type is used in extra. Wait, initialExtra: project. Project is type.
-import 'package:midi_visualizer_studio/data/models/project.dart';
 
 import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -114,6 +115,14 @@ class MidiVisualizerApp extends StatelessWidget {
           builder: (context, state) {
             return MaterialApp.router(
               title: 'MIDI Visualizer Studio',
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: state.locale,
               theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue), useMaterial3: true),
               darkTheme: ThemeData(
                 colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue, brightness: Brightness.dark),

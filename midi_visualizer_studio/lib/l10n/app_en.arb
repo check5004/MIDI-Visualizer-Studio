@@ -1,0 +1,212 @@
+{
+  "@@locale": "en",
+  "appTitle": "MIDI Visualizer Studio",
+  "settingsTitle": "Settings",
+  "language": "Language",
+  "themeMode": "Theme Mode",
+  "systemTheme": "System",
+  "lightTheme": "Light",
+  "darkTheme": "Dark",
+  "general": "General",
+  "darkMode": "Dark Mode",
+  "editorBackground": "Editor Background",
+  "version": "Version",
+  "licenses": "Licenses",
+  "launchInPreviewMode": "Launch in Preview Mode",
+  "launchInPreviewModeDescription": "Re-open last project in preview mode on launch",
+  "midi": "MIDI",
+  "streaming": "Streaming",
+  "chromaKeyDefaults": "Chroma Key Defaults",
+  "chromaKeyDefaultsDescription": "Set the default background color for new projects.",
+  "defaultColor": "Default Color",
+  "windowlessMode": "Windowless Mode",
+  "windowlessModeDescription": "Hide window title bar and frame (for OBS capturing).",
+  "shortcuts": "Shortcuts",
+  "resetToDefaults": "Reset to Defaults",
+  "noShortcutsConfigured": "No shortcuts configured",
+  "pressKeys": "Press keys...",
+  "dashboard": "Dashboard",
+  "dashboardSubtitle": "Manage your MIDI visualizer projects",
+  "tutorial": "Tutorial",
+  "recentProjects": "Recent Projects",
+  "refreshProjects": "Refresh Projects",
+  "newProject": "New Project",
+  "importFile": "Import",
+  "importSuccess": "Imported {count} project(s) successfully",
+  "@importSuccess": {
+    "placeholders": {
+        "count": {
+            "type": "int"
+        }
+    }
+  },
+  "importPartialSuccess": "Imported {success} project(s), failed to import {fail}",
+  "@importPartialSuccess": {
+    "placeholders": {
+        "success": {
+            "type": "int"
+        },
+        "fail": {
+            "type": "int"
+        }
+    }
+  },
+  "edit": "Edit",
+  "export": "Export",
+  "exportProject": "Export Project",
+  "exportSuccess": "Project exported successfully",
+  "exportFail": "Failed to export project: {error}",
+  "@exportFail": {
+    "placeholders": {
+        "error": {
+            "type": "String"
+        }
+    }
+  },
+  "delete": "Delete",
+  "deleteProject": "Delete Project",
+  "deleteConfirmation": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+  "@deleteConfirmation": {
+    "placeholders": {
+        "name": {
+            "type": "String"
+        }
+    }
+  },
+  "cancel": "Cancel",
+  "edited": "Edited {date}",
+  "@edited": {
+    "placeholders": {
+        "date": {
+            "type": "String"
+        }
+    }
+  },
+  "unknownDate": "Unknown",
+  "daysAgo": "{days}d ago",
+  "@daysAgo": {
+    "placeholders": {
+        "days": {
+            "type": "int"
+        }
+    }
+  },
+  "hoursAgo": "{hours}h ago",
+  "@hoursAgo": {
+    "placeholders": {
+        "hours": {
+            "type": "int"
+        }
+    }
+  },
+  "minutesAgo": "{minutes}m ago",
+  "@minutesAgo": {
+    "placeholders": {
+        "minutes": {
+            "type": "int"
+        }
+    }
+  },
+  "justNow": "Just now",
+  "restoreSession": "Restore Session?",
+  "restoreSessionDescription": "An unsaved session was found. Do you want to restore your changes?",
+  "discard": "Discard",
+  "restore": "Restore",
+  "untitledProject": "Untitled Project",
+  "openProject": "Open Project",
+  "saveProject": "Save Project",
+  "projectSaved": "Project saved",
+  "projectExported": "Project exported",
+  "midiSettings": "MIDI Settings",
+  "toolSelect": "Select",
+  "toolRectangle": "Rectangle",
+  "toolCircle": "Circle",
+  "toolPath": "Path",
+  "toolBucketFill": "Bucket Fill",
+  "insertTemplate": "Insert Template",
+  "padGrid": "PAD Grid",
+  "tolerance": "Tolerance:",
+  "toolImage": "Image",
+  "imageName": "Image {id}",
+  "@imageName": {
+    "placeholders": {
+        "id": {
+            "type": "String"
+        }
+    }
+  },
+  "gridSettings": "Grid Settings",
+  "showGrid": "Show Grid",
+  "snapToGrid": "Snap to Grid",
+  "gridSize": "Grid Size",
+  "preview": "Preview",
+  "renameProject": "Rename Project",
+  "noProjectSelected": "No Project Selected",
+  "projectSettings": "Project Settings",
+  "defaultNoteOnEffect": "Default Note On Effect",
+  "defaultNoteOffEffect": "Default Note Off Effect",
+  "selectComponentToEdit": "Select a component to edit its properties.",
+  "properties": "Properties",
+  "name": "Name",
+  "x": "X",
+  "y": "Y",
+  "w": "W",
+  "h": "H",
+  "lockAspectRatio": "Lock Aspect Ratio",
+  "typeSpecific": "Type Specific",
+  "midiBinding": "MIDI Binding",
+  "channel": "Channel",
+  "note": "Note",
+  "cc": "CC",
+  "na": "N/A",
+  "velocityThreshold": "Velocity Threshold: {value}",
+  "@velocityThreshold": {
+      "placeholders": {
+          "value": {
+              "type": "int"
+          }
+      }
+  },
+  "stopLearning": "Stop Learning",
+  "bound": "Bound!",
+  "learnMidi": "Learn MIDI",
+  "clearBinding": "Clear Binding",
+  "shape": "Shape",
+  "cornerRadius": "Corner Radius",
+  "smoothing": "Smoothing",
+  "onColor": "On Color",
+  "offColor": "Off Color",
+  "pulseMode": "Pulse Mode",
+  "pulseDurationMs": "Pulse Duration (ms)",
+  "noteOnEffect": "Note On Effect",
+  "noteOffEffect": "Note Off Effect",
+  "style": "Style",
+  "minAngle": "Min Angle",
+  "maxAngle": "Max Angle",
+  "type": "Type",
+  "durationMs": "Duration (ms)",
+  "scaleMultiplier": "Scale Multiplier",
+  "multipleSelection": "Multiple Selection",
+  "alignment": "Alignment",
+  "alignLeft": "Align Left",
+  "alignCenter": "Align Center",
+  "alignRight": "Align Right",
+  "alignTop": "Align Top",
+  "alignMiddle": "Align Middle",
+  "alignBottom": "Align Bottom",
+  "enablePulseMode": "Enable Pulse Mode",
+  "colors": "Colors",
+  "pathSmoothing": "Path Smoothing",
+  "amount": "Amount",
+  "layers": "Layers",
+  "group": "Group",
+  "lock": "Lock",
+  "visibility": "Visibility",
+  "exitFullscreen": "Exit Fullscreen",
+  "closeApp": "Close App",
+  "createPadGrid": "Create PAD Grid",
+  "rows": "Rows",
+  "columns": "Columns",
+  "cancel": "Cancel",
+  "create": "Create"
+}

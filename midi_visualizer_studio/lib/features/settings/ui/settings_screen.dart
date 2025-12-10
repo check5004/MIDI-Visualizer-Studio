@@ -10,6 +10,7 @@ import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dar
 import 'package:midi_visualizer_studio/features/settings/ui/parts/settings_card.dart';
 import 'package:midi_visualizer_studio/features/midi/ui/parts/midi_device_list.dart';
 import 'package:midi_visualizer_studio/features/common/ui/advanced_color_picker_dialog.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -17,7 +18,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settingsTitle)),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -70,20 +71,44 @@ class _GeneralSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsCard(
-      title: 'General',
+      title: AppLocalizations.of(context)!.general,
       children: [
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             final isDark = state.themeMode == ThemeMode.dark;
-            return ListTile(
-              leading: const Icon(Icons.dark_mode),
-              title: const Text('Dark Mode'),
-              trailing: Switch(
-                value: isDark,
-                onChanged: (value) {
-                  context.read<SettingsBloc>().add(SettingsEvent.toggleTheme(value ? ThemeMode.dark : ThemeMode.light));
-                },
-              ),
+
+            return Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(AppLocalizations.of(context)!.language),
+                  trailing: DropdownButton<Locale>(
+                    value: state.locale,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: Locale('en'), child: Text('English')),
+                      DropdownMenuItem(value: Locale('ja'), child: Text('日本語')),
+                    ],
+                    onChanged: (Locale? newLocale) {
+                      if (newLocale != null) {
+                        context.read<SettingsBloc>().add(SettingsEvent.updateLocale(newLocale));
+                      }
+                    },
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.dark_mode),
+                  title: Text(AppLocalizations.of(context)!.darkMode),
+                  trailing: Switch(
+                    value: isDark,
+                    onChanged: (value) {
+                      context.read<SettingsBloc>().add(
+                        SettingsEvent.toggleTheme(value ? ThemeMode.dark : ThemeMode.light),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -91,7 +116,7 @@ class _GeneralSettingsSection extends StatelessWidget {
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             return ListTile(
-              title: const Text('Editor Background'),
+              title: Text(AppLocalizations.of(context)!.editorBackground),
               trailing: GestureDetector(
                 onTap: () async {
                   final color = Color(state.editorBackgroundColor);
@@ -117,10 +142,14 @@ class _GeneralSettingsSection extends StatelessWidget {
           },
         ),
         const Divider(),
-        const ListTile(leading: Icon(Icons.info), title: Text('Version'), trailing: Text('1.0.0')),
+        ListTile(
+          leading: const Icon(Icons.info),
+          title: Text(AppLocalizations.of(context)!.version),
+          trailing: const Text('1.0.0'),
+        ),
         ListTile(
           leading: const Icon(Icons.description),
-          title: const Text('Licenses'),
+          title: Text(AppLocalizations.of(context)!.licenses),
           onTap: () => showLicensePage(context: context),
         ),
         const Divider(),
@@ -128,8 +157,8 @@ class _GeneralSettingsSection extends StatelessWidget {
           builder: (context, state) {
             return ListTile(
               leading: const Icon(Icons.preview),
-              title: const Text('Launch in Preview Mode'),
-              subtitle: const Text('Re-open last project in preview mode on launch'),
+              title: Text(AppLocalizations.of(context)!.launchInPreviewMode),
+              subtitle: Text(AppLocalizations.of(context)!.launchInPreviewModeDescription),
               trailing: Switch(
                 value: state.shouldLaunchInPreview,
                 onChanged: (value) {
@@ -150,7 +179,7 @@ class _MidiSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsCard(
-      title: 'MIDI',
+      title: AppLocalizations.of(context)!.midi,
       children: [SizedBox(height: 300, child: const MidiDeviceList())],
     );
   }
@@ -162,18 +191,18 @@ class _StreamingSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsCard(
-      title: 'Streaming',
+      title: AppLocalizations.of(context)!.streaming,
       children: [
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
             return Column(
               children: [
-                const ListTile(
-                  title: Text('Chroma Key Defaults'),
-                  subtitle: Text('Set the default background color for new projects.'),
+                ListTile(
+                  title: Text(AppLocalizations.of(context)!.chromaKeyDefaults),
+                  subtitle: Text(AppLocalizations.of(context)!.chromaKeyDefaultsDescription),
                 ),
                 ListTile(
-                  title: const Text('Default Color'),
+                  title: Text(AppLocalizations.of(context)!.defaultColor),
                   trailing: GestureDetector(
                     onTap: () async {
                       final color = Color(state.defaultChromaKeyColor);
@@ -198,8 +227,8 @@ class _StreamingSettingsSection extends StatelessWidget {
                 ),
                 const Divider(),
                 ListTile(
-                  title: const Text('Windowless Mode'),
-                  subtitle: const Text('Hide window title bar and frame (for OBS capturing).'),
+                  title: Text(AppLocalizations.of(context)!.windowlessMode),
+                  subtitle: Text(AppLocalizations.of(context)!.windowlessModeDescription),
                   trailing: Switch(
                     value: state.isWindowless,
                     onChanged: (value) {
@@ -222,7 +251,7 @@ class _ShortcutsSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsCard(
-      title: 'Shortcuts',
+      title: AppLocalizations.of(context)!.shortcuts,
       children: [
         BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
@@ -232,7 +261,7 @@ class _ShortcutsSettingsSection extends StatelessWidget {
             return Column(
               children: [
                 ListTile(
-                  title: const Text('Reset to Defaults'),
+                  title: Text(AppLocalizations.of(context)!.resetToDefaults),
                   leading: const Icon(Icons.restore),
                   onTap: () {
                     context.read<SettingsBloc>().add(const SettingsEvent.resetShortcuts());
@@ -240,7 +269,10 @@ class _ShortcutsSettingsSection extends StatelessWidget {
                 ),
                 const Divider(),
                 if (sortedKeys.isEmpty)
-                  const Padding(padding: EdgeInsets.all(16.0), child: Text('No shortcuts configured'))
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(AppLocalizations.of(context)!.noShortcutsConfigured),
+                  )
                 else
                   ...sortedKeys.map((actionId) {
                     final config = shortcuts[actionId]!;
@@ -336,7 +368,7 @@ class _ShortcutRecorderState extends State<_ShortcutRecorder> {
             border: _isRecording ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2) : null,
           ),
           child: Text(
-            _isRecording ? 'Press keys...' : widget.config.label,
+            _isRecording ? AppLocalizations.of(context)!.pressKeys : widget.config.label,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: _isRecording

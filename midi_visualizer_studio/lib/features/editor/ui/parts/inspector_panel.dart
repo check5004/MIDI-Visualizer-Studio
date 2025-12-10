@@ -12,6 +12,7 @@ import 'package:midi_visualizer_studio/features/common/ui/advanced_color_picker_
 import 'package:midi_visualizer_studio/features/editor/ui/parts/number_input.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/core/utils/midi_parser.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class InspectorPanel extends StatefulWidget {
   const InspectorPanel({super.key});
@@ -125,7 +126,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           builder: (context, state) {
             final project = state.project;
             if (project == null) {
-              return const Center(child: Text('No Project Selected'));
+              return Center(child: Text(AppLocalizations.of(context)!.noProjectSelected));
             }
 
             // Filter selectedIds to only include components that actually exist in the project
@@ -181,25 +182,38 @@ class _InspectorPanelState extends State<InspectorPanel> {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        const Text('Project Settings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        Text(
+          AppLocalizations.of(context)!.projectSettings,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         const SizedBox(height: 16),
-        _buildEffectProperties(context, 'Default Note On Effect', project.defaultOnEffectConfig, (newConfig) {
-          context.read<EditorBloc>().add(
-            EditorEvent.updateProjectSettings(project.copyWith(defaultOnEffectConfig: newConfig)),
-          );
-        }),
+        _buildEffectProperties(
+          context,
+          AppLocalizations.of(context)!.defaultNoteOnEffect,
+          project.defaultOnEffectConfig,
+          (newConfig) {
+            context.read<EditorBloc>().add(
+              EditorEvent.updateProjectSettings(project.copyWith(defaultOnEffectConfig: newConfig)),
+            );
+          },
+        ),
         const SizedBox(height: 16),
-        _buildEffectProperties(context, 'Default Note Off Effect', project.defaultOffEffectConfig, (newConfig) {
-          context.read<EditorBloc>().add(
-            EditorEvent.updateProjectSettings(project.copyWith(defaultOffEffectConfig: newConfig)),
-          );
-        }),
+        _buildEffectProperties(
+          context,
+          AppLocalizations.of(context)!.defaultNoteOffEffect,
+          project.defaultOffEffectConfig,
+          (newConfig) {
+            context.read<EditorBloc>().add(
+              EditorEvent.updateProjectSettings(project.copyWith(defaultOffEffectConfig: newConfig)),
+            );
+          },
+        ),
         const SizedBox(height: 16),
-        const Center(
+        Center(
           child: Text(
-            'Select a component to edit its properties.',
+            AppLocalizations.of(context)!.selectComponentToEdit,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
+            style: const TextStyle(color: Colors.grey),
           ),
         ),
       ],
@@ -212,10 +226,13 @@ class _InspectorPanelState extends State<InspectorPanel> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Properties', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        Text(
+          AppLocalizations.of(context)!.properties,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         const SizedBox(height: 16),
         _PropertyField(
-          label: 'Name',
+          label: AppLocalizations.of(context)!.name,
           value: component.name,
           enabled: !component.isLocked,
           onChanged: (value) {
@@ -232,7 +249,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           children: [
             Expanded(
               child: NumberInput(
-                label: 'X',
+                label: AppLocalizations.of(context)!.x,
                 value: component.x,
                 enabled: !component.isLocked,
                 onChanged: (value) {
@@ -248,7 +265,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
             const SizedBox(width: 8),
             Expanded(
               child: NumberInput(
-                label: 'Y',
+                label: AppLocalizations.of(context)!.y,
                 value: component.y,
                 enabled: !component.isLocked,
                 onChanged: (value) {
@@ -269,7 +286,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           children: [
             Expanded(
               child: NumberInput(
-                label: 'W',
+                label: AppLocalizations.of(context)!.w,
                 value: component.width,
                 enabled: !component.isLocked,
                 onChanged: (value) {
@@ -296,7 +313,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
             const SizedBox(width: 8),
             Expanded(
               child: NumberInput(
-                label: 'H',
+                label: AppLocalizations.of(context)!.h,
                 value: component.height,
                 enabled: !component.isLocked,
                 onChanged: (value) {
@@ -331,7 +348,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
                     size: 20,
                     color: component.maintainAspectRatio ? Theme.of(context).colorScheme.primary : Colors.grey,
                   ),
-                  tooltip: 'Lock Aspect Ratio',
+                  tooltip: AppLocalizations.of(context)!.lockAspectRatio,
                   onPressed: () {
                     final updated = component.map(
                       pad: (c) => c.copyWith(maintainAspectRatio: !c.maintainAspectRatio),
@@ -347,7 +364,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ),
         const SizedBox(height: 16),
 
-        const Text('Type Specific', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+
+        Text(AppLocalizations.of(context)!.typeSpecific, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         ...component.map(
           pad: (c) => _buildPadProperties(context, c),
@@ -356,7 +375,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ),
         const SizedBox(height: 16),
         const SizedBox(height: 16),
-        const Text('MIDI Binding', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context)!.midiBinding, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         _buildMidiBindingSection(context, component, isLearningThis),
       ],
@@ -370,7 +389,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           children: [
             Expanded(
               child: NumberInput(
-                label: 'Channel',
+                label: AppLocalizations.of(context)!.channel,
                 value: component.map(
                   pad: (c) => (c.midiChannel ?? 0).toDouble(),
                   knob: (c) => (c.midiChannel ?? 0).toDouble(),
@@ -393,7 +412,11 @@ class _InspectorPanelState extends State<InspectorPanel> {
             const SizedBox(width: 8),
             Expanded(
               child: NumberInput(
-                label: component.map(pad: (_) => 'Note', knob: (_) => 'CC', staticImage: (_) => 'N/A'),
+                label: component.map(
+                  pad: (_) => AppLocalizations.of(context)!.note,
+                  knob: (_) => AppLocalizations.of(context)!.cc,
+                  staticImage: (_) => AppLocalizations.of(context)!.na,
+                ),
                 value: component.map(
                   pad: (c) => (c.midiNote ?? -1).toDouble(),
                   knob: (c) => (c.midiCc ?? -1).toDouble(),
@@ -423,7 +446,13 @@ class _InspectorPanelState extends State<InspectorPanel> {
               Padding(
                 padding: const EdgeInsets.only(left: 4, bottom: 4),
                 child: Text(
-                  'Velocity Threshold: ${component.map(pad: (c) => c.velocityThreshold, knob: (c) => c.velocityThreshold, staticImage: (_) => 0)}',
+                  AppLocalizations.of(context)!.velocityThreshold(
+                    component.map(
+                      pad: (c) => c.velocityThreshold,
+                      knob: (c) => c.velocityThreshold,
+                      staticImage: (_) => 0,
+                    ),
+                  ),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -529,7 +558,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
                 ),
                 label: Text(
                   isLearningThis
-                      ? 'Stop Learning'
+                      ? AppLocalizations.of(context)!.stopLearning
                       : (_lastBoundTime != null &&
                             DateTime.now().difference(_lastBoundTime!) < const Duration(seconds: 2) &&
                             component.map(
@@ -537,8 +566,8 @@ class _InspectorPanelState extends State<InspectorPanel> {
                               knob: (c) => c.midiCc != null,
                               staticImage: (_) => false,
                             ))
-                      ? 'Bound!'
-                      : 'Learn MIDI',
+                      ? AppLocalizations.of(context)!.bound
+                      : AppLocalizations.of(context)!.learnMidi,
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isLearningThis
@@ -574,7 +603,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.clear),
-                tooltip: 'Clear Binding',
+                tooltip: AppLocalizations.of(context)!.clearBinding,
                 onPressed: () {
                   final updated = component.map(
                     pad: (c) => c.copyWith(midiNote: null),
@@ -594,7 +623,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
   List<Widget> _buildPadProperties(BuildContext context, ComponentPad pad) {
     return [
       _EnumDropdown<PadShape>(
-        label: 'Shape',
+        label: AppLocalizations.of(context)!.shape,
         value: pad.shape,
         values: PadShape.values,
         onChanged: (value) {
@@ -606,7 +635,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
       if (pad.shape == PadShape.rect) ...[
         const SizedBox(height: 8),
         NumberInput(
-          label: 'Corner Radius',
+          label: AppLocalizations.of(context)!.cornerRadius,
           value: pad.cornerRadius,
           min: 0,
           onChanged: (value) {
@@ -618,7 +647,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Text('Smoothing'),
+            Text(AppLocalizations.of(context)!.smoothing),
             const SizedBox(width: 8),
             Expanded(
               child: Slider(
@@ -640,7 +669,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
       ],
       const SizedBox(height: 8),
       _ColorPickerField(
-        label: 'On Color',
+        label: AppLocalizations.of(context)!.onColor,
         color: pad.onColor,
         onChanged: (color) {
           context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onColor: color)));
@@ -648,7 +677,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
       ),
       const SizedBox(height: 8),
       _ColorPickerField(
-        label: 'Off Color',
+        label: AppLocalizations.of(context)!.offColor,
         color: pad.offColor,
         onChanged: (color) {
           context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offColor: color)));
@@ -666,13 +695,13 @@ class _InspectorPanelState extends State<InspectorPanel> {
               );
             },
           ),
-          const Text('Pulse Mode'),
+          Text(AppLocalizations.of(context)!.pulseMode),
         ],
       ),
       if (pad.pulseModeEnabled) ...[
         const SizedBox(height: 8),
         NumberInput(
-          label: 'Pulse Duration (ms)',
+          label: AppLocalizations.of(context)!.pulseDurationMs,
           value: pad.pulseDuration.toDouble(),
           min: 10,
           step: 10,
@@ -684,20 +713,30 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ),
       ],
       const SizedBox(height: 16),
-      _buildEffectProperties(context, 'Note On Effect', pad.onEffectConfig ?? const EffectConfig(), (newConfig) {
-        context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onEffectConfig: newConfig)));
-      }),
+      _buildEffectProperties(
+        context,
+        AppLocalizations.of(context)!.noteOnEffect,
+        pad.onEffectConfig ?? const EffectConfig(),
+        (newConfig) {
+          context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(onEffectConfig: newConfig)));
+        },
+      ),
       const SizedBox(height: 16),
-      _buildEffectProperties(context, 'Note Off Effect', pad.offEffectConfig ?? const EffectConfig(), (newConfig) {
-        context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offEffectConfig: newConfig)));
-      }),
+      _buildEffectProperties(
+        context,
+        AppLocalizations.of(context)!.noteOffEffect,
+        pad.offEffectConfig ?? const EffectConfig(),
+        (newConfig) {
+          context.read<EditorBloc>().add(EditorEvent.updateComponent(pad.id, pad.copyWith(offEffectConfig: newConfig)));
+        },
+      ),
     ];
   }
 
   List<Widget> _buildKnobProperties(BuildContext context, ComponentKnob knob) {
     return [
       _EnumDropdown<KnobStyle>(
-        label: 'Style',
+        label: AppLocalizations.of(context)!.style,
         value: knob.style,
         values: KnobStyle.values,
         onChanged: (value) {
@@ -711,7 +750,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         children: [
           Expanded(
             child: NumberInput(
-              label: 'Min Angle',
+              label: AppLocalizations.of(context)!.minAngle,
               value: knob.minAngle,
               onChanged: (value) {
                 context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(minAngle: value)));
@@ -721,7 +760,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           const SizedBox(width: 8),
           Expanded(
             child: NumberInput(
-              label: 'Max Angle',
+              label: AppLocalizations.of(context)!.maxAngle,
               value: knob.maxAngle,
               onChanged: (value) {
                 context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(maxAngle: value)));
@@ -731,13 +770,27 @@ class _InspectorPanelState extends State<InspectorPanel> {
         ],
       ),
       const SizedBox(height: 16),
-      _buildEffectProperties(context, 'Note On Effect', knob.onEffectConfig ?? const EffectConfig(), (newConfig) {
-        context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(onEffectConfig: newConfig)));
-      }),
+      _buildEffectProperties(
+        context,
+        AppLocalizations.of(context)!.noteOnEffect,
+        knob.onEffectConfig ?? const EffectConfig(),
+        (newConfig) {
+          context.read<EditorBloc>().add(
+            EditorEvent.updateComponent(knob.id, knob.copyWith(onEffectConfig: newConfig)),
+          );
+        },
+      ),
       const SizedBox(height: 16),
-      _buildEffectProperties(context, 'Note Off Effect', knob.offEffectConfig ?? const EffectConfig(), (newConfig) {
-        context.read<EditorBloc>().add(EditorEvent.updateComponent(knob.id, knob.copyWith(offEffectConfig: newConfig)));
-      }),
+      _buildEffectProperties(
+        context,
+        AppLocalizations.of(context)!.noteOffEffect,
+        knob.offEffectConfig ?? const EffectConfig(),
+        (newConfig) {
+          context.read<EditorBloc>().add(
+            EditorEvent.updateComponent(knob.id, knob.copyWith(offEffectConfig: newConfig)),
+          );
+        },
+      ),
     ];
   }
 
@@ -753,7 +806,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         _EnumDropdown<EffectType>(
-          label: 'Type',
+          label: AppLocalizations.of(context)!.type,
           value: config.type,
           values: EffectType.values,
           onChanged: (value) {
@@ -763,7 +816,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
         if (config.type != EffectType.none) ...[
           const SizedBox(height: 8),
           NumberInput(
-            label: 'Duration (ms)',
+            label: AppLocalizations.of(context)!.durationMs,
             value: config.durationMs.toDouble(),
             min: 0,
             onChanged: (value) {
@@ -773,7 +826,7 @@ class _InspectorPanelState extends State<InspectorPanel> {
           if (config.type == EffectType.ripple) ...[
             const SizedBox(height: 8),
             NumberInput(
-              label: 'Scale Multiplier',
+              label: AppLocalizations.of(context)!.scaleMultiplier,
               value: config.scale,
               min: 1.0,
               onChanged: (value) {
@@ -905,20 +958,23 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
   return ListView(
     padding: const EdgeInsets.all(16),
     children: [
-      const Text('Multiple Selection', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+      Text(
+        AppLocalizations.of(context)!.multipleSelection,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      ),
       const SizedBox(height: 16),
       _buildAlignmentTools(context, components),
       const SizedBox(height: 16),
       const Divider(),
       const SizedBox(height: 16),
-      const Text('Properties', style: TextStyle(fontWeight: FontWeight.bold)),
+      Text(AppLocalizations.of(context)!.properties, style: const TextStyle(fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       // Shared Properties
       Row(
         children: [
           Expanded(
             child: _MixedNumberInput(
-              label: 'X',
+              label: AppLocalizations.of(context)!.x,
               values: components.map((c) => c.x).toList(),
               onChanged: (value) {
                 final updates = components.map((c) {
@@ -935,7 +991,7 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
           const SizedBox(width: 8),
           Expanded(
             child: _MixedNumberInput(
-              label: 'Y',
+              label: AppLocalizations.of(context)!.y,
               values: components.map((c) => c.y).toList(),
               onChanged: (value) {
                 final updates = components.map((c) {
@@ -956,7 +1012,7 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
         children: [
           Expanded(
             child: _MixedNumberInput(
-              label: 'W',
+              label: AppLocalizations.of(context)!.w,
               values: components.map((c) => c.width).toList(),
               onChanged: (value) {
                 final updates = components.map((c) {
@@ -973,7 +1029,7 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
           const SizedBox(width: 8),
           Expanded(
             child: _MixedNumberInput(
-              label: 'H',
+              label: AppLocalizations.of(context)!.h,
               values: components.map((c) => c.height).toList(),
               onChanged: (value) {
                 final updates = components.map((c) {
@@ -992,7 +1048,7 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
       if (components.any((c) => c is ComponentPad && c.shape == PadShape.rect)) ...[
         const SizedBox(height: 8),
         _MixedNumberInput(
-          label: 'Corner Radius',
+          label: AppLocalizations.of(context)!.cornerRadius,
           values: components
               .whereType<ComponentPad>()
               .where((c) => c.shape == PadShape.rect)
@@ -1013,10 +1069,10 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
         const SizedBox(height: 16),
         const Divider(),
         const SizedBox(height: 8),
-        const Text('Colors', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context)!.colors, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         _MixedColorPickerField(
-          label: 'On Color',
+          label: AppLocalizations.of(context)!.onColor,
           colors: components.whereType<ComponentPad>().map((c) => c.onColor).toList(),
           onChanged: (color) {
             final updates = components.map((c) {
@@ -1030,7 +1086,7 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
         ),
         const SizedBox(height: 8),
         _MixedColorPickerField(
-          label: 'Off Color',
+          label: AppLocalizations.of(context)!.offColor,
           colors: components.whereType<ComponentPad>().map((c) => c.offColor).toList(),
           onChanged: (color) {
             final updates = components.map((c) {
@@ -1047,10 +1103,10 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
         const SizedBox(height: 16),
         const Divider(),
         const SizedBox(height: 8),
-        const Text('Path Smoothing', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context)!.pathSmoothing, style: const TextStyle(fontWeight: FontWeight.bold)),
         Row(
           children: [
-            const Text('Amount'),
+            Text(AppLocalizations.of(context)!.amount),
             const SizedBox(width: 8),
             Expanded(
               child: Slider(
@@ -1079,7 +1135,7 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
         const SizedBox(height: 16),
         const Divider(),
         const SizedBox(height: 8),
-        const Text('Pulse Mode', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context)!.pulseMode, style: const TextStyle(fontWeight: FontWeight.bold)),
         Row(
           children: [
             Checkbox(
@@ -1097,13 +1153,13 @@ Widget _buildMultiSelectionProperties(BuildContext context, List<Component> comp
                 context.read<EditorBloc>().add(EditorEvent.updateComponents(updates));
               },
             ),
-            const Text('Enable Pulse Mode'),
+            Text(AppLocalizations.of(context)!.enablePulseMode),
           ],
         ),
         if (components.whereType<ComponentPad>().any((c) => c.pulseModeEnabled)) ...[
           const SizedBox(height: 8),
           _MixedNumberInput(
-            label: 'Pulse Duration (ms)',
+            label: AppLocalizations.of(context)!.pulseDurationMs,
             values: components.whereType<ComponentPad>().map((c) => c.pulseDuration.toDouble()).toList(),
             onChanged: (value) {
               final updates = components.map((c) {
@@ -1125,14 +1181,14 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Text('Alignment', style: TextStyle(fontWeight: FontWeight.bold)),
+      Text(AppLocalizations.of(context)!.alignment, style: const TextStyle(fontWeight: FontWeight.bold)),
       const SizedBox(height: 8),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
             icon: const Icon(Icons.align_horizontal_left),
-            tooltip: 'Align Left',
+            tooltip: AppLocalizations.of(context)!.alignLeft,
             onPressed: () {
               if (components.isEmpty) return;
               final minX = components.map((c) => c.x).reduce((a, b) => a < b ? a : b);
@@ -1148,7 +1204,7 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
           ),
           IconButton(
             icon: const Icon(Icons.align_horizontal_center),
-            tooltip: 'Align Center',
+            tooltip: AppLocalizations.of(context)!.alignCenter,
             onPressed: () {
               if (components.isEmpty) return;
               // Center relative to selection bounding box
@@ -1169,7 +1225,7 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
           ),
           IconButton(
             icon: const Icon(Icons.align_horizontal_right),
-            tooltip: 'Align Right',
+            tooltip: AppLocalizations.of(context)!.alignRight,
             onPressed: () {
               if (components.isEmpty) return;
               final maxX = components.map((c) => c.x + c.width).reduce((a, b) => a > b ? a : b);
@@ -1192,7 +1248,7 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
         children: [
           IconButton(
             icon: const Icon(Icons.align_vertical_top),
-            tooltip: 'Align Top',
+            tooltip: AppLocalizations.of(context)!.alignTop,
             onPressed: () {
               if (components.isEmpty) return;
               final minY = components.map((c) => c.y).reduce((a, b) => a < b ? a : b);
@@ -1208,7 +1264,7 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
           ),
           IconButton(
             icon: const Icon(Icons.align_vertical_center),
-            tooltip: 'Align Middle',
+            tooltip: AppLocalizations.of(context)!.alignMiddle,
             onPressed: () {
               if (components.isEmpty) return;
               final minY = components.map((c) => c.y).reduce((a, b) => a < b ? a : b);
@@ -1228,7 +1284,7 @@ Widget _buildAlignmentTools(BuildContext context, List<Component> components) {
           ),
           IconButton(
             icon: const Icon(Icons.align_vertical_bottom),
-            tooltip: 'Align Bottom',
+            tooltip: AppLocalizations.of(context)!.alignBottom,
             onPressed: () {
               if (components.isEmpty) return;
               final maxY = components.map((c) => c.y + c.height).reduce((a, b) => a > b ? a : b);

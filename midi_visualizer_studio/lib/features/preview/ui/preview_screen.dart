@@ -6,6 +6,8 @@ import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
+
 import 'package:midi_visualizer_studio/features/preview/ui/widgets/effect_renderer.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -255,7 +257,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                                 mini: true,
                                 heroTag: 'exit_fullscreen',
                                 backgroundColor: Colors.lightBlue,
-                                tooltip: 'Exit Fullscreen',
+                                tooltip: AppLocalizations.of(context)!.exitFullscreen,
                                 child: const Icon(Icons.fullscreen_exit, color: Colors.white),
                                 onPressed: () {
                                   _handleExitFullscreen();
@@ -266,7 +268,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                                 mini: true,
                                 heroTag: 'close_app',
                                 backgroundColor: Colors.red,
-                                tooltip: 'Close App',
+                                tooltip: AppLocalizations.of(context)!.closeApp,
                                 child: const Icon(Icons.close, color: Colors.white),
                                 onPressed: () {
                                   _handleCloseApp();

@@ -5,6 +5,7 @@ import 'package:midi_visualizer_studio/data/models/component.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_event.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class LayerPanel extends StatelessWidget {
   const LayerPanel({super.key});
@@ -21,18 +22,18 @@ class LayerPanel extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Row(
               children: [
-                const Text('Layers', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.layers, style: const TextStyle(fontWeight: FontWeight.bold)),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.folder_open, size: 20),
-                  tooltip: 'Group',
+                  tooltip: AppLocalizations.of(context)!.group,
                   onPressed: () {
                     // TODO: Implement Grouping
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.lock_open, size: 20),
-                  tooltip: 'Lock',
+                  tooltip: AppLocalizations.of(context)!.lock,
                   onPressed: () {
                     final selectedIds = context.read<EditorBloc>().state.selectedComponentIds;
                     if (selectedIds.isEmpty) return;
@@ -54,7 +55,7 @@ class LayerPanel extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.visibility, size: 20),
-                  tooltip: 'Visibility',
+                  tooltip: AppLocalizations.of(context)!.visibility,
                   onPressed: () {
                     final selectedIds = context.read<EditorBloc>().state.selectedComponentIds;
                     if (selectedIds.isEmpty) return;

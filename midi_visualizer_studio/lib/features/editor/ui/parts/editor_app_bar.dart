@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:go_router/go_router.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/dialogs/create_pad_dialog.dart';
 import 'package:midi_visualizer_studio/features/midi/ui/dialogs/midi_settings_dialog.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
   const EditorAppBar({super.key});
@@ -38,7 +39,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _EditableProjectTitle(
-                initialName: project?.name ?? 'Untitled Project',
+                initialName: project?.name ?? AppLocalizations.of(context)!.untitledProject,
                 onChanged: (newName) {
                   if (project != null) {
                     context.read<EditorBloc>().add(EditorEvent.updateProjectSettings(project.copyWith(name: newName)));
@@ -56,7 +57,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         // File Operations
                         IconButton(
                           icon: const Icon(Icons.folder_open),
-                          tooltip: 'Open Project',
+                          tooltip: AppLocalizations.of(context)!.openProject,
                           onPressed: () async {
                             final result = await FilePicker.platform.pickFiles(
                               type: FileType.custom,
@@ -74,18 +75,20 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.save),
-                          tooltip: 'Save Project',
+                          tooltip: AppLocalizations.of(context)!.saveProject,
                           onPressed: () {
                             context.read<EditorBloc>().add(const EditorEvent.saveProject());
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Project saved')));
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.projectSaved)));
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.file_upload),
-                          tooltip: 'Export Project',
+                          tooltip: AppLocalizations.of(context)!.exportProject,
                           onPressed: () async {
                             final path = await FilePicker.platform.saveFile(
-                              dialogTitle: 'Export Project',
+                              dialogTitle: AppLocalizations.of(context)!.exportProject,
                               fileName: '${project?.name ?? "project"}.mvs',
                               type: FileType.custom,
                               allowedExtensions: ['mvs', 'zip'],
@@ -96,7 +99,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 context.read<EditorBloc>().add(EditorEvent.exportProject(path));
                                 ScaffoldMessenger.of(
                                   context,
-                                ).showSnackBar(const SnackBar(content: Text('Project exported')));
+                                ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.projectExported)));
                               }
                             }
                           },
@@ -106,7 +109,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         // MIDI Settings
                         IconButton(
                           icon: const Icon(Icons.piano),
-                          tooltip: 'MIDI Settings',
+                          tooltip: AppLocalizations.of(context)!.midiSettings,
                           onPressed: () {
                             showDialog(context: context, builder: (context) => const MidiSettingsDialog());
                           },
@@ -117,7 +120,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         // Tools
                         IconButton(
                           icon: const Icon(Icons.touch_app),
-                          tooltip: 'Select',
+                          tooltip: AppLocalizations.of(context)!.toolSelect,
                           color: state.currentTool == EditorTool.select ? Theme.of(context).colorScheme.primary : null,
                           onPressed: () {
                             context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.select));
@@ -125,7 +128,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.crop_square),
-                          tooltip: 'Rectangle',
+                          tooltip: AppLocalizations.of(context)!.toolRectangle,
                           color: state.currentTool == EditorTool.rectangle
                               ? Theme.of(context).colorScheme.primary
                               : null,
@@ -135,7 +138,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.circle_outlined),
-                          tooltip: 'Circle',
+                          tooltip: AppLocalizations.of(context)!.toolCircle,
                           color: state.currentTool == EditorTool.circle ? Theme.of(context).colorScheme.primary : null,
                           onPressed: () {
                             context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.circle));
@@ -143,7 +146,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.gesture),
-                          tooltip: 'Path',
+                          tooltip: AppLocalizations.of(context)!.toolPath,
                           color: state.currentTool == EditorTool.path ? Theme.of(context).colorScheme.primary : null,
                           onPressed: () {
                             context.read<EditorBloc>().add(const EditorEvent.selectTool(EditorTool.path));
@@ -165,12 +168,16 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         // Insert Template
                         PopupMenuButton<String>(
                           icon: const Icon(Icons.add_box_outlined),
-                          tooltip: 'Insert Template',
+                          tooltip: AppLocalizations.of(context)!.insertTemplate,
                           itemBuilder: (context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'pad_grid',
                               child: Row(
-                                children: [Icon(Icons.grid_view, size: 20), SizedBox(width: 8), Text('PAD Grid')],
+                                children: [
+                                  const Icon(Icons.grid_view, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(AppLocalizations.of(context)!.padGrid),
+                                ],
                               ),
                             ),
                           ],
@@ -193,7 +200,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         // Tolerance Slider
                         if (state.currentTool == EditorTool.bucketFill) ...[
                           const VerticalDivider(),
-                          const Center(child: Text('Tolerance:')),
+                          Center(child: Text(AppLocalizations.of(context)!.tolerance)),
                           SizedBox(
                             width: 150,
                             child: Slider(
@@ -212,7 +219,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                         IconButton(
                           icon: const Icon(Icons.image),
-                          tooltip: 'Image',
+                          tooltip: AppLocalizations.of(context)!.toolImage,
                           onPressed: () async {
                             final result = await FilePicker.platform.pickFiles(type: FileType.image);
 
@@ -236,7 +243,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                               final component = Component.staticImage(
                                 id: id,
-                                name: 'Image $id',
+                                name: AppLocalizations.of(context)!.imageName(id),
                                 x: 100,
                                 y: 100,
                                 width: finalWidth,
@@ -275,17 +282,17 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                             final editorBloc = context.read<EditorBloc>();
                             return PopupMenuButton<String>(
                               icon: const Icon(Icons.grid_on),
-                              tooltip: 'Grid Settings',
+                              tooltip: AppLocalizations.of(context)!.gridSettings,
                               itemBuilder: (context) => [
                                 CheckedPopupMenuItem(
                                   checked: state.showGrid,
                                   value: 'show_grid',
-                                  child: const Text('Show Grid'),
+                                  child: Text(AppLocalizations.of(context)!.showGrid),
                                 ),
                                 CheckedPopupMenuItem(
                                   checked: state.snapToGrid,
                                   value: 'snap_to_grid',
-                                  child: const Text('Snap to Grid'),
+                                  child: Text(AppLocalizations.of(context)!.snapToGrid),
                                 ),
                                 const PopupMenuDivider(),
                                 PopupMenuItem(
@@ -296,7 +303,10 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                                       return Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text('Grid Size', style: Theme.of(context).textTheme.bodyMedium),
+                                          Text(
+                                            AppLocalizations.of(context)!.gridSize,
+                                            style: Theme.of(context).textTheme.bodyMedium,
+                                          ),
                                           Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -365,7 +375,7 @@ class EditorAppBar extends StatelessWidget implements PreferredSizeWidget {
                         // Preview Button
                         FilledButton.icon(
                           icon: const Icon(Icons.play_arrow),
-                          label: const Text('Preview'),
+                          label: Text(AppLocalizations.of(context)!.preview),
                           onPressed: () async {
                             if (project != null) {
                               final updatedProject = await context.push<Project>('/preview', extra: project);
@@ -468,7 +478,7 @@ class _EditableProjectTitleState extends State<_EditableProjectTitle> {
         const SizedBox(width: 8),
         IconButton(
           icon: const Icon(Icons.edit, size: 16),
-          tooltip: 'Rename Project',
+          tooltip: AppLocalizations.of(context)!.renameProject,
           onPressed: () {
             setState(() {
               _isEditing = true;

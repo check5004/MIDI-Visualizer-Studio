@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:midi_visualizer_studio/features/editor/ui/parts/number_input.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class CreatePadDialog extends StatefulWidget {
   const CreatePadDialog({super.key});
@@ -19,12 +20,12 @@ class _CreatePadDialogState extends State<CreatePadDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Create PAD Grid'),
+      title: Text(AppLocalizations.of(context)!.createPadGrid),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           NumberInput(
-            label: 'Rows',
+            label: AppLocalizations.of(context)!.rows,
             value: _rows.toDouble(),
             min: 1,
             max: 16,
@@ -32,7 +33,7 @@ class _CreatePadDialogState extends State<CreatePadDialog> {
           ),
           const SizedBox(height: 16),
           NumberInput(
-            label: 'Columns',
+            label: AppLocalizations.of(context)!.columns,
             value: _cols.toDouble(),
             min: 1,
             max: 16,
@@ -41,8 +42,8 @@ class _CreatePadDialogState extends State<CreatePadDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(onPressed: _submit, child: const Text('Create')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(AppLocalizations.of(context)!.cancel)),
+        FilledButton(onPressed: _submit, child: Text(AppLocalizations.of(context)!.create)),
       ],
     );
   }

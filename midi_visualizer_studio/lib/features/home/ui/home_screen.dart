@@ -10,6 +10,7 @@ import 'package:midi_visualizer_studio/features/home/bloc/home_state.dart';
 import 'package:file_picker/file_picker.dart';
 
 import 'package:midi_visualizer_studio/features/home/ui/widgets/project_preview.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,7 +48,7 @@ class HomeScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Dashboard',
+                                    AppLocalizations.of(context)!.dashboard,
                                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.onSurface,
@@ -55,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Manage your MIDI visualizer projects',
+                                    AppLocalizations.of(context)!.dashboardSubtitle,
                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
@@ -68,13 +69,13 @@ class HomeScreen extends StatelessWidget {
                               children: [
                                 _HeaderActionButton(
                                   icon: Icons.help_outline,
-                                  label: 'Tutorial',
+                                  label: AppLocalizations.of(context)!.tutorial,
                                   onTap: () => context.push('/tutorial'),
                                 ),
                                 const SizedBox(width: 16),
                                 _HeaderActionButton(
                                   icon: Icons.settings_outlined,
-                                  label: 'Settings',
+                                  label: AppLocalizations.of(context)!.settingsTitle,
                                   onTap: () => context.push('/settings'),
                                 ),
                               ],
@@ -86,7 +87,7 @@ class HomeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Recent Projects',
+                              AppLocalizations.of(context)!.recentProjects,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             IconButton(
@@ -94,7 +95,7 @@ class HomeScreen extends StatelessWidget {
                               onPressed: () {
                                 context.read<HomeBloc>().add(const LoadProjects());
                               },
-                              tooltip: 'Refresh Projects',
+                              tooltip: AppLocalizations.of(context)!.refreshProjects,
                             ),
                           ],
                         ),
@@ -197,7 +198,7 @@ class _NewProjectCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'New Project',
+                AppLocalizations.of(context)!.newProject,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colorScheme.primary),
               ),
               const SizedBox(height: 16),
@@ -231,9 +232,9 @@ class _NewProjectCard extends StatelessWidget {
 
                       String message;
                       if (failCount == 0) {
-                        message = 'Imported $successCount project(s) successfully';
+                        message = AppLocalizations.of(context)!.importSuccess(successCount);
                       } else {
-                        message = 'Imported $successCount project(s), failed to import $failCount';
+                        message = AppLocalizations.of(context)!.importPartialSuccess(successCount, failCount);
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -241,7 +242,7 @@ class _NewProjectCard extends StatelessWidget {
                   }
                 },
                 icon: const Icon(Icons.file_download_outlined),
-                label: const Text('Import'),
+                label: Text(AppLocalizations.of(context)!.importFile),
               ),
             ],
           ),
@@ -296,7 +297,9 @@ class _ProjectCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Edited ${_formatDate(project.updatedAt ?? project.createdAt)}',
+                      AppLocalizations.of(
+                        context,
+                      )!.edited(_formatDate(context, project.updatedAt ?? project.createdAt)),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const Spacer(),
@@ -312,7 +315,7 @@ class _ProjectCard extends StatelessWidget {
                               });
                             },
                             icon: const Icon(Icons.edit, size: 18),
-                            label: const Text('Edit'),
+                            label: Text(AppLocalizations.of(context)!.edit),
                             style: FilledButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                               visualDensity: VisualDensity.compact,
@@ -322,11 +325,11 @@ class _ProjectCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         IconButton(
                           icon: const Icon(Icons.file_upload_outlined, size: 20),
-                          tooltip: 'Export',
+                          tooltip: AppLocalizations.of(context)!.export,
                           visualDensity: VisualDensity.compact,
                           onPressed: () async {
                             final path = await FilePicker.platform.saveFile(
-                              dialogTitle: 'Export Project',
+                              dialogTitle: AppLocalizations.of(context)!.exportProject,
                               fileName: '${project.name}.mvs',
                               type: FileType.custom,
                               allowedExtensions: ['mvs', 'zip'],
@@ -338,13 +341,13 @@ class _ProjectCard extends StatelessWidget {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(
                                     context,
-                                  ).showSnackBar(const SnackBar(content: Text('Project exported successfully')));
+                                  ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.exportSuccess)));
                                 }
                               } catch (e) {
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).showSnackBar(SnackBar(content: Text('Failed to export project: $e')));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(AppLocalizations.of(context)!.exportFail(e.toString()))),
+                                  );
                                 }
                               }
                             }
@@ -352,7 +355,7 @@ class _ProjectCard extends StatelessWidget {
                         ),
                         IconButton(
                           icon: Icon(Icons.delete_outline, size: 20, color: colorScheme.error),
-                          tooltip: 'Delete',
+                          tooltip: AppLocalizations.of(context)!.delete,
                           visualDensity: VisualDensity.compact,
                           onPressed: () => _showDeleteConfirmation(context),
                         ),
@@ -373,14 +376,17 @@ class _ProjectCard extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Project'),
-          content: Text('Are you sure you want to delete "${project.name}"? This action cannot be undone.'),
+          title: Text(AppLocalizations.of(context)!.deleteProject),
+          content: Text(AppLocalizations.of(context)!.deleteConfirmation(project.name)),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(AppLocalizations.of(context)!.cancel),
+            ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -392,19 +398,19 @@ class _ProjectCard extends StatelessWidget {
     }
   }
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Unknown';
+  String _formatDate(BuildContext context, DateTime? date) {
+    if (date == null) return AppLocalizations.of(context)!.unknownDate;
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
+      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
     } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
+      return AppLocalizations.of(context)!.hoursAgo(difference.inHours);
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
+      return AppLocalizations.of(context)!.minutesAgo(difference.inMinutes);
     } else {
-      return 'Just now';
+      return AppLocalizations.of(context)!.justNow;
     }
   }
 }

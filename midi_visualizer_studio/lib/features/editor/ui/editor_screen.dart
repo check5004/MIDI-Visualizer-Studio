@@ -14,6 +14,7 @@ import 'package:midi_visualizer_studio/features/editor/bloc/history_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_bloc.dart';
 import 'package:midi_visualizer_studio/features/settings/bloc/settings_state.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
+import 'package:midi_visualizer_studio/l10n/app_localizations.dart';
 
 class EditorScreen extends StatefulWidget {
   final String projectId;
@@ -154,11 +155,17 @@ class _EditorScreenState extends State<EditorScreen> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Restore Session?'),
-          content: const Text('An unsaved session was found. Do you want to restore your changes?'),
+          title: Text(AppLocalizations.of(context)!.restoreSession),
+          content: Text(AppLocalizations.of(context)!.restoreSessionDescription),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Discard')),
-            TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Restore')),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(AppLocalizations.of(context)!.discard),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(AppLocalizations.of(context)!.restore),
+            ),
           ],
         );
       },

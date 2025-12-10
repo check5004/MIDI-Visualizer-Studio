@@ -12,6 +12,7 @@ abstract class SettingsState with _$SettingsState {
     @Default(0xFF1E1E1E) int editorBackgroundColor, // Default to dark grey
     @Default(false) bool isWindowless,
     @Default(true) bool shouldLaunchInPreview,
+    @Default(Locale('ja')) Locale locale,
     @Default({}) Map<String, ShortcutConfig> shortcuts,
   }) = _SettingsState;
 }
