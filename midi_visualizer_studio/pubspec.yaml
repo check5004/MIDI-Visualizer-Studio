@@ -71,6 +71,7 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.11.2
   mockito: ^5.6.1
+  flutter_launcher_icons: ^0.14.2
 
 
 # For information on the generic Dart part of this file, see the
@@ -115,3 +116,19 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: false
+  ios: false
+  image_path: "assets/icon/app_icon.png"
+  web:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    background_color: "#121212"
+    theme_color: "#121212"
+  windows:
+    generate: true
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
