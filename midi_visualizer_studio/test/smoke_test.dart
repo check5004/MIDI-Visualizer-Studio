@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
+import 'package:midi_visualizer_studio/core/router/app_router.dart';
 import 'package:midi_visualizer_studio/core/services/midi_service.dart';
 import 'package:midi_visualizer_studio/data/models/project.dart';
 import 'package:midi_visualizer_studio/data/repositories/project_repository.dart';
@@ -31,6 +32,7 @@ void main() {
         prefs: prefs,
         colorHistoryService: colorHistoryService,
         projectRepository: projectRepository,
+        routerConfig: createAppRouter(),
       ),
     );
 

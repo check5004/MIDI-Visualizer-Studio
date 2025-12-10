@@ -55,7 +55,7 @@ extension SettingsEventPatterns on SettingsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult Function( UpdateEditorBackgroundColor value)?  updateEditorBackgroundColor,TResult Function( ToggleWindowless value)?  toggleWindowless,TResult Function( UpdateShortcut value)?  updateShortcut,TResult Function( ResetShortcuts value)?  resetShortcuts,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadSettings value)?  loadSettings,TResult Function( ToggleTheme value)?  toggleTheme,TResult Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult Function( UpdateEditorBackgroundColor value)?  updateEditorBackgroundColor,TResult Function( ToggleWindowless value)?  toggleWindowless,TResult Function( ToggleLaunchInPreview value)?  toggleLaunchInPreview,TResult Function( UpdateShortcut value)?  updateShortcut,TResult Function( ResetShortcuts value)?  resetShortcuts,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
@@ -63,7 +63,8 @@ return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that);case UpdateEditorBackgroundColor() when updateEditorBackgroundColor != null:
 return updateEditorBackgroundColor(_that);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that);case UpdateShortcut() when updateShortcut != null:
+return toggleWindowless(_that);case ToggleLaunchInPreview() when toggleLaunchInPreview != null:
+return toggleLaunchInPreview(_that);case UpdateShortcut() when updateShortcut != null:
 return updateShortcut(_that);case ResetShortcuts() when resetShortcuts != null:
 return resetShortcuts(_that);case _:
   return orElse();
@@ -83,7 +84,7 @@ return resetShortcuts(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,required TResult Function( UpdateEditorBackgroundColor value)  updateEditorBackgroundColor,required TResult Function( ToggleWindowless value)  toggleWindowless,required TResult Function( UpdateShortcut value)  updateShortcut,required TResult Function( ResetShortcuts value)  resetShortcuts,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadSettings value)  loadSettings,required TResult Function( ToggleTheme value)  toggleTheme,required TResult Function( UpdateChromaKeyColor value)  updateChromaKeyColor,required TResult Function( UpdateEditorBackgroundColor value)  updateEditorBackgroundColor,required TResult Function( ToggleWindowless value)  toggleWindowless,required TResult Function( ToggleLaunchInPreview value)  toggleLaunchInPreview,required TResult Function( UpdateShortcut value)  updateShortcut,required TResult Function( ResetShortcuts value)  resetShortcuts,}){
 final _that = this;
 switch (_that) {
 case LoadSettings():
@@ -91,7 +92,8 @@ return loadSettings(_that);case ToggleTheme():
 return toggleTheme(_that);case UpdateChromaKeyColor():
 return updateChromaKeyColor(_that);case UpdateEditorBackgroundColor():
 return updateEditorBackgroundColor(_that);case ToggleWindowless():
-return toggleWindowless(_that);case UpdateShortcut():
+return toggleWindowless(_that);case ToggleLaunchInPreview():
+return toggleLaunchInPreview(_that);case UpdateShortcut():
 return updateShortcut(_that);case ResetShortcuts():
 return resetShortcuts(_that);case _:
   throw StateError('Unexpected subclass');
@@ -110,7 +112,7 @@ return resetShortcuts(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult? Function( UpdateEditorBackgroundColor value)?  updateEditorBackgroundColor,TResult? Function( ToggleWindowless value)?  toggleWindowless,TResult? Function( UpdateShortcut value)?  updateShortcut,TResult? Function( ResetShortcuts value)?  resetShortcuts,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadSettings value)?  loadSettings,TResult? Function( ToggleTheme value)?  toggleTheme,TResult? Function( UpdateChromaKeyColor value)?  updateChromaKeyColor,TResult? Function( UpdateEditorBackgroundColor value)?  updateEditorBackgroundColor,TResult? Function( ToggleWindowless value)?  toggleWindowless,TResult? Function( ToggleLaunchInPreview value)?  toggleLaunchInPreview,TResult? Function( UpdateShortcut value)?  updateShortcut,TResult? Function( ResetShortcuts value)?  resetShortcuts,}){
 final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
@@ -118,7 +120,8 @@ return loadSettings(_that);case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that);case UpdateEditorBackgroundColor() when updateEditorBackgroundColor != null:
 return updateEditorBackgroundColor(_that);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that);case UpdateShortcut() when updateShortcut != null:
+return toggleWindowless(_that);case ToggleLaunchInPreview() when toggleLaunchInPreview != null:
+return toggleLaunchInPreview(_that);case UpdateShortcut() when updateShortcut != null:
 return updateShortcut(_that);case ResetShortcuts() when resetShortcuts != null:
 return resetShortcuts(_that);case _:
   return null;
@@ -137,14 +140,15 @@ return resetShortcuts(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,TResult Function( int color)?  updateEditorBackgroundColor,TResult Function( bool isWindowless)?  toggleWindowless,TResult Function( String actionId,  ShortcutConfig config)?  updateShortcut,TResult Function()?  resetShortcuts,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadSettings,TResult Function( ThemeMode mode)?  toggleTheme,TResult Function( int color)?  updateChromaKeyColor,TResult Function( int color)?  updateEditorBackgroundColor,TResult Function( bool isWindowless)?  toggleWindowless,TResult Function( bool enabled)?  toggleLaunchInPreview,TResult Function( String actionId,  ShortcutConfig config)?  updateShortcut,TResult Function()?  resetShortcuts,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that.color);case UpdateEditorBackgroundColor() when updateEditorBackgroundColor != null:
 return updateEditorBackgroundColor(_that.color);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that.isWindowless);case UpdateShortcut() when updateShortcut != null:
+return toggleWindowless(_that.isWindowless);case ToggleLaunchInPreview() when toggleLaunchInPreview != null:
+return toggleLaunchInPreview(_that.enabled);case UpdateShortcut() when updateShortcut != null:
 return updateShortcut(_that.actionId,_that.config);case ResetShortcuts() when resetShortcuts != null:
 return resetShortcuts();case _:
   return orElse();
@@ -164,14 +168,15 @@ return resetShortcuts();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,required TResult Function( int color)  updateEditorBackgroundColor,required TResult Function( bool isWindowless)  toggleWindowless,required TResult Function( String actionId,  ShortcutConfig config)  updateShortcut,required TResult Function()  resetShortcuts,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadSettings,required TResult Function( ThemeMode mode)  toggleTheme,required TResult Function( int color)  updateChromaKeyColor,required TResult Function( int color)  updateEditorBackgroundColor,required TResult Function( bool isWindowless)  toggleWindowless,required TResult Function( bool enabled)  toggleLaunchInPreview,required TResult Function( String actionId,  ShortcutConfig config)  updateShortcut,required TResult Function()  resetShortcuts,}) {final _that = this;
 switch (_that) {
 case LoadSettings():
 return loadSettings();case ToggleTheme():
 return toggleTheme(_that.mode);case UpdateChromaKeyColor():
 return updateChromaKeyColor(_that.color);case UpdateEditorBackgroundColor():
 return updateEditorBackgroundColor(_that.color);case ToggleWindowless():
-return toggleWindowless(_that.isWindowless);case UpdateShortcut():
+return toggleWindowless(_that.isWindowless);case ToggleLaunchInPreview():
+return toggleLaunchInPreview(_that.enabled);case UpdateShortcut():
 return updateShortcut(_that.actionId,_that.config);case ResetShortcuts():
 return resetShortcuts();case _:
   throw StateError('Unexpected subclass');
@@ -190,14 +195,15 @@ return resetShortcuts();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,TResult? Function( int color)?  updateEditorBackgroundColor,TResult? Function( bool isWindowless)?  toggleWindowless,TResult? Function( String actionId,  ShortcutConfig config)?  updateShortcut,TResult? Function()?  resetShortcuts,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadSettings,TResult? Function( ThemeMode mode)?  toggleTheme,TResult? Function( int color)?  updateChromaKeyColor,TResult? Function( int color)?  updateEditorBackgroundColor,TResult? Function( bool isWindowless)?  toggleWindowless,TResult? Function( bool enabled)?  toggleLaunchInPreview,TResult? Function( String actionId,  ShortcutConfig config)?  updateShortcut,TResult? Function()?  resetShortcuts,}) {final _that = this;
 switch (_that) {
 case LoadSettings() when loadSettings != null:
 return loadSettings();case ToggleTheme() when toggleTheme != null:
 return toggleTheme(_that.mode);case UpdateChromaKeyColor() when updateChromaKeyColor != null:
 return updateChromaKeyColor(_that.color);case UpdateEditorBackgroundColor() when updateEditorBackgroundColor != null:
 return updateEditorBackgroundColor(_that.color);case ToggleWindowless() when toggleWindowless != null:
-return toggleWindowless(_that.isWindowless);case UpdateShortcut() when updateShortcut != null:
+return toggleWindowless(_that.isWindowless);case ToggleLaunchInPreview() when toggleLaunchInPreview != null:
+return toggleLaunchInPreview(_that.enabled);case UpdateShortcut() when updateShortcut != null:
 return updateShortcut(_that.actionId,_that.config);case ResetShortcuts() when resetShortcuts != null:
 return resetShortcuts();case _:
   return null;
@@ -496,6 +502,72 @@ class _$ToggleWindowlessCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? isWindowless = null,}) {
   return _then(ToggleWindowless(
 null == isWindowless ? _self.isWindowless : isWindowless // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ToggleLaunchInPreview implements SettingsEvent {
+  const ToggleLaunchInPreview(this.enabled);
+  
+
+ final  bool enabled;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ToggleLaunchInPreviewCopyWith<ToggleLaunchInPreview> get copyWith => _$ToggleLaunchInPreviewCopyWithImpl<ToggleLaunchInPreview>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ToggleLaunchInPreview&&(identical(other.enabled, enabled) || other.enabled == enabled));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,enabled);
+
+@override
+String toString() {
+  return 'SettingsEvent.toggleLaunchInPreview(enabled: $enabled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ToggleLaunchInPreviewCopyWith<$Res> implements $SettingsEventCopyWith<$Res> {
+  factory $ToggleLaunchInPreviewCopyWith(ToggleLaunchInPreview value, $Res Function(ToggleLaunchInPreview) _then) = _$ToggleLaunchInPreviewCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled
+});
+
+
+
+
+}
+/// @nodoc
+class _$ToggleLaunchInPreviewCopyWithImpl<$Res>
+    implements $ToggleLaunchInPreviewCopyWith<$Res> {
+  _$ToggleLaunchInPreviewCopyWithImpl(this._self, this._then);
+
+  final ToggleLaunchInPreview _self;
+  final $Res Function(ToggleLaunchInPreview) _then;
+
+/// Create a copy of SettingsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? enabled = null,}) {
+  return _then(ToggleLaunchInPreview(
+null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

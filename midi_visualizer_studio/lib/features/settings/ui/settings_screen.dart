@@ -123,6 +123,22 @@ class _GeneralSettingsSection extends StatelessWidget {
           title: const Text('Licenses'),
           onTap: () => showLicensePage(context: context),
         ),
+        const Divider(),
+        BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            return ListTile(
+              leading: const Icon(Icons.preview),
+              title: const Text('Launch in Preview Mode'),
+              subtitle: const Text('Re-open last project in preview mode on launch'),
+              trailing: Switch(
+                value: state.shouldLaunchInPreview,
+                onChanged: (value) {
+                  context.read<SettingsBloc>().add(SettingsEvent.toggleLaunchInPreview(value));
+                },
+              ),
+            );
+          },
+        ),
       ],
     );
   }

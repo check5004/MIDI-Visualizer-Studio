@@ -9,29 +9,35 @@ import 'package:midi_visualizer_studio/features/poc/bucket_fill/ui/bucket_fill_s
 import 'package:midi_visualizer_studio/features/poc/midi/ui/midi_monitor_screen.dart';
 import 'package:midi_visualizer_studio/features/preview/ui/preview_screen.dart';
 
-final appRouter = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
-    GoRoute(path: '/tutorial', builder: (context, state) => const TutorialScreen()),
-    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-    GoRoute(
-      path: '/editor/:projectId',
-      builder: (context, state) {
-        final projectId = state.pathParameters['projectId']!;
-        final project = state.extra as Project?;
-        return EditorScreen(projectId: projectId, project: project);
-      },
-    ),
-    GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
-    GoRoute(path: '/poc/bucket-fill', builder: (context, state) => const BucketFillScreen()),
-    GoRoute(path: '/poc/midi', builder: (context, state) => const MidiMonitorScreen()),
-    GoRoute(
-      path: '/preview',
-      pageBuilder: (context, state) {
-        final project = state.extra as Project;
-        return NoTransitionPage(child: PreviewScreen(project: project));
-      },
-    ),
-  ],
-);
+GoRouter createAppRouter({String initialLocation = '/', Object? initialExtra}) {
+  return GoRouter(
+    initialLocation: initialLocation,
+    initialExtra: initialExtra,
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
+      GoRoute(path: '/tutorial', builder: (context, state) => const TutorialScreen()),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/editor/:projectId',
+        builder: (context, state) {
+          final projectId = state.pathParameters['projectId']!;
+          final project = state.extra as Project?;
+          return EditorScreen(projectId: projectId, project: project);
+        },
+      ),
+      GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
+      GoRoute(path: '/poc/bucket-fill', builder: (context, state) => const BucketFillScreen()),
+      GoRoute(path: '/poc/midi', builder: (context, state) => const MidiMonitorScreen()),
+      GoRoute(
+        path: '/preview',
+        pageBuilder: (context, state) {
+          final project = state.extra as Project;
+          return NoTransitionPage(child: PreviewScreen(project: project));
+        },
+      ),
+    ],
+  );
+}
+
+// Deprecated: Use createAppRouter instead for dynamic initialization
+final appRouter = createAppRouter();

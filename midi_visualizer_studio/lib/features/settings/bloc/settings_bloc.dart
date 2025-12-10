@@ -13,6 +13,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   static const String _chromaKeyColorKey = 'default_chroma_key_color';
   static const String _editorBackgroundColorKey = 'editor_background_color';
   static const String _windowlessKey = 'is_windowless';
+  static const String _launchInPreviewKey = 'launch_in_preview';
   static const String _shortcutsKey = 'shortcuts_config';
 
   SettingsBloc(this._prefs) : super(const SettingsState()) {
@@ -21,6 +22,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<UpdateChromaKeyColor>(_onUpdateChromaKeyColor);
     on<UpdateEditorBackgroundColor>(_onUpdateEditorBackgroundColor);
     on<ToggleWindowless>(_onToggleWindowless);
+    on<ToggleLaunchInPreview>(_onToggleLaunchInPreview);
     on<UpdateShortcut>(_onUpdateShortcut);
     on<ResetShortcuts>(_onResetShortcuts);
 
@@ -32,6 +34,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     final chromaKeyColor = _prefs.getInt(_chromaKeyColorKey);
     final editorBackgroundColor = _prefs.getInt(_editorBackgroundColorKey);
     final isWindowless = _prefs.getBool(_windowlessKey);
+    final shouldLaunchInPreview = _prefs.getBool(_launchInPreviewKey) ?? true; // Default to true
     final shortcutsJson = _prefs.getString(_shortcutsKey);
 
     var newState = state;
@@ -48,6 +51,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       newState = newState.copyWith(isWindowless: isWindowless);
       _applyWindowStyle(isWindowless);
     }
+    newState = newState.copyWith(shouldLaunchInPreview: shouldLaunchInPreview);
 
     if (shortcutsJson != null) {
       try {
@@ -83,9 +87,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
 
   void _onToggleWindowless(ToggleWindowless event, Emitter<SettingsState> emit) async {
-    await _prefs.setBool(_windowlessKey, event.isWindowless);
     emit(state.copyWith(isWindowless: event.isWindowless));
     _applyWindowStyle(event.isWindowless);
+  }
+
+  void _onToggleLaunchInPreview(ToggleLaunchInPreview event, Emitter<SettingsState> emit) async {
+    await _prefs.setBool(_launchInPreviewKey, event.enabled);
+    emit(state.copyWith(shouldLaunchInPreview: event.enabled));
   }
 
   Future<void> _applyWindowStyle(bool isWindowless) async {

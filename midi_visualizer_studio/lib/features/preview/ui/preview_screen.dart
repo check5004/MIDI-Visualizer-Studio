@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PreviewScreen extends StatefulWidget {
   final Project project;
@@ -70,6 +71,12 @@ class _PreviewScreenState extends State<PreviewScreen> {
     await windowManager.setBackgroundColor(Colors.transparent);
     await windowManager.setAlwaysOnTop(true);
 
+    if (!kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_in_preview_mode', true);
+      await prefs.setString('last_project_id', widget.project.id);
+    }
+
     if (!kIsWeb && Platform.isWindows) {
       await Window.setEffect(effect: WindowEffect.transparent);
     }
@@ -109,9 +116,14 @@ class _PreviewScreenState extends State<PreviewScreen> {
     await windowManager.setTitleBarStyle(TitleBarStyle.normal);
     await windowManager.setAlwaysOnTop(false);
     await windowManager.setAspectRatio(0);
+
+    if (!kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_in_preview_mode', false);
+    }
   }
 
-  Future<void> _handleClose() async {
+  Future<void> _handleExitFullscreen() async {
     if (!kIsWeb) {
       // Save current window size
       final size = await windowManager.getSize();
@@ -139,6 +151,10 @@ class _PreviewScreenState extends State<PreviewScreen> {
         }
       }
     }
+  }
+
+  Future<void> _handleCloseApp() async {
+    await windowManager.close();
   }
 
   @override
@@ -237,10 +253,23 @@ class _PreviewScreenState extends State<PreviewScreen> {
                               const SizedBox(width: 8),
                               FloatingActionButton(
                                 mini: true,
+                                heroTag: 'exit_fullscreen',
+                                backgroundColor: Colors.lightBlue,
+                                tooltip: 'Exit Fullscreen',
+                                child: const Icon(Icons.fullscreen_exit, color: Colors.white),
+                                onPressed: () {
+                                  _handleExitFullscreen();
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              FloatingActionButton(
+                                mini: true,
+                                heroTag: 'close_app',
                                 backgroundColor: Colors.red,
+                                tooltip: 'Close App',
                                 child: const Icon(Icons.close, color: Colors.white),
                                 onPressed: () {
-                                  _handleClose();
+                                  _handleCloseApp();
                                 },
                               ),
                             ],
