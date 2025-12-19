@@ -259,6 +259,14 @@ class _PreviewScreenState extends State<PreviewScreen> {
                     ),
                   ),
                 ),
+                // Window Drag Layer
+                Positioned.fill(
+                  child: GestureDetector(
+                    onPanStart: (details) => windowManager.startDragging(),
+                    behavior: HitTestBehavior.translucent,
+                    child: const SizedBox.expand(),
+                  ),
+                ),
                 // Hover Controls
                 AnimatedOpacity(
                   opacity: _isHovering ? 1.0 : 0.0,
@@ -273,19 +281,6 @@ class _PreviewScreenState extends State<PreviewScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Drag Handle (Window Mover)
-                              GestureDetector(
-                                onPanStart: (details) => windowManager.startDragging(),
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.5),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(Icons.drag_handle, color: Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
                               FloatingActionButton(
                                 mini: true,
                                 heroTag: 'midi_settings',
