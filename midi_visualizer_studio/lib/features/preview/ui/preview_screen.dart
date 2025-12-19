@@ -16,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:midi_visualizer_studio/features/midi/bloc/midi_bloc.dart';
 import 'package:midi_visualizer_studio/features/editor/bloc/editor_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:midi_visualizer_studio/features/midi/ui/dialogs/midi_settings_dialog.dart';
 
 class PreviewScreen extends StatefulWidget {
   final Project project;
@@ -155,6 +156,38 @@ class _PreviewScreenState extends State<PreviewScreen> {
     }
   }
 
+  Future<void> _showMidiSettings() async {
+    // Current window size
+    final currentSize = await windowManager.getSize();
+    // Required size for dialog (with some padding)
+    const minWidth = 650.0;
+    const minHeight = 600.0;
+
+    bool needsResize = false;
+    if (currentSize.width < minWidth || currentSize.height < minHeight) {
+      needsResize = true;
+      await windowManager.setSize(
+        Size(
+          currentSize.width < minWidth ? minWidth : currentSize.width,
+          currentSize.height < minHeight ? minHeight : currentSize.height,
+        ),
+        animate: true,
+      );
+      // Wait for resize animation to complete (OS dependent, safer to wait plenty)
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    if (!mounted) return;
+
+    await showDialog(context: context, builder: (context) => const MidiSettingsDialog());
+
+    if (needsResize) {
+      // Wait for dialog exit animation to complete before shrinking
+      await Future.delayed(const Duration(milliseconds: 500));
+      await windowManager.setSize(currentSize, animate: true);
+    }
+  }
+
   Future<void> _handleCloseApp() async {
     await windowManager.close();
   }
@@ -251,6 +284,17 @@ class _PreviewScreenState extends State<PreviewScreen> {
                                   ),
                                   child: const Icon(Icons.drag_handle, color: Colors.white),
                                 ),
+                              ),
+                              const SizedBox(width: 8),
+                              FloatingActionButton(
+                                mini: true,
+                                heroTag: 'midi_settings',
+                                backgroundColor: Colors.white,
+                                tooltip: AppLocalizations.of(context)!.midiSettings,
+                                onPressed: () {
+                                  _showMidiSettings();
+                                },
+                                child: const Icon(Icons.settings_input_component, color: Colors.black),
                               ),
                               const SizedBox(width: 8),
                               FloatingActionButton(
